@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { HeaderComponent, FooterComponent } from "@shared/components";
 
 @Component({
-  selector: 'app-not-found',
-  imports: [],
-  templateUrl: './not-found.component.html',
-  styleUrl: './not-found.component.scss',
+  selector: 'app-error-layout',
+  imports: [HeaderComponent, FooterComponent],
+  templateUrl: './error-layout.component.html',
+  styleUrl: './error-layout.component.scss',
 })
-export class NotFoundComponent {
+export class ErrorLayoutComponent {
   constructor(private router: Router) {}
 
   navigateToHome(): void {
