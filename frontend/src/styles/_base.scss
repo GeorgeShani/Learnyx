@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+input,
+select,
+button,
+textarea {
+  font-family: "Outfit", sans-serif;
+}
+
+// Logo
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+
+  .logo-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .icon-book-open {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: white;
+    }
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333333;
+  }
+}

@@ -1,0 +1,260 @@
+@use "../../../../styles/variables" as *;
+
+// Header
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+
+  .header-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+
+    @media (min-width: 640px) {
+      padding: 0 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      padding: 0 2rem;
+    }
+  }
+
+  .header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 4rem;
+  }
+}
+
+// Desktop Navigation
+.desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 2rem;
+
+  @media (min-width: 1200px) {
+    display: flex;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: $muted-foreground;
+    font-weight: 500;
+
+    i {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    &:hover {
+      color: #1f2937;
+      background-color: $muted-bg;
+    }
+
+    &.active {
+      background: $primary-gradient;
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Navigation Actions
+.nav-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+// Desktop Actions
+.desktop-actions {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+
+  @media (min-width: 1200px) {
+    display: flex;
+  }
+
+  @media (min-width: 768px) and (max-width: 1199px) {
+    display: flex;
+  }
+}
+
+// Search Container
+.search-container {
+  position: relative;
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    color: $muted-foreground;
+  }
+
+  .search-input {
+    padding-left: 2.5rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    width: 16rem;
+    background-color: rgba(249, 250, 251, 0.5);
+    border: 1px solid $border-color;
+    border-radius: 0.5rem;
+    outline: none;
+
+    &:focus {
+      border-color: transparent;
+      box-shadow: 0 0 0 2px $primary-color;
+    }
+
+    @media (max-width: 767px) {
+      width: 100%;
+    }
+  }
+}
+
+// Buttons
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.btn-outline {
+    color: #374151;
+    background-color: transparent;
+    border: 1px solid $border-color;
+
+    &:hover {
+      background-color: $muted-bg;
+    }
+  }
+
+  &.btn-primary {
+    background: $primary-gradient;
+    color: white;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
+
+// Mobile Menu Button
+.mobile-menu-btn {
+  display: block;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  @media (min-width: 1200px) {
+    display: none;
+  }
+
+  &:hover {
+    background-color: $muted-bg;
+  }
+
+  i {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+// Mobile Navigation
+.mobile-nav {
+  display: block;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid $border-color;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+
+  @media (min-width: 1200px) {
+    display: none;
+  }
+
+  &.open {
+    max-height: 500px;
+  }
+
+  .mobile-nav-content {
+    padding: 0.5rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: $muted-foreground;
+    font-weight: 500;
+
+    i {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    &:hover {
+      color: #1f2937;
+      background-color: $muted-bg;
+    }
+
+    &.active {
+      background: $primary-gradient;
+      color: white;
+    }
+  }
+}
+
+// Mobile Actions
+.mobile-actions {
+  padding-top: 1rem;
+  border-top: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (min-width: 768px) and (max-width: 1199px) {
+    display: none;
+  }
+
+  .mobile-buttons {
+    display: flex;
+    gap: 0.75rem;
+
+    .btn {
+      flex: 1;
+    }
+  }
+}

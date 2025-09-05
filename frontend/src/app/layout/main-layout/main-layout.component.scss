@@ -1,0 +1,14 @@
+@use "../../../styles/variables" as *;
+
+// Layout Container
+.layout-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $background-color;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
