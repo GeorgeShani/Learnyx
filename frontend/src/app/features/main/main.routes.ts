@@ -26,11 +26,5 @@ export const routes: Routes = [
       import('./views/about/about.component').then(
         (m) => m.AboutComponent
       ),
-  },
-  {
-    path: '**',
-    loadComponent: () => import('./views/not-found/not-found.component').then(
-      (m) => m.NotFoundComponent
-    )
-  },
+  }
 ];
