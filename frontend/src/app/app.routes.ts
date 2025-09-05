@@ -11,4 +11,8 @@ export const routes: Routes = [
     loadComponent: () => import("./layout/auth-layout/auth-layout.component").then(m => m.AuthLayoutComponent),
     loadChildren: () => import("./features/auth/auth.routes").then(m => m.routes)
   },
+  {
+    path: '**',
+    loadComponent: () => import("./layout/error-layout/error-layout.component").then(m => m.ErrorLayoutComponent)
+  }
 ];

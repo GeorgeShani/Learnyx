@@ -1,1 +1,15 @@
-<router-outlet />
+<div class="layout-container">
+  <div class="logo-section">
+    <a routerLink="/" class="logo-link">
+      <img src="learnyx.svg" alt="Learnyx Logo" class="logo-icon">
+      <span class="logo-text">Learnyx</span>
+    </a>
+  </div>
+  <router-outlet />
+  <div class="help-section">
+    <a routerLink="/help" class="help-link">
+      Need help? Contact Support
+    </a>
+  </div>
+</div>
+
