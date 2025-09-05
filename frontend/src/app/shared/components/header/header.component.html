@@ -71,8 +71,8 @@
               class="search-input" 
             />
           </div>
-          <button class="btn btn-outline" routerLink="/login">Log In</button>
-          <button class="btn btn-primary" routerLink="/register">Sign Up</button>
+          <button class="btn btn-outline" (click)="navigate('/auth/log-in')">Log In</button>
+          <button class="btn btn-primary" (click)="navigate('/auth/sign-up')">Sign Up</button>
         </div>
 
         <!-- Mobile menu button -->
@@ -162,8 +162,8 @@
           />
         </div>
         <div class="mobile-buttons">
-          <button class="btn btn-outline" routerLink="/login">Log In</button>
-          <button class="btn btn-primary" routerLink="/register">Sign Up</button>
+          <button class="btn btn-outline" (click)="navigate('/auth/log-in')">Log In</button>
+          <button class="btn btn-primary" (click)="navigate('/auth/sign-up')">Sign Up</button>
         </div>
       </div>
     </div>

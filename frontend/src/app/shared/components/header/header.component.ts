@@ -43,6 +43,5 @@ export class HeaderComponent {
 
   navigate(path: string): void {
     this.router.navigate([path]);
-    this.closeMobileMenu();
   }
 }
