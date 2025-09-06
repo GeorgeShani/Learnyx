@@ -65,26 +65,44 @@
 
       .input-wrapper {
         position: relative;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        padding: 12px 8px;
-        border: 1px solid hsl(215 20.2% 65.1%);
-        border-radius: 12px;
-        gap: 8px;
 
         &.checkbox {
           padding: 0;
+          width: 100%;
+          height: 100%;
           border: none;
-          border-radius: none;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        img {
+          position: absolute;
+          left: 0.75rem;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 1rem;
+          height: 1rem;
         }
 
         input {
           background: transparent;
           font-size: 16px;
+          width: 100%;
           height: 100%;
-          border: none;
+          display: flex;
+          align-items: center;
+          padding: 12px 32px 12px 36px;
+          border: 1px solid hsl(215 20.2% 65.1%);
+          border-radius: 12px;
+          transition: all 0.2s ease-in-out;
           outline: none;
+          gap: 8px;
+
+          &:focus {
+            border-color: hsl(195 84% 65% / 0.9);
+            box-shadow: 0 0 0 2px hsl(195 84% 65% / 0.7);
+          }
           
           &:not([type="checkbox"]) {
             width: 100%;
@@ -98,17 +116,24 @@
         }
 
         .show-password-btn {
+          position: absolute;
+          top: 50%;
+          right: 1.25rem;
+          transform: translateY(-50%);
           background: transparent;
           border: none;
-        }
+          width: 1rem; 
+          height: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
-        select {
-          width: 100%;
-          height: 100%;
-          border: none;
-          outline: none;
-          font-size: 16px;
-          background: transparent;
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+          }
         }
       }
 
