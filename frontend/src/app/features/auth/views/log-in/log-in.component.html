@@ -1,1 +1,67 @@
-<p>log-in works!</p>
+<section class="login-card">
+  <div class="card-header">
+    <h1 class="card-title">Welcome Back</h1>
+    <p class="card-description">Sign in to continue your learning journey</p>
+  </div>
+  <form class="login-form" [formGroup]="loginForm">
+    <fieldset class="form-group">
+      <label for="email">Email Address</label>
+      <div class="input-wrapper">
+        <img src="assets/icons/mail.svg" alt="">
+        <input formControlName="email" type="email" id="email" placeholder="email@example.com" required />
+      </div>
+      <p *ngIf="hasEmailError()" class="error-message">
+        {{ getEmailErrorMessage() }}
+      </p>
+    </fieldset>
+    <fieldset class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <img src="assets/icons/lock.svg" alt="Lock">
+        <input [type]="showPassword ? 'text' : 'password'" formControlName="password" id="password" placeholder="********" required />
+        <button type="button" class="show-password-btn" (click)="togglePassword()">
+          <ng-container *ngIf="!showPassword">
+            <img src="assets/icons/eye.svg" alt="Eye">
+          </ng-container>
+          <ng-container *ngIf="showPassword">
+            <img src="assets/icons/eye-off.svg" alt="Eye Off">
+          </ng-container>
+        </button>
+      </div>
+      <p *ngIf="hasPasswordError()" class="error-message">
+        {{ getPasswordErrorMessage() }}
+      </p>
+    </fieldset>
+    <fieldset class="form-group">
+      <div class="input-wrapper checkbox">
+        <input type="checkbox" name="rememberMe" id="rememberMe" formControlName="rememberMe">
+        <label for="rememberMe">Remember Me</label>
+      </div>
+      <a href="/auth/forgot-password" class="forgot-pass-link">
+        Forgot Password?
+      </a>
+    </fieldset>
+    <button type="submit" class="log-in-btn" [disabled]="loginForm.invalid">Log In</button>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">Or continue with</span>
+      <div class="divider-line"></div>
+    </div>
+    <div class="social-buttons">
+      <button type="button" class="social-button">
+        <img src="assets/icons/google.svg" alt="Google">
+        Google
+      </button>
+      <button type="button" class="social-button">
+        <img src="assets/icons/facebook.svg" alt="Facebook">
+        Facebook
+      </button>
+    </div>
+    <div class="signup-section">
+      <p class="signup-text">
+        Don't have an account?
+        <a routerLink="/auth/sign-up" class="signup-link">Sign Up Now</a>
+      </p>
+    </div>
+  </form>
+</section>
