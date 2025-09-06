@@ -1,1 +1,223 @@
-<p>home works!</p>
+<div class="landing-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-container">
+      <div class="hero-grid">
+        <!-- Hero Content -->
+        <div class="hero-content">
+          <div class="hero-text">
+            <div class="hero-badge">
+              🚀 New: AI-Powered Learning Paths
+            </div>
+            <h1 class="hero-title">
+              Master New Skills with 
+              <span class="gradient-text">Expert Instructors</span>
+            </h1>
+            <p class="hero-description">
+              Join thousands of learners worldwide and unlock your potential with our 
+              comprehensive online courses taught by industry professionals.
+            </p>
+          </div>
+
+          <div class="hero-buttons">
+            <button class="btn-primary" (click)="navigateTo('/courses')">
+              Start Learning Today
+              <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+            <button class="btn-outline" (click)="navigateTo('/demo')">
+              <svg class="btn-icon-left" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="10,8 16,12 10,16 10,8"/>
+              </svg>
+              Watch Demo
+            </button>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats-grid">
+            <div class="stat-item" *ngFor="let stat of stats">
+              <div class="stat-icon">
+                <img [src]="stat.iconPath" [alt]="stat.label">
+              </div>
+              <div class="stat-value">{{stat.value}}</div>
+              <div class="stat-label">{{stat.label}}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Image -->
+        <div class="hero-image-container">
+          <div class="hero-image-wrapper">
+            <img
+              src="assets/images/hero-learning.jpg"
+              alt="Students learning online"
+              class="hero-image"
+            />
+            <div class="hero-image-overlay"></div>
+          </div>
+          
+          <!-- Floating Cards -->
+          <div class="floating-card floating-card-top">
+            <div class="floating-card-content">
+              <div class="floating-card-icon rating-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
+                </svg>
+              </div>
+              <div>
+                <div class="floating-card-title">4.9/5 Rating</div>
+                <div class="floating-card-subtitle">50K+ Reviews</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="floating-card floating-card-bottom">
+            <div class="floating-card-content">
+              <div class="floating-card-icon award-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="7"/>
+                  <polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88"/>
+                </svg>
+              </div>
+              <div>
+                <div class="floating-card-title">Certified</div>
+                <div class="floating-card-subtitle">Industry Standards</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="features-container">
+      <div class="features-header">
+        <h2 class="features-title">
+          Why Choose <span class="gradient-text">Learnyx</span>?
+        </h2>
+        <p class="features-description">
+          Experience the future of online learning with our cutting-edge platform 
+          designed for modern learners and expert instructors.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card" *ngFor="let feature of features">
+          <div class="feature-content">
+            <div class="feature-icon">
+              <img [src]="feature.iconPath" [alt]="feature.title">
+            </div>
+            <h3 class="feature-title">{{feature.title}}</h3>
+            <p class="feature-description">{{feature.description}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Courses -->
+  <section class="courses-section">
+    <div class="courses-container">
+      <div class="courses-header">
+        <div>
+          <h2 class="courses-title">
+            Popular <span class="gradient-text">Courses</span>
+          </h2>
+          <p class="courses-description">
+            Discover our most loved courses by students worldwide
+          </p>
+        </div>
+        <button class="btn-outline courses-view-all-desktop" (click)="navigateTo('/courses')">
+          View All Courses
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+      <div class="courses-grid">
+        <div class="course-card" *ngFor="let course of popularCourses" (click)="navigateTo('/courses/' + course.id)">
+          <div class="course-image-container">
+            <img
+              [src]="course.image"
+              [alt]="course.title"
+              class="course-image"
+            />
+            <div class="course-level-badge">
+              {{course.level}}
+            </div>
+            <div class="course-price-badge">
+              ${{course.price}}
+            </div>
+          </div>
+          
+          <div class="course-content">
+            <div class="course-info">
+              <h3 class="course-title">{{course.title}}</h3>
+              <p class="course-instructor">by {{course.instructor}}</p>
+              
+              <div class="course-meta">
+                <div class="course-rating">
+                  <svg class="rating-star" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
+                  </svg>
+                  <span class="rating-value">{{course.rating}}</span>
+                  <span class="rating-count">({{course.students | number}})</span>
+                </div>
+                
+                <div class="course-duration">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                  </svg>
+                  <span>{{course.duration}}</span>
+                </div>
+              </div>
+              <button class="btn-primary course-enroll-btn">
+                Enroll Now
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="courses-view-all-mobile">
+        <button class="btn-outline" (click)="navigateTo('/courses')">
+          View All Courses
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-container">
+      <h2 class="cta-title">
+        Ready to Start Your Learning Journey?
+      </h2>
+      <p class="cta-description">
+        Join thousands of successful learners who have transformed their careers 
+        with our expert-led courses and personalized learning paths.
+      </p>
+      
+      <div class="cta-buttons">
+        <button class="btn-secondary" (click)="navigateTo('/register')">
+          Get Started Free
+          <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
+        <button class="btn-outline-white" (click)="navigateTo('/contact')">
+          Contact Sales
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
