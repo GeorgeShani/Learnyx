@@ -99,8 +99,7 @@
           gap: 8px;
 
           &:focus {
-            border-color: hsl(195 84% 65% / 0.9);
-            box-shadow: 0 0 0 2px hsl(195 84% 65% / 0.7);
+            box-shadow: 0 0 0 2px hsl(195, 84%, 65%);
           }
           
           &:not([type="checkbox"]) {
@@ -148,6 +147,10 @@
           transition: all 0.2s ease-in-out;
           outline: none;
           gap: 8px;
+
+          &:focus {
+            box-shadow: 0 0 0 2px hsl(195, 84%, 65%);
+          }
         }
       }
 
