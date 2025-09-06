@@ -1,1 +1,256 @@
-<p>courses works!</p>
+<div class="course-catalog">
+  <div class="header-section">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="main-title">
+          Discover Your Next
+          <span class="gradient-text">Learning Adventure</span>
+        </h1>
+        <p class="subtitle">
+          Explore thousands of courses from expert instructors and master
+          new skills at your own pace
+        </p>
+      </div>
+      <div class="search-container">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search for courses, instructors, or topics..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="container main-content">
+    <div class="content-wrapper">
+      <div class="sidebar" [class.mobile-hidden]="!showFilters">
+        <div class="filters-sticky">
+          <div class="filter-header">
+            <h2 class="filter-title">Filters</h2>
+            <button class="clear-button" (click)="clearAllFilters()">
+              Clear All
+            </button>
+          </div>
+          <div class="filter-card">
+            <div class="filter-card-content">
+              <h3 class="filter-section-title">Categories</h3>
+              <div class="categories-list">
+                <label 
+                  *ngFor="let category of categories" 
+                  class="category-item"
+                >
+                  <input
+                    type="checkbox"
+                    [checked]="selectedCategory === category.name"
+                    (change)="onCategoryChange(category.name, $event)"
+                    class="category-checkbox"
+                  />
+                  <svg class="category-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <ng-container [ngSwitch]="category.id">
+                      <g *ngSwitchCase="'web-dev'">
+                        <path d="m18 16 4-4-4-4"/>
+                        <path d="m6 8-4 4 4 4"/>
+                        <path d="m14.5 4-5 16"/>
+                      </g>
+                      <g *ngSwitchCase="'design'">
+                        <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/>
+                        <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+                        <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+                        <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+                        <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+                      </g>
+                      <g *ngSwitchCase="'business'">
+                        <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        <rect width="20" height="14" x="2" y="6" rx="2"></rect>
+                      </g>
+                      <g *ngSwitchCase="'marketing'">
+                        <polyline points="22,7 13.5,15.5 8.5,10.5 2,17"></polyline>
+                        <polyline points="16,7 22,7 22,13"></polyline>
+                      </g>
+                      <g *ngSwitchCase="'photography'">
+                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+                        <circle cx="12" cy="13" r="3"></circle>
+                      </g>
+                      <g *ngSwitchCase="'music'">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                      </g>
+                      <g *ngSwitchCase="'health'">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"></path>
+                      </g>
+                      <g *ngSwitchDefault>
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                        <path d="M2 12h20"></path>
+                      </g>
+                    </ng-container>
+                  </svg>
+                  <span class="category-name">{{ category.name }}</span>
+                  <span class="category-count">{{ category.count }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="filter-card">
+            <div class="filter-card-content">
+              <h3 class="filter-section-title">Level</h3>
+              <select [(ngModel)]="selectedLevel" (change)="onLevelChange()" class="filter-select">
+                <option value="">All Levels</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+                <option value="All Levels">All Levels</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-card">
+            <div class="filter-card-content">
+              <h3 class="filter-section-title">Price</h3>
+              <select [(ngModel)]="selectedPrice" (change)="onPriceChange()" class="filter-select">
+                <option value="">All Prices</option>
+                <option value="free">Free</option>
+                <option value="under-50">Under $50</option>
+                <option value="50-100">$50 - $100</option>
+                <option value="over-100">Over $100</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="main-section">
+        <div class="results-header">
+          <div class="results-info">
+            <h2 class="results-title">{{ filteredCourses.length }} courses found</h2>
+            <p class="results-subtitle" *ngIf="searchQuery">
+              Results for "{{ searchQuery }}"
+            </p>
+          </div>
+          <div class="results-controls">
+            <button class="filter-toggle-btn" (click)="toggleFilters()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="4" x2="4" y1="21" y2="14"></line>
+                <line x1="4" x2="4" y1="10" y2="3"></line>
+                <line x1="12" x2="12" y1="21" y2="12"></line>
+                <line x1="12" x2="12" y1="8" y2="3"></line>
+                <line x1="20" x2="20" y1="21" y2="16"></line>
+                <line x1="20" x2="20" y1="12" y2="3"></line>
+                <line x1="1" x2="7" y1="14" y2="14"></line>
+                <line x1="9" x2="15" y1="8" y2="8"></line>
+                <line x1="17" x2="23" y1="16" y2="16"></line>
+              </svg>
+              Filters
+            </button>
+            <select [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+              <option value="popular">Most Popular</option>
+              <option value="newest">Newest</option>
+              <option value="rating">Highest Rated</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="course-grid">
+          <div *ngFor="let course of filteredCourses" class="course-card">
+            <div class="course-image-container">
+              <img [src]="course.image" [alt]="course.title" class="course-image" />
+              <div class="course-badges">
+                <span *ngIf="course.bestseller" class="badge bestseller-badge">
+                  Bestseller
+                </span>
+                <span class="badge level-badge">{{ course.level }}</span>
+              </div>
+              <div class="course-price">
+                <div class="price-container">
+                  <span class="current-price">${{ course.price }}</span>
+                  <span *ngIf="course.originalPrice > course.price" class="original-price">
+                    ${{ course.originalPrice }}
+                  </span>
+                </div>
+              </div>
+              <div class="play-overlay">
+                <div class="play-button">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="10,8 16,12 10,16 10,8"></polygon>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="course-content">
+              <div class="course-info">
+                <h3 class="course-title">{{ course.title }}</h3>
+                <p class="course-instructor">by {{ course.instructor }}</p>
+              </div>
+              <div class="course-tags">
+                <span *ngFor="let tag of course.tags.slice(0, 3)" class="tag">
+                  {{ tag }}
+                </span>
+                <span *ngIf="course.tags.length > 3" class="tag">
+                  +{{ course.tags.length - 3 }}
+                </span>
+              </div>
+              <div class="course-stats">
+                <div class="rating-section">
+                  <svg class="star-icon" width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2">
+                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"></polygon>
+                  </svg>
+                  <span class="rating-value">{{ course.rating }}</span>
+                  <span class="rating-count">({{ course.reviewCount.toLocaleString() }})</span>
+                </div>
+                <div class="course-meta">
+                  <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12,6 12,12 16,14"></polyline>
+                    </svg>
+                    <span>{{ course.duration }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>{{ (course.students / 1000).toFixed(0) }}k</span>
+                  </div>
+                </div>
+              </div>
+              <button class="cta-button" (click)="viewCourseDetails(course.id)">
+                View Details
+              </button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="filteredCourses.length > 0" class="load-more-section">
+          <button class="load-more-button" (click)="loadMoreCourses()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            Load More Courses
+          </button>
+        </div>
+        <div *ngIf="filteredCourses.length === 0" class="no-results">
+          <div class="no-results-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search">
+              <path d="m21 21-4.34-4.34"/>
+              <circle cx="11" cy="11" r="8"/>
+            </svg>
+          </div>
+          <h3 class="no-results-title">No courses found</h3>
+          <p class="no-results-text">
+            Try adjusting your search criteria or browse our popular
+            categories to discover amazing courses.
+          </p>
+          <button class="clear-filters-button" (click)="clearAllFilters()">
+            Clear All Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
