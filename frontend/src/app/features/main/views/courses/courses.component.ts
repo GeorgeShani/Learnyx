@@ -41,6 +41,7 @@ export class CoursesComponent {
   selectedPrice = '';
   sortBy = 'popular';
   showFilters = false;
+  selectedCategories: string[] = [];
   filteredCourses: Course[] = [];
 
   categories: Category[] = [
@@ -180,7 +181,13 @@ export class CoursesComponent {
   }
 
   onCategoryChange(categoryName: string, event: any): void {
-    this.selectedCategory = event.target.checked ? categoryName : '';
+    if (event.target.checked) {
+      this.selectedCategories.push(categoryName);
+    } else {
+      this.selectedCategories = this.selectedCategories.filter(
+        (c) => c !== categoryName
+      );
+    }
     this.filterCourses();
   }
 
@@ -220,7 +227,9 @@ export class CoursesComponent {
         );
 
       const matchesCategory =
-        !this.selectedCategory || course.category === this.selectedCategory;
+        this.selectedCategories.length === 0 ||
+        this.selectedCategories.includes(course.category);
+
       const matchesLevel =
         !this.selectedLevel || course.level === this.selectedLevel;
       const matchesPrice =
