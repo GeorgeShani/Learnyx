@@ -1,0 +1,196 @@
+<div class="help-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Help Center</h1>
+        <p class="hero-description">
+          Find answers to common questions, browse help articles, or get in touch with our support team.
+        </p>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="search-wrapper">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search for help articles..."
+              [(ngModel)]="searchTerm"
+              class="search-input"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="main-content">
+    <div class="container">
+      <div class="content-grid">
+        <!-- Sidebar Categories -->
+        <div class="sidebar">
+          <div class="categories-card">
+            <div class="card-header">
+              <h3 class="card-title">Browse by Category</h3>
+            </div>
+            <div class="card-content">
+              <button
+                *ngFor="let category of categories"
+                (click)="setSelectedCategory(category.id)"
+                [class]="getCategoryButtonClass(category.id)"
+              >
+                <div class="category-info">
+                  <svg class="category-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path [attr.d]="getCategoryIconPath(category.icon)"></path>
+                  </svg>
+                  <span class="category-name">{{ category.name }}</span>
+                </div>
+                <span class="category-count">{{ category.count }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Content -->
+        <div class="faq-content">
+          <!-- Popular Questions -->
+          <div *ngIf="selectedCategory === 'all' && searchTerm === ''" class="popular-questions-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <span class="star-icon">⭐</span>
+                Popular Questions
+              </h3>
+            </div>
+            <div class="card-content">
+              <div class="popular-grid">
+                <button
+                  *ngFor="let faq of getPopularFaqs()"
+                  (click)="setSelectedCategory(faq.category)"
+                  class="popular-question-item"
+                >
+                  <h4 class="popular-question-title">{{ faq.question }}</h4>
+                  <p class="popular-question-answer">{{ faq.answer }}</p>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Results -->
+          <div class="faq-results-card">
+            <div class="card-header">
+              <h3 class="card-title">{{ getFaqResultsTitle() }}</h3>
+            </div>
+            <div class="card-content">
+              <div *ngIf="getFilteredFaqs().length === 0" class="no-results">
+                <div class="no-results-icon">🔍</div>
+                <h3 class="no-results-title">No results found</h3>
+                <p class="no-results-description">Try adjusting your search terms or browse by category.</p>
+              </div>
+              <div *ngIf="getFilteredFaqs().length > 0" class="faq-list">
+                <div *ngFor="let faq of getFilteredFaqs()" class="faq-item">
+                  <button
+                    (click)="toggleFaq(faq.id)"
+                    class="faq-trigger"
+                  >
+                    <div class="faq-trigger-content">
+                      <span *ngIf="faq.popular" class="popular-badge">Popular</span>
+                      <h4 class="faq-question">{{ faq.question }}</h4>
+                    </div>
+                    <svg 
+                      class="faq-chevron"
+                      [class.rotated]="openFaqs.has(faq.id)"
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      stroke-width="2"
+                    >
+                      <polyline points="6,9 12,15 18,9"></polyline>
+                    </svg>
+                  </button>
+                  <div *ngIf="openFaqs.has(faq.id)" class="faq-content">
+                    <p class="faq-answer">{{ faq.answer }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Support -->
+  <section class="contact-support">
+    <div class="container">
+      <div class="contact-header">
+        <h2 class="contact-title">Still Need Help?</h2>
+        <p class="contact-description">
+          Can't find what you're looking for? Our support team is here to help you get back on track.
+        </p>
+      </div>
+      
+      <div class="contact-grid">
+        <div *ngFor="let option of contactOptions" class="contact-card">
+          <div class="contact-card-header">
+            <div class="contact-icon-wrapper">
+              <svg class="contact-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path [attr.d]="getContactIconPath(option.icon)"></path>
+              </svg>
+            </div>
+            <h3 class="contact-card-title">{{ option.title }}</h3>
+            <p class="contact-card-description">{{ option.description }}</p>
+          </div>
+          <div class="contact-card-content">
+            <p class="contact-availability">{{ option.availability }}</p>
+            <button class="contact-button">{{ option.action }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Resources -->
+  <section class="resources-section">
+    <div class="container">
+      <div class="resources-header">
+        <h2 class="resources-title">Additional Resources</h2>
+        <p class="resources-description">
+          Explore our comprehensive guides and tutorials to get the most out of Learnyx.
+        </p>
+      </div>
+      
+      <div class="resources-grid">
+        <div *ngFor="let resource of resources" class="resource-card">
+          <div class="resource-content">
+            <div class="resource-header">
+              <div class="resource-icon-wrapper">
+                <svg class="resource-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path [attr.d]="getResourceIconPath(resource.icon)"></path>
+                </svg>
+              </div>
+              <div class="resource-info">
+                <h3 class="resource-title">{{ resource.title }}</h3>
+                <p class="resource-description">{{ resource.description }}</p>
+              </div>
+            </div>
+            <button class="resource-button">
+              <svg class="external-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15,3 21,3 21,9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              View Resource
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
