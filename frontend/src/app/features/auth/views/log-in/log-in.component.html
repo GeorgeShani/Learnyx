@@ -3,7 +3,7 @@
     <h1 class="card-title">Welcome Back</h1>
     <p class="card-description">Sign in to continue your learning journey</p>
   </div>
-  <form class="login-form" [formGroup]="loginForm">
+  <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <fieldset class="form-group">
       <label for="email">Email Address</label>
       <div class="input-wrapper">
@@ -48,11 +48,11 @@
       <div class="divider-line"></div>
     </div>
     <div class="social-buttons">
-      <button type="button" class="social-button">
+      <button type="button" class="social-button" (click)="onSocialLogin('google')">
         <img src="assets/icons/google.svg" alt="Google">
         Google
       </button>
-      <button type="button" class="social-button">
+      <button type="button" class="social-button" (click)="onSocialLogin('facebook')">
         <img src="assets/icons/facebook.svg" alt="Facebook">
         Facebook
       </button>
