@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 interface Teacher {
   id: number;
@@ -134,7 +135,7 @@ export class TeachersComponent {
     'Cybersecurity',
   ];
 
-  constructor() {
+  constructor(private router: Router) {
     this.filterTeachers();
   }
 
@@ -144,6 +145,10 @@ export class TeachersComponent {
 
   onSubjectChange(): void {
     this.filterTeachers();
+  }
+
+  navigate(route: string): void {
+    this.router.navigate([route]);
   }
 
   private filterTeachers(): void {
