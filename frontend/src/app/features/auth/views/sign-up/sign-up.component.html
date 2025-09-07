@@ -97,7 +97,12 @@
         <label for="subscribeNewsletter">Send me updates about new courses and features</label>
       </div>
     </fieldset>
-    <button type="submit" class="sign-up-btn" [disabled]="!registerForm.valid">
+    <button 
+      type="submit" 
+      class="sign-up-btn" 
+      [disabled]="!registerForm.valid" 
+      [class.disabled]="registerForm.invalid"
+    >
       Create Account
     </button>
     <div class="divider">

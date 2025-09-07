@@ -41,7 +41,14 @@
         Forgot Password?
       </a>
     </fieldset>
-    <button type="submit" class="log-in-btn" [disabled]="loginForm.invalid">Log In</button>
+    <button 
+      type="submit" 
+      class="log-in-btn" 
+      [disabled]="loginForm.invalid" 
+      [class.disabled]="loginForm.invalid"
+    >
+      Log In
+    </button>
     <div class="divider">
       <div class="divider-line"></div>
       <span class="divider-text">Or continue with</span>

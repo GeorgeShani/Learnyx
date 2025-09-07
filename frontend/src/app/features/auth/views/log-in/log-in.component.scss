@@ -165,6 +165,10 @@
       height: 3rem;
       color: hsl(0 0% 100%);
 
+      &.disabled {
+        cursor: not-allowed;
+      }
+
       &:hover {
         opacity: 0.8;
       }
