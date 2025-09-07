@@ -1,1 +1,151 @@
-<p>teachers works!</p>
+<div class="teachers-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Meet Our Expert Instructors
+        </h1>
+        <p class="hero-description">
+          Learn from industry professionals and academics who are passionate about sharing their knowledge and helping you succeed.
+        </p>
+      </div>
+      
+      <!-- Search and Filters -->
+      <div class="search-filters">
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search instructors or subjects..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+              class="search-input"
+            />
+          </div>
+          <div class="filter-controls">
+            <select [(ngModel)]="selectedSubject" (change)="onSubjectChange()" class="subject-select">
+              <option *ngFor="let subject of subjects" [value]="subject">
+                {{ subject === 'all' ? 'All Subjects' : subject }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teachers Grid -->
+  <section class="teachers-section">
+    <div class="container">
+      <div class="teachers-grid">
+        <div *ngFor="let teacher of filteredTeachers" class="teacher-card">
+          <div class="card-header">
+            <div class="teacher-info">
+              <div class="avatar-container">
+                <img
+                  [src]="teacher.avatar"
+                  [alt]="teacher.name"
+                  class="teacher-avatar"
+                />
+                <div class="online-indicator"></div>
+              </div>
+              <div class="teacher-details">
+                <h3 class="teacher-name">{{ teacher.name }}</h3>
+                <p class="teacher-title">{{ teacher.title }}</p>
+                <div class="rating-container">
+                  <svg class="star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+                  </svg>
+                  <span class="rating-value">{{ teacher.rating }}</span>
+                  <span class="rating-label">rating</span>
+                </div>
+                <div class="location-container">
+                  <svg class="location-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  {{ teacher.location }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-content">
+            <p class="teacher-bio">{{ teacher.bio }}</p>
+            
+            <div class="subjects-container">
+              <span *ngFor="let subject of teacher.subjects" class="subject-badge">
+                {{ subject }}
+              </span>
+            </div>
+            
+            <div class="stats-container">
+              <div class="stat-item">
+                <div class="stat-label">
+                  <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  Students
+                </div>
+                <div class="stat-value">{{ teacher.students | number }}</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">
+                  <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                  </svg>
+                  Courses
+                </div>
+                <div class="stat-value">{{ teacher.courses }}</div>
+              </div>
+            </div>
+            
+            <div class="expertise-container">
+              <div class="expertise-label">Expertise:</div>
+              <div class="expertise-badges">
+                <span *ngFor="let skill of teacher.expertise" class="expertise-badge">
+                  {{ skill }}
+                </span>
+              </div>
+            </div>
+            
+            <button class="view-courses-btn">
+              View Courses
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="filteredTeachers.length === 0" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3 class="empty-title">No instructors found</h3>
+        <p class="empty-description">Try adjusting your search terms or filters.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Want to Become an Instructor?</h2>
+        <p class="cta-description">
+          Join our community of expert educators and share your knowledge with thousands of eager learners worldwide.
+        </p>
+        <button class="cta-button">
+          Apply to Teach
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
