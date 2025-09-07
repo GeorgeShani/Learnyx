@@ -23,8 +23,20 @@ export const routes: Routes = [
   {
     path: 'about',
     loadComponent: () =>
-      import('./views/about/about.component').then(
-        (m) => m.AboutComponent
+      import('./views/about/about.component').then((m) => m.AboutComponent),
+  },
+  {
+    path: 'contact',
+    loadComponent: () =>
+      import('./views/contact/contact.component').then(
+        (m) => m.ContactComponent
       ),
-  }
+  },
+  {
+    path: 'help',
+    loadComponent: () =>
+      import('./views/support/support.component').then(
+        (m) => m.SupportComponent
+      ),
+  },
 ];

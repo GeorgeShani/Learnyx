@@ -1,0 +1,223 @@
+<div class="contact-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Get in Touch</h1>
+        <p class="hero-description">
+          Have questions, feedback, or need support? We're here to help!
+          Reach out to us and we'll respond as quickly as possible.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Info Cards -->
+  <section class="contact-info-section">
+    <div class="container">
+      <div class="contact-info-grid">
+        <div 
+          *ngFor="let info of contactInfo; let i = index" 
+          class="contact-info-card"
+          [class.hoverable]="info.action !== '#'"
+        >
+          <div class="card-header">
+            <div class="icon-container">
+              <img [src]="info.iconPath" [alt]="info.title">
+            </div>
+            <h3 class="card-title">{{ info.title }}</h3>
+          </div>
+          <div class="card-content">
+            <p class="card-content-text">{{ info.content }}</p>
+            <p class="card-description">{{ info.description }}</p>
+            <button 
+              *ngIf="info.action !== '#'" 
+              class="contact-button"
+              (click)="openContact(info.action)"
+            >
+              Contact
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="main-content-section">
+    <div class="container">
+      <div class="main-content-grid">
+        <!-- Contact Form -->
+        <div class="form-container">
+          <div class="form-card">
+            <div class="form-header">
+              <h2 class="form-title">Send us a Message</h2>
+              <p class="form-description">
+                Fill out the form below and we'll get back to you as soon as possible.
+              </p>
+            </div>
+            <div class="form-content">
+              <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Name *</label>
+                    <input 
+                      type="text"
+                      id="fullName" 
+                      class="form-input"
+                      placeholder="Your full name"
+                      formControlName="name"
+                      [class.error]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched"
+                    >
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input 
+                      type="email"
+                      id="email" 
+                      class="form-input"
+                      placeholder="your.email@example.com"
+                      formControlName="email"
+                      [class.error]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Category *</label>
+                  <select 
+                    class="form-select"
+                    id="category"
+                    formControlName="category"
+                    [class.error]="contactForm.get('category')?.invalid && contactForm.get('category')?.touched"
+                  >
+                    <option value="">Select inquiry type</option>
+                    <option value="general">General Inquiries</option>
+                    <option value="technical">Technical Support</option>
+                    <option value="business">Business Partnerships</option>
+                    <option value="instructor">Instructor Applications</option>
+                    <option value="billing">Billing & Payments</option>
+                    <option value="feedback">Feedback & Suggestions</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Subject *</label>
+                  <input 
+                    type="text"
+                    id="subject" 
+                    class="form-input"
+                    placeholder="Brief description of your inquiry"
+                    formControlName="subject"
+                    [class.error]="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched"
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Message *</label>
+                  <textarea 
+                    class="form-textarea"
+                    id="message"
+                    placeholder="Please provide details about your inquiry..."
+                    formControlName="message"
+                    rows="12"
+                    [class.error]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"
+                  ></textarea>
+                </div>
+
+                <button 
+                  type="submit" 
+                  class="submit-button"
+                  [disabled]="!contactForm.valid || isSubmitting"
+                >
+                  <div *ngIf="isSubmitting" class="loading-spinner"></div>
+                  <div *ngIf="!isSubmitting" class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal-icon lucide-send-horizontal">
+                      <path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/>
+                      <path d="M6 12h16"/>
+                    </svg>
+                  </div>
+                  {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <!-- FAQ Categories -->
+          <div class="sidebar-card">
+            <div class="sidebar-header">
+              <h3 class="sidebar-title">Common Inquiries</h3>
+              <p class="sidebar-description">
+                Choose the category that best matches your question
+              </p>
+            </div>
+            <div class="sidebar-content">
+              <div 
+                *ngFor="let category of faqCategories" 
+                class="faq-category"
+              >
+                <div class="faq-icon">
+                  <img [src]="category.iconPath" [alt]="category.title">
+                </div>
+                <div class="faq-content">
+                  <h4 class="faq-title">{{ category.title }}</h4>
+                  <p class="faq-description">{{ category.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Response Time -->
+          <div class="response-card">
+            <div class="response-content">
+              <img src="assets/icons/check-big.svg" alt="QR">
+              <h3 class="response-title">Quick Response</h3>
+              <p class="response-description">
+                We typically respond to all inquiries within 24 hours during business days.
+              </p>
+              <span class="response-badge">Average response time: 4 hours</span>
+            </div>
+          </div>
+
+          <!-- Help Center -->
+          <div class="help-card">
+            <div class="help-content">
+              <img src="assets/icons/help-big.svg" alt="Help">
+              <h3 class="help-title">Need Immediate Help?</h3>
+              <p class="help-description">
+                Check out our comprehensive help center for instant answers.
+              </p>
+              <button class="help-button" (click)="navigate('/help')">Visit Help Center</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alternative Contact Methods -->
+  <section class="social-section">
+    <div class="container">
+      <div class="social-content">
+        <h2 class="social-title">Other Ways to Connect</h2>
+        <p class="social-description">
+          Follow us on social media for updates, tips, and community discussions.
+        </p>
+        <div class="social-buttons">
+          <button 
+            *ngFor="let platform of socialPlatforms" 
+            class="social-button"
+            (click)="open(platform.link)"
+          >
+            {{ platform.label }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
