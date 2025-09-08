@@ -5,16 +5,12 @@
   border-radius: 1.5rem;
   padding: 2rem;
   border: none;
-  width: 637.6px;
+  width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 24px;
-
-  @media (max-width: 768px) {
-    width: 500px;
-  }
 
   @media (max-width: 550px) {
     width: 100%;
