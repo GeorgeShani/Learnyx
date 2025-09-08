@@ -39,4 +39,23 @@ export const routes: Routes = [
         (m) => m.SupportComponent
       ),
   },
+  {
+    path: 'terms',
+    loadComponent: () =>
+      import('./views/terms/terms.component').then((m) => m.TermsComponent),
+  },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./views/privacy/privacy.component').then(
+        (m) => m.PrivacyComponent
+      ),
+  },
+  {
+    path: 'careers',
+    loadComponent: () =>
+      import('./views/careers/careers.component').then(
+        (m) => m.CareersComponent
+      ),
+  },
 ];
