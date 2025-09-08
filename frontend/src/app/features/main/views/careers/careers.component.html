@@ -1,0 +1,292 @@
+<div class="careers-container">
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <h1 class="hero-title">Join Our Mission</h1>
+      <p class="hero-description">
+        Help us democratize education and empower millions of learners worldwide. 
+        Build the future of online learning with a team that's passionate about making education accessible to everyone.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5BCBF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users-icon lucide-users">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <path d="M16 3.128a4 4 0 0 1 0 7.744"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
+          <span class="stat-text">50+ Team Members</span>
+        </div>
+        <div class="stat-item">
+          <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span class="stat-text">Remote-First Culture</span>
+        </div>
+        <div class="stat-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5BCBF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase-icon lucide-briefcase">
+            <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            <rect width="20" height="14" x="2" y="6" rx="2"/>
+          </svg>
+          <span class="stat-text">5 Open Positions</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="benefits-section">
+      <h2 class="section-title">Why Join Learnyx?</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card" *ngFor="let benefit of benefits">
+          <div class="benefit-header">
+            <div class="benefit-icon" [innerHTML]="benefit.icon"></div>
+            <h3 class="benefit-title">{{ benefit.title }}</h3>
+          </div>
+          <div class="benefit-content">
+            <p class="benefit-description">{{ benefit.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Company Values -->
+    <div class="values-card">
+      <div class="values-header">
+        <h2 class="values-title">Our Values</h2>
+        <p class="values-subtitle">The principles that guide everything we do</p>
+      </div>
+      <div class="values-content">
+        <div class="values-grid">
+          <div class="value-item">
+            <h3 class="value-title">Accessibility First</h3>
+            <p class="value-description">
+              We believe education should be accessible to everyone, regardless of background or circumstances.
+            </p>
+          </div>
+          <div class="value-item">
+            <h3 class="value-title">Continuous Learning</h3>
+            <p class="value-description">
+              We foster a culture of growth, curiosity, and lifelong learning for our team and users.
+            </p>
+          </div>
+          <div class="value-item">
+            <h3 class="value-title">Innovation & Excellence</h3>
+            <p class="value-description">
+              We push boundaries to create exceptional learning experiences through cutting-edge technology.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Openings -->
+    <div class="jobs-section">
+      <h2 class="section-title">Open Positions</h2>
+      <div class="jobs-list">
+        <div class="job-card" *ngFor="let job of jobOpenings">
+          <div class="job-header">
+            <div class="job-info">
+              <h3 class="job-title">{{ job.title }}</h3>
+              <p class="job-description">{{ job.description }}</p>
+              <div class="job-badges">
+                <span class="badge badge-secondary">{{ job.department }}</span>
+                <span class="badge badge-outline">
+                  <svg class="badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  {{ job.location }}
+                </span>
+                <span class="badge badge-outline">
+                  <svg class="badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {{ job.type }}
+                </span>
+              </div>
+            </div>
+            <button class="apply-btn" (click)="handleJobApplication(job)">Apply Now</button>
+          </div>
+          <div class="job-content">
+            <div class="job-requirements">
+              <h4 class="requirements-title">Requirements:</h4>
+              <ul class="requirements-list">
+                <li *ngFor="let req of job.requirements">{{ req }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-card">
+      <div class="cta-content">
+        <h3 class="cta-title">Don't See Your Role?</h3>
+        <p class="cta-description">
+          We're always looking for talented individuals who share our passion for education. 
+          Send us your resume and let us know how you'd like to contribute to our mission.
+        </p>
+        <div class="cta-buttons">
+          <button class="cta-btn primary" (click)="openResumeModal()">Send Your Resume</button>
+          <button class="cta-btn secondary" (click)="openCultureModal()">Learn About Our Culture</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Application Modal -->
+    <div class="modal-overlay" *ngIf="selectedJob" (click)="closeJobModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Apply for {{ selectedJob.title }}</h3>
+          <p class="modal-description">
+            Fill out this form to apply for the {{ selectedJob.title }} position.
+          </p>
+        </div>
+        <form [formGroup]="jobApplicationForm" (ngSubmit)="handleApplicationSubmit()" class="modal-form">
+          <div class="form-group">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input id="fullName" formControlName="fullName" class="form-input" placeholder="Your full name" required />
+          </div>
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input id="email" type="email" formControlName="email" class="form-input" placeholder="your.email@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input id="phone" type="tel" formControlName="phone" class="form-input" placeholder="(555) 123-4567" />
+          </div>
+          <div class="form-group">
+            <label for="resume" class="form-label">Resume/CV</label>
+            <div class="file-input-wrapper">
+              <input id="resume" type="file" formControlName="resume" class="form-input" accept=".pdf,.doc,.docx" required />
+              <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="coverLetter" class="form-label">Cover Letter</label>
+            <textarea
+              id="coverLetter"
+              formControlName="coverLetter"
+              class="form-textarea"
+              placeholder="Tell us why you're interested in this position..."
+              rows="4">
+            </textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="modal-btn secondary" (click)="closeJobModal()">Cancel</button>
+            <button type="submit" class="modal-btn primary">Submit Application</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Resume Submission Modal -->
+    <div class="modal-overlay" *ngIf="resumeModalOpen" (click)="closeResumeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Send Your Resume</h3>
+          <p class="modal-description">
+            Don't see a perfect match? Send us your resume and we'll keep you in mind for future opportunities.
+          </p>
+        </div>
+        <form [formGroup]="resumeForm" (ngSubmit)="handleResumeSubmit()" class="modal-form">
+          <div class="form-group">
+            <label for="generalFullName" class="form-label">Full Name</label>
+            <input id="generalFullName" formControlName="fullName" class="form-input" placeholder="Your full name" required />
+          </div>
+          <div class="form-group">
+            <label for="generalEmail" class="form-label">Email</label>
+            <input id="generalEmail" type="email" formControlName="email" class="form-input" placeholder="your.email@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="generalResume" class="form-label">Resume/CV</label>
+            <div class="file-input-wrapper">
+              <input id="generalResume" type="file" formControlName="resume" class="form-input" accept=".pdf,.doc,.docx" required />
+              <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="interests" class="form-label">Areas of Interest</label>
+            <textarea
+              id="interests"
+              formControlName="interests"
+              class="form-textarea"
+              placeholder="What roles or departments interest you most?"
+              rows="3">
+            </textarea>
+          </div>
+          <div class="form-group">
+            <label for="message" class="form-label">Message</label>
+            <textarea
+              id="message"
+              formControlName="message"
+              class="form-textarea"
+              placeholder="Tell us a bit about yourself and what you're looking for..."
+              rows="4">
+            </textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="modal-btn secondary" (click)="closeResumeModal()">Cancel</button>
+            <button type="submit" class="modal-btn primary">Send Resume</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Company Culture Modal -->
+    <div class="modal-overlay" *ngIf="cultureModalOpen" (click)="closeCultureModal()">
+      <div class="modal-content large" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Our Culture at Learnyx</h3>
+          <p class="modal-description">
+            Discover what makes Learnyx a great place to work and grow your career.
+          </p>
+        </div>
+        <div class="culture-content">
+          <div class="culture-section">
+            <h4 class="culture-section-title">Remote-First Environment</h4>
+            <p class="culture-section-text">
+              We believe great work happens when people have flexibility. Our team is distributed globally, 
+              with async communication as our default and regular virtual team building activities.
+            </p>
+          </div>
+          
+          <div class="culture-section">
+            <h4 class="culture-section-title">Continuous Learning</h4>
+            <p class="culture-section-text">
+              Every team member has an annual learning budget of $2,000 to spend on courses, conferences, 
+              books, or any learning resources. We also have monthly "Learn & Share" sessions where 
+              team members teach each other new skills.
+            </p>
+          </div>
+
+          <div class="culture-section">
+            <h4 class="culture-section-title">Impact-Driven Work</h4>
+            <p class="culture-section-text">
+              Your work directly impacts millions of learners worldwide. We share monthly impact reports 
+              showing how our platform is helping people achieve their educational goals.
+            </p>
+          </div>
+
+          <div class="culture-section">
+            <h4 class="culture-section-title">Collaborative Innovation</h4>
+            <p class="culture-section-text">
+              We encourage experimentation and creative problem-solving. Every team member can propose 
+              new ideas, and we dedicate 20% of our time to innovative projects and improvements.
+            </p>
+          </div>
+
+          <div class="culture-actions">
+            <button class="modal-btn primary full-width" (click)="closeCultureModal()">Got It!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
