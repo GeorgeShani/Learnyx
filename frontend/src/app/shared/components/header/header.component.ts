@@ -3,12 +3,18 @@ import { Component } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { NotificationCenterComponent } from "@shared/components/notification-center/notification-center.component";
+import { FormsModule } from '@angular/forms';
 
 type Role = 'student' | 'teacher' | 'admin';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterModule, NotificationCenterComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    NotificationCenterComponent,
+  ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
@@ -18,6 +24,7 @@ export class HeaderComponent {
   isSignedIn = true;
   currentRoute = '';
   role: Role = 'student';
+  searchQuery: string = '';
 
   constructor(private router: Router) {
     // Listen to route changes to update active state
@@ -31,8 +38,12 @@ export class HeaderComponent {
     this.currentRoute = this.router.url;
   }
 
-  getFullYear(): number {
-    return new Date().getFullYear();
+  onSearch() {
+    if (this.searchQuery.trim()) {
+      this.router.navigate(['/courses'], {
+        queryParams: { query: this.searchQuery },
+      });
+    }
   }
 
   isActive(path: string): boolean {
@@ -55,7 +66,5 @@ export class HeaderComponent {
     this.router.navigate([path]);
   }
 
-  signOut(): void {
-
-  }
+  signOut(): void {}
 }

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Category {
   id: string;
@@ -170,7 +170,12 @@ export class CoursesComponent {
     },
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+    this.activatedRoute.queryParams.subscribe(params => {
+      let query = params["query"] || "";
+      if (query) this.searchQuery = query;
+    });
+  }
 
   ngOnInit(): void {
     this.filterCourses();

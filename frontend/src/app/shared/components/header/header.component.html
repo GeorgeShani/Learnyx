@@ -68,7 +68,9 @@
               type="text"
               id="searchInput"
               placeholder="Search courses..."
-              class="search-input" 
+              class="search-input"
+              [(ngModel)]="searchQuery"
+              (keydown.enter)="onSearch()"  
             />
           </div>
           <ng-container *ngIf="!isSignedIn">
@@ -231,7 +233,9 @@
             type="text"
             id="searchInputMobile"
             placeholder="Search courses..."
-            class="search-input" 
+            class="search-input"
+            [(ngModel)]="searchQuery"
+            (keydown.enter)="onSearch()" 
           />
         </div>
         <ng-container *ngIf="!isSignedIn">
