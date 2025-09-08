@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { IsActiveMatchOptions, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { NotificationCenterComponent } from "@shared/components/notification-center/notification-center.component";
 import { FormsModule } from '@angular/forms';
@@ -47,7 +47,14 @@ export class HeaderComponent {
   }
 
   isActive(path: string): boolean {
-    return this.currentRoute === path;
+    const matchOptions: IsActiveMatchOptions = {
+      paths: 'exact',
+      queryParams: 'ignored',
+      matrixParams: 'ignored',
+      fragment: 'ignored',
+    };
+    
+    return this.router.isActive(path, matchOptions);
   }
 
   toggleMobileMenu(): void {
