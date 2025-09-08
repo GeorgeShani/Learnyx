@@ -1,0 +1,169 @@
+<div class="notification-center">
+  <button 
+    class="notification-trigger"
+    [class.has-notifications]="unreadCount > 0"
+    (click)="toggleDropdown()"
+    #triggerButton
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell">
+      <path d="M10.268 21a2 2 0 0 0 3.464 0"/>
+      <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>
+    </svg>
+    <span *ngIf="unreadCount > 0" class="notification-badge">
+      {{ unreadCount }}
+    </span>
+  </button>
+
+  <div 
+    *ngIf="isDropdownOpen" 
+    class="notification-dropdown"
+    (clickOutside)="closeDropdown()"
+  >
+    <!-- Header -->
+    <div class="notification-header">
+      <div class="header-left">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell">
+          <path d="M10.268 21a2 2 0 0 0 3.464 0"/>
+          <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>
+        </svg>
+        <h3>Notifications</h3>
+        <span *ngIf="unreadCount > 0" class="new-badge">
+          {{ unreadCount }} new
+        </span>
+      </div>
+      
+      <button 
+        *ngIf="unreadCount > 0"
+        class="mark-all-read-btn"
+        (click)="markAllAsRead()"
+      >
+        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20,6 9,17 4,12"/>
+        </svg>
+        Mark all read
+      </button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notifications-scroll">
+      <div *ngIf="notifications.length === 0" class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell">
+          <path d="M10.268 21a2 2 0 0 0 3.464 0"/>
+          <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>
+        </svg>
+        <p>No notifications</p>
+      </div>
+
+      <div *ngIf="notifications.length > 0" class="notifications-list">
+        <div 
+          *ngFor="let notification of notifications"
+          class="notification-item"
+          [class.unread]="!notification.read"
+          (click)="handleNotificationClick(notification)"
+        >
+          <div class="notification-content">
+            <div class="notification-icon">
+              <svg 
+                *ngIf="notification.type === 'course'"
+                class="type-icon course-icon" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2"
+              >
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+              
+              <svg 
+                *ngIf="notification.type === 'achievement'"
+                class="type-icon achievement-icon" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2"
+              >
+                <circle cx="12" cy="8" r="7"/>
+                <polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88"/>
+              </svg>
+              
+              <svg 
+                *ngIf="notification.type === 'message'"
+                class="type-icon message-icon" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              
+              <svg 
+                *ngIf="notification.type === 'assignment'"
+                class="type-icon assignment-icon" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+              
+              <svg 
+                *ngIf="notification.type === 'system'"
+                class="type-icon system-icon" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2"
+              >
+                <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+              </svg>
+            </div>
+            
+            <div class="notification-text">
+              <div class="notification-title-row">
+                <div class="notification-details">
+                  <p class="notification-title">{{ notification.title }}</p>
+                  <p class="notification-message">{{ notification.message }}</p>
+                  <p class="notification-time">
+                    <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                    {{ notification.time }}
+                  </p>
+                </div>
+                
+                <div class="notification-actions">
+                  <div *ngIf="!notification.read" class="unread-dot"></div>
+                  <button
+                    class="delete-btn"
+                    (click)="deleteNotification($event, notification.id)"
+                  >
+                    <svg class="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3,6 5,6 21,6"/>
+                      <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div *ngIf="notifications.length > 0" class="notification-footer">
+      <div class="footer-separator"></div>
+      <button 
+        class="view-all-btn"
+        (click)="viewAllNotifications()"
+      >
+        View All Notifications
+      </button>
+    </div>
+  </div>
+</div>

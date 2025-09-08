@@ -71,8 +71,81 @@
               class="search-input" 
             />
           </div>
-          <button class="btn btn-outline" (click)="navigate('/auth/login')">Log In</button>
-          <button class="btn btn-primary" (click)="navigate('/auth/signup')">Sign Up</button>
+          <ng-container *ngIf="!isSignedIn">
+            <button class="btn btn-outline" (click)="navigate('/auth/login')">Log In</button>
+            <button class="btn btn-primary" (click)="navigate('/auth/signup')">Sign Up</button>
+          </ng-container>
+          <ng-container *ngIf="isSignedIn">
+            <app-notification-center />
+            <div class="user-menu" [class.open]="isUserMenuOpen">
+              <button class="user-menu-trigger" (click)="toggleUserMenu()">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span class="user-menu-text">Account</span>
+                <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="user-menu-content" *ngIf="isUserMenuOpen">
+                <a routerLink="/dashboard/student" class="menu-item" *ngIf="role === 'student'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  Student Dashboard
+                </a>
+                <a routerLink="/dashboard/teacher" class="menu-item" *ngIf="role === 'teacher'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open-icon lucide-book-open">
+                    <path d="M12 7v14"/>
+                    <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+                  </svg>
+                  Teacher Dashboard
+                </a>
+                <a routerLink="/dashboard/admin" class="menu-item" *ngIf="role === 'admin'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-icon lucide-shield">
+                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+                  </svg>
+                  Admin Dashboard
+                </a>
+                <button class="menu-item" (click)="navigate('/profile')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cog-icon lucide-cog">
+                    <path d="M11 10.27 7 3.34"/>
+                    <path d="m11 13.73-4 6.93"/>
+                    <path d="M12 22v-2"/>
+                    <path d="M12 2v2"/>
+                    <path d="M14 12h8"/>
+                    <path d="m17 20.66-1-1.73"/>
+                    <path d="m17 3.34-1 1.73"/>
+                    <path d="M2 12h2"/>
+                    <path d="m20.66 17-1.73-1"/>
+                    <path d="m20.66 7-1.73 1"/>
+                    <path d="m3.34 17 1.73-1"/>
+                    <path d="m3.34 7 1.73 1"/>
+                    <circle cx="12" cy="12" r="2"/>
+                    <circle cx="12" cy="12" r="8"/>
+                  </svg>
+                  Profile Settings
+                </button>
+                <button class="menu-item" (click)="navigate('/billing')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote-icon lucide-banknote">
+                    <rect width="20" height="12" x="2" y="6" rx="2"/>
+                    <circle cx="12" cy="12" r="2"/>
+                    <path d="M6 12h.01M18 12h.01"/>
+                  </svg>
+                  Billing
+                </button>
+                <button class="menu-item sign-out" (click)="signOut()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out">
+                    <path d="m16 17 5-5-5-5"/>
+                    <path d="M21 12H9"/>
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  </svg>
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </ng-container>
         </div>
 
         <!-- Mobile menu button -->
@@ -161,10 +234,65 @@
             class="search-input" 
           />
         </div>
-        <div class="mobile-buttons">
-          <button class="btn btn-outline" (click)="navigate('/auth/log-in')">Log In</button>
-          <button class="btn btn-primary" (click)="navigate('/auth/sign-up')">Sign Up</button>
-        </div>
+        <ng-container *ngIf="!isSignedIn">
+          <div class="mobile-buttons">
+            <button class="btn btn-outline" (click)="navigate('/auth/log-in')">Log In</button>
+            <button class="btn btn-primary" (click)="navigate('/auth/sign-up')">Sign Up</button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="isSignedIn">
+          <div class="additional-actions">
+            <a routerLink="/dashboard/student" class="action-item" *ngIf="role === 'student'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </a>
+            <a routerLink="/dashboard/teacher" class="action-item" *ngIf="role === 'teacher'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open-icon lucide-book-open">
+                <path d="M12 7v14"/>
+                <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+              </svg>
+            </a>
+            <a routerLink="/dashboard/admin" class="action-item" *ngIf="role === 'admin'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-icon lucide-shield">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+              </svg>
+            </a>
+            <button class="action-item" (click)="navigate('/profile')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cog-icon lucide-cog">
+                <path d="M11 10.27 7 3.34"/>
+                <path d="m11 13.73-4 6.93"/>
+                <path d="M12 22v-2"/>
+                <path d="M12 2v2"/>
+                <path d="M14 12h8"/>
+                <path d="m17 20.66-1-1.73"/>
+                <path d="m17 3.34-1 1.73"/>
+                <path d="M2 12h2"/>
+                <path d="m20.66 17-1.73-1"/>
+                <path d="m20.66 7-1.73 1"/>
+                <path d="m3.34 17 1.73-1"/>
+                <path d="m3.34 7 1.73 1"/>
+                <circle cx="12" cy="12" r="2"/>
+                <circle cx="12" cy="12" r="8"/>
+              </svg>
+            </button>
+            <button class="action-item" (click)="navigate('/billing')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote-icon lucide-banknote">
+                <rect width="20" height="12" x="2" y="6" rx="2"/>
+                <circle cx="12" cy="12" r="2"/>
+                <path d="M6 12h.01M18 12h.01"/>
+              </svg>
+            </button>
+            <button class="action-item sign-out" (click)="signOut()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out">
+                <path d="m16 17 5-5-5-5"/>
+                <path d="M21 12H9"/>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              </svg>
+            </button>
+          </div>
+        </ng-container>
       </div>
     </div>
   </div>
