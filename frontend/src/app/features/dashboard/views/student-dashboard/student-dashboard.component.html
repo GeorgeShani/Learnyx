@@ -1,1 +1,471 @@
-<p>student-dashboard works!</p>
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="user-info">
+        <div class="user-avatar">
+          <img [src]="user.avatar" [alt]="user.name" />
+          <div *ngIf="!user.avatar" class="avatar-fallback">{{ getInitials(user.name) }}</div>
+        </div>
+        <div class="user-details">
+          <h1>Welcome back, {{ getFirstName(user.name) }}!</h1>
+          <p>{{ user.level }} • Member since {{ user.joinDate }}</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn-outline" routerLink="/courses">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          Browse Courses
+        </button>
+        <button class="btn-primary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Get Help
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-main">
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <div class="tabs-list">
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'overview'"
+          (click)="setActiveTab('overview')">
+          Overview
+        </button>
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'courses'"
+          (click)="setActiveTab('courses')">
+          My Courses
+        </button>
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'progress'"
+          (click)="setActiveTab('progress')">
+          Progress
+        </button>
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'achievements'"
+          (click)="setActiveTab('achievements')">
+          Achievements
+        </button>
+      </div>
+
+      <!-- Overview Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'overview'">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-info">
+                <p class="stat-label">Enrolled Courses</p>
+                <p class="stat-value">{{ user.totalCourses }}</p>
+              </div>
+              <div class="stat-icon primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-info">
+                <p class="stat-label">Hours Learned</p>
+                <p class="stat-value">{{ user.totalHours }}</p>
+              </div>
+              <div class="stat-icon progress">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-info">
+                <p class="stat-label">Current Streak</p>
+                <p class="stat-value">{{ user.currentStreak }}</p>
+              </div>
+              <div class="stat-icon streak">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-info">
+                <p class="stat-label">Points Earned</p>
+                <p class="stat-value">{{ user.points }}</p>
+              </div>
+              <div class="stat-icon points">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                  <path d="M4 22h16"/>
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Courses and Deadlines -->
+        <div class="overview-grid">
+          <div class="overview-section">
+            <h2>Continue Learning</h2>
+            <div class="course-list">
+              <div class="course-card" *ngFor="let course of enrolledCourses.slice(0, 2)">
+                <div class="course-content">
+                  <img [src]="course.image" [alt]="course.title" class="course-image" />
+                  <div class="course-details">
+                    <h3>{{ course.title }}</h3>
+                    <p class="next-lesson">Next: {{ course.nextLesson }}</p>
+                    
+                    <div class="progress-section">
+                      <div class="progress-info">
+                        <span>{{ course.completedLessons }}/{{ course.totalLessons }} lessons</span>
+                        <span>{{ course.progress }}% complete</span>
+                      </div>
+                      <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="course.progress"></div>
+                      </div>
+                    </div>
+                    
+                    <div class="course-actions">
+                      <span class="time-remaining">{{ course.timeRemaining }} left</span>
+                      <button class="btn-small" [routerLink]="['/learn', course.id]">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <polygon points="10,8 16,12 10,16 10,8"/>
+                        </svg>
+                        Continue
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-section">
+            <h2>Upcoming Deadlines</h2>
+            <div class="deadlines-card">
+              <div class="deadline-item" *ngFor="let deadline of upcomingDeadlines">
+                <div class="deadline-info">
+                  <h4>{{ deadline.task }}</h4>
+                  <p>{{ deadline.course }}</p>
+                </div>
+                <div class="deadline-badge" [class]="'priority-' + deadline.priority">
+                  {{ deadline.dueDate }}
+                </div>
+              </div>
+            </div>
+
+            <h2 class="achievements-title">Recent Achievements</h2>
+            <div class="achievements-card">
+              <div class="achievement-item" *ngFor="let achievement of achievements">
+                <svg class="achievement-icon" [class]="achievement.color" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <ng-container [ngSwitch]="achievement.icon">
+                    <circle *ngSwitchCase="'Clock'" cx="12" cy="12" r="10"/>
+                    <polyline *ngSwitchCase="'Clock'" points="12,6 12,12 16,14"/>
+                    <path *ngSwitchCase="'Trophy'" d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path *ngSwitchCase="'Trophy'" d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path *ngSwitchCase="'Trophy'" d="M4 22h16"/>
+                    <path *ngSwitchCase="'Trophy'" d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                    <path *ngSwitchCase="'Trophy'" d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                    <path *ngSwitchCase="'Trophy'" d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                    <polygon *ngSwitchCase="'Star'" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
+                  </ng-container>
+                </svg>
+                <div class="achievement-details">
+                  <h4>{{ achievement.title }}</h4>
+                  <p>{{ achievement.description }}</p>
+                  <p class="achievement-date">{{ achievement.date }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Courses Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'courses'">
+        <div class="courses-header">
+          <h2>My Courses</h2>
+          <div class="courses-actions">
+            <button class="btn-outline-small"(click)="openFilterModal()">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3"/>
+              </svg>
+              Filter
+            </button>
+            <button class="btn-outline-small" routerLink="/courses">Find New Courses</button>
+            <app-filter-modal
+              [isOpen]="showFilterModal"
+              [currentFilters]="currentFilters"
+              [availableInstructors]="availableInstructors"
+              (filtersChanged)="onFiltersChanged($event)"
+              (modalClosed)="onModalClosed()">
+            </app-filter-modal>
+          </div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="courses-section">
+          <h3>In Progress ({{ enrolledCourses.length }})</h3>
+          <div class="courses-grid">
+            <div class="course-grid-card" *ngFor="let course of enrolledCourses">
+              <div class="course-image-container">
+                <img [src]="course.image" [alt]="course.title" />
+                <div class="progress-badge">{{ course.progress }}% Complete</div>
+              </div>
+              <div class="course-card-content">
+                <h3>{{ course.title }}</h3>
+                <p class="instructor">by {{ course.instructor }}</p>
+                
+                <div class="progress-section">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="course.progress"></div>
+                  </div>
+                  <div class="progress-details">
+                    <span>{{ course.completedLessons }}/{{ course.totalLessons }} lessons</span>
+                    <span>{{ course.timeRemaining }} left</span>
+                  </div>
+                </div>
+                
+                <button class="btn-full" [routerLink]="['/learn', course.id]">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polygon points="10,8 16,12 10,16 10,8"/>
+                  </svg>
+                  Continue Learning
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed -->
+        <div class="courses-section">
+          <h3>Completed ({{ completedCourses.length }})</h3>
+          <div class="courses-grid">
+            <div class="course-grid-card" *ngFor="let course of completedCourses">
+              <div class="course-image-container">
+                <img [src]="course.image" [alt]="course.title" />
+                <div class="completed-badge">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22,4 12,14.01 9,11.01"/>
+                  </svg>
+                  Completed
+                </div>
+              </div>
+              <div class="course-card-content">
+                <h3>{{ course.title }}</h3>
+                <p class="instructor">by {{ course.instructor }}</p>
+                
+                <div class="rating-section">
+                  <div class="stars">
+                    <svg 
+                      *ngFor="let star of [1,2,3,4,5]" 
+                      class="star" 
+                      [class.filled]="star <= course.rating"
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      stroke-width="2">
+                      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
+                    </svg>
+                  </div>
+                  <span class="completion-date">{{ course.completedDate }}</span>
+                </div>
+                
+                <div class="course-actions-grid">
+                  <button class="btn-outline-small" *ngIf="course.certificate">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7,10 12,15 17,10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Certificate
+                  </button>
+                  <button class="btn-outline-small">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Review
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'progress'">
+        <div class="progress-grid">
+          <div class="progress-card">
+            <div class="card-header">
+              <h3>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Learning Progress
+              </h3>
+            </div>
+            <div class="card-content">
+              <div class="overall-progress">
+                <div class="progress-percentage">{{ getOverallProgress() }}%</div>
+                <p>Overall Progress</p>
+              </div>
+              
+              <div class="course-progress-list">
+                <div class="course-progress-item" *ngFor="let course of enrolledCourses">
+                  <div class="course-progress-header">
+                    <span class="course-title">{{ course.title }}</span>
+                    <span class="course-percentage">{{ course.progress }}%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="course.progress"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="progress-card">
+            <div class="card-header">
+              <h3>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                </svg>
+                Learning Stats
+              </h3>
+            </div>
+            <div class="card-content">
+              <div class="stats-grid-small">
+                <div class="stat-item">
+                  <div class="stat-number">{{ user.totalHours }}</div>
+                  <p>Total Hours</p>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">{{ user.currentStreak }}</div>
+                  <p>Day Streak</p>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">{{ user.completedCourses }}</div>
+                  <p>Completed</p>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">{{ user.points }}</div>
+                  <p>Points</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Achievements Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'achievements'">
+        <div class="achievements-grid">
+          <div class="achievements-card-large">
+            <div class="card-header">
+              <h3>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="7"/>
+                  <polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88"/>
+                </svg>
+                Your Badges
+              </h3>
+            </div>
+            <div class="card-content">
+              <div class="badges-grid">
+                <div class="badge-item" *ngFor="let badge of user.badges">
+                  <div class="badge-icon" [class]="getBadgeColorClass(badge.color)">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <ng-container [ngSwitch]="badge.icon">
+                        <path *ngSwitchCase="'BookOpen'" d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path *ngSwitchCase="'BookOpen'" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        <polygon *ngSwitchCase="'Zap'" points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+                        <circle *ngSwitchCase="'Target'" cx="12" cy="12" r="10"/>
+                        <circle *ngSwitchCase="'Target'" cx="12" cy="12" r="6"/>
+                        <circle *ngSwitchCase="'Target'" cx="12" cy="12" r="2"/>
+                        <circle *ngSwitchCase="'Award'" cx="12" cy="8" r="7"/>
+                        <polyline *ngSwitchCase="'Award'" points="8.21,13.89 7,23 12,20 17,23 15.79,13.88"/>
+                      </ng-container>
+                    </svg>
+                  </div>
+                  <span class="badge-name">{{ badge.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="achievements-card-large">
+            <div class="card-header">
+              <h3>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                  <path d="M4 22h16"/>
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                </svg>
+                Recent Achievements
+              </h3>
+            </div>
+            <div class="card-content">
+              <div class="achievements-list">
+                <div class="achievement-item" *ngFor="let achievement of achievements">
+                  <svg class="achievement-icon" [class]="achievement.color" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <ng-container [ngSwitch]="achievement.icon">
+                      <circle *ngSwitchCase="'Clock'" cx="12" cy="12" r="10"/>
+                      <polyline *ngSwitchCase="'Clock'" points="12,6 12,12 16,14"/>
+                      <path *ngSwitchCase="'Trophy'" d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                      <path *ngSwitchCase="'Trophy'" d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                      <path *ngSwitchCase="'Trophy'" d="M4 22h16"/>
+                      <path *ngSwitchCase="'Trophy'" d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                      <path *ngSwitchCase="'Trophy'" d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                      <path *ngSwitchCase="'Trophy'" d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                      <polygon *ngSwitchCase="'Star'" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
+                    </ng-container>
+                  </svg>
+                  <div class="achievement-details">
+                    <h4>{{ achievement.title }}</h4>
+                    <p>{{ achievement.description }}</p>
+                    <p class="achievement-date">{{ achievement.date }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,217 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+          <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3" />
+        </svg>
+        Filter Courses
+      </h2>
+      <button class="close-btn" (click)="closeModal()">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Course Status</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input
+              type="radio"
+              name="status"
+              value="all"
+              [(ngModel)]="tempFilters.status" />
+            <span class="radio-custom"></span>
+            <span>All Courses</span>
+          </label>
+          <label class="radio-option">
+            <input
+              type="radio"
+              name="status"
+              value="in-progress"
+              [(ngModel)]="tempFilters.status" />
+            <span class="radio-custom"></span>
+            <span>In Progress</span>
+          </label>
+          <label class="radio-option">
+            <input
+              type="radio"
+              name="status"
+              value="completed"
+              [(ngModel)]="tempFilters.status" />
+            <span class="radio-custom"></span>
+            <span>Completed</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label class="filter-label" for="category">Category</label>
+        <select
+          id="category"
+          class="filter-select"
+          [(ngModel)]="tempFilters.category">
+          <option value>All Categories</option>
+          <option value="development">Development</option>
+          <option value="design">Design</option>
+          <option value="business">Business</option>
+          <option value="marketing">Marketing</option>
+          <option value="data-science">Data Science</option>
+          <option value="photography">Photography</option>
+          <option value="music">Music</option>
+          <option value="health">Health & Fitness</option>
+        </select>
+      </div>
+
+      <!-- Instructor Filter -->
+      <div class="filter-group">
+        <label class="filter-label" for="instructor">Instructor</label>
+        <select
+          id="instructor"
+          class="filter-select"
+          [(ngModel)]="tempFilters.instructor">
+          <option value>All Instructors</option>
+          <option
+            *ngFor="let instructor of availableInstructors"
+            [value]="instructor">
+            {{ instructor }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Rating Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Minimum Rating</label>
+        <div class="rating-filter">
+          <div class="stars-filter">
+            <svg
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              class="star-filter"
+              [class.filled]="star <= tempFilters.rating"
+              [class.clickable]="true"
+              (click)="setRating(star)"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2">
+              <polygon
+                points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2" />
+            </svg>
+          </div>
+          <span class="rating-text">{{ tempFilters.rating }} stars & up</span>
+          <button
+            class="clear-rating"
+            *ngIf="tempFilters.rating > 0"
+            (click)="clearRating()">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Range (for in-progress courses) -->
+      <div
+        class="filter-group"
+        *ngIf="
+              tempFilters.status === 'in-progress' ||
+              tempFilters.status === 'all'
+            ">
+        <label class="filter-label">Progress Range</label>
+        <div class="range-filter">
+          <div class="range-inputs">
+            <input
+              type="number"
+              class="range-input"
+              placeholder="Min %"
+              min="0"
+              max="100"
+              [(ngModel)]="tempFilters.progress.min" />
+            <span class="range-separator">-</span>
+            <input
+              type="number"
+              class="range-input"
+              placeholder="Max %"
+              min="0"
+              max="100"
+              [(ngModel)]="tempFilters.progress.max" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sort Options -->
+      <div class="filter-group">
+        <label class="filter-label">Sort By</label>
+        <div class="sort-controls">
+          <select class="filter-select" [(ngModel)]="tempFilters.sortBy">
+            <option value="title">Course Title</option>
+            <option value="progress">Progress</option>
+            <option value="rating">Rating</option>
+            <option value="date-enrolled">Date Enrolled</option>
+            <option value="date-completed">Date Completed</option>
+          </select>
+          <div class="sort-order">
+            <button
+              class="sort-btn"
+              [class.active]="tempFilters.sortOrder === 'asc'"
+              (click)="tempFilters.sortOrder = 'asc'">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <path d="M3 6h18" />
+                <path d="M7 12h10" />
+                <path d="M10 18h4" />
+              </svg>
+              A-Z
+            </button>
+            <button
+              class="sort-btn"
+              [class.active]="tempFilters.sortOrder === 'desc'"
+              (click)="tempFilters.sortOrder = 'desc'">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <path d="M10 6h4" />
+                <path d="M7 12h10" />
+                <path d="M3 18h18" />
+              </svg>
+              Z-A
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="resetFilters()">
+        Reset All
+      </button>
+      <div class="footer-actions">
+        <button class="btn-outline" (click)="closeModal()">Cancel</button>
+        <button class="btn-primary" (click)="applyFilters()">
+          Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
