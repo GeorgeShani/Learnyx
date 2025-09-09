@@ -1,0 +1,831 @@
+.dashboard-container {
+  min-height: 100vh;
+  background: hsl(0, 0%, 100%);
+}
+
+.dashboard-header {
+  background: linear-gradient(135deg, hsla(195, 84%, 65%, 0.1) 0%, hsla(225, 87%, 68%, 0.1) 100%);
+  border-bottom: 1px solid hsl(214.3, 31.8%, 91.4%);
+  
+  .header-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    
+    @media (min-width: 640px) {
+      padding: 2rem 1.5rem;
+    }
+    
+    @media (min-width: 1024px) {
+      padding: 2rem 2rem;
+    }
+  }
+  
+  .header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    @media (min-width: 640px) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  
+  .teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .teacher-avatar {
+    position: relative;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .avatar-fallback {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: hsl(195, 84%, 65%);
+      color: white;
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+  }
+  
+  .teacher-details {
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #020817;
+      margin: 0 0 0.25rem 0;
+    }
+    
+    p {
+      color: #64748B;
+      margin: 0;
+    }
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    
+    @media (min-width: 640px) {
+      margin-top: 0;
+    }
+  }
+}
+
+.dashboard-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  
+  @media (min-width: 640px) {
+    padding: 2rem 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 2rem 2rem;
+  }
+}
+
+.tabs-container {
+  .tabs-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    background: hsl(0, 0%, 98%);
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    margin-bottom: 2rem;
+    
+    .tab-trigger {
+      padding: 0.75rem 1rem;
+      border: none;
+      background: transparent;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      color: hsl(215.4, 16.3%, 46.9%);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: hsl(0, 0%, 96%);
+      }
+      
+      &.active {
+        background: white;
+        color: hsl(222.2, 84%, 4.9%);
+        box-shadow: 0 1px 3px hsla(222.2, 84%, 4.9%, 0.1);
+      }
+    }
+  }
+}
+
+.tab-content {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  .stat-card {
+    background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px hsla(222.2, 84%, 4.9%, 0.1);
+    }
+    
+    .stat-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .stat-info {
+      .stat-label {
+        font-size: 0.875rem;
+        color: hsl(215.4, 16.3%, 46.9%);
+        margin: 0 0 0.5rem 0;
+      }
+      
+      .stat-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: hsl(222.2, 84%, 4.9%);
+        margin: 0;
+      }
+    }
+    
+    .stat-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      i {
+        font-size: 1.5rem;
+        color: white;
+      }
+      
+      &.primary {
+        background: linear-gradient(135deg, hsl(195, 84%, 65%) 0%, hsl(225, 87%, 68%) 100%);
+      }
+      
+      &.progress {
+        background: linear-gradient(135deg, hsl(15, 89%, 77%) 0%, hsl(48, 89%, 77%) 100%);
+      }
+      
+      &.yellow {
+        background: hsl(48, 89%, 77%);
+      }
+      
+      &.purple {
+        background: hsl(262, 83%, 58%);
+      }
+    }
+  }
+  
+  .main-content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    
+    @media (min-width: 1024px) {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+  
+  .activity-section {
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 1.5rem 0;
+      color: hsl(222.2, 84%, 4.9%);
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 2rem 0 1.5rem 0;
+      color: hsl(222.2, 84%, 4.9%);
+    }
+  }
+  
+  .activity-card {
+    background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+    margin-bottom: 2rem;
+    
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+      background: hsla(0, 0%, 100%, 0.5);
+      border-radius: 0.5rem;
+      
+      i {
+        font-size: 1.25rem;
+        margin-top: 0.125rem;
+        
+        &.text-green-500 { color: hsl(142, 76%, 36%); }
+        &.text-yellow-500 { color: hsl(48, 89%, 77%); }
+        &.text-blue-500 { color: hsl(225, 87%, 68%); }
+        &.text-purple-500 { color: hsl(262, 83%, 58%); }
+      }
+      
+      .activity-details {
+        flex: 1;
+        
+        p {
+          margin: 0;
+          font-size: 0.875rem;
+          
+          &.activity-time {
+            color: hsl(215.4, 16.3%, 46.9%);
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+          }
+        }
+      }
+    }
+  }
+  
+  .top-courses {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    .course-card {
+      background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px hsla(222.2, 84%, 4.9%, 0.1);
+      }
+      
+      .course-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      .course-image {
+        width: 5rem;
+        height: 4rem;
+        object-fit: cover;
+        border-radius: 0.5rem;
+      }
+      
+      .course-info {
+        flex: 1;
+        
+        h3 {
+          font-weight: 600;
+          margin: 0 0 0.5rem 0;
+          color: hsl(222.2, 84%, 4.9%);
+        }
+        
+        .course-stats {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+          
+          @media (min-width: 768px) {
+            grid-template-columns: repeat(4, 1fr);
+          }
+          
+          .stat {
+            .stat-label {
+              font-size: 0.75rem;
+              color: hsl(215.4, 16.3%, 46.9%);
+              margin: 0 0 0.25rem 0;
+            }
+            
+            .stat-value {
+              font-weight: 500;
+              margin: 0;
+              display: flex;
+              align-items: center;
+              gap: 0.25rem;
+              
+              .icon-star.filled {
+                color: hsl(48, 89%, 77%);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    
+    .sidebar-card {
+      background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+      
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+        color: hsl(222.2, 84%, 4.9%);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        i {
+          font-size: 1.25rem;
+        }
+      }
+    }
+    
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      
+      .action-btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid hsl(214.3, 31.8%, 91.4%);
+        background: white;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        color: hsl(222.2, 84%, 4.9%);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: hsl(0, 0%, 98%);
+          border-color: hsl(195, 84%, 65%);
+        }
+        
+        i {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .pending-tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      
+      .task-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background: hsla(0, 0%, 100%, 0.5);
+        border-radius: 0.5rem;
+        
+        .task-info {
+          flex: 1;
+          
+          .task-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0 0 0.25rem 0;
+            color: hsl(222.2, 84%, 4.9%);
+          }
+          
+          .task-due {
+            font-size: 0.75rem;
+            color: hsl(215.4, 16.3%, 46.9%);
+            margin: 0;
+          }
+        }
+        
+        .badge {
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: 500;
+          
+          &.priority-high {
+            background: hsl(0, 84%, 60%);
+            color: white;
+          }
+          
+          &.priority-medium {
+            background: hsl(48, 89%, 77%);
+            color: hsl(222.2, 84%, 4.9%);
+          }
+          
+          &.priority-low {
+            background: hsl(210, 40%, 92%);
+            color: hsl(215.4, 16.3%, 46.9%);
+          }
+        }
+      }
+    }
+    
+    .monthly-revenue {
+      text-align: center;
+      
+      .revenue-amount {
+        font-size: 1.875rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, hsl(195, 84%, 65%) 0%, hsl(225, 87%, 68%) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+      }
+      
+      .revenue-label {
+        font-size: 0.875rem;
+        color: hsl(215.4, 16.3%, 46.9%);
+        margin: 0 0 1rem 0;
+      }
+      
+      .revenue-stats {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        font-size: 0.875rem;
+        
+        .growth {
+          .growth-value {
+            font-weight: 500;
+            color: hsl(222.2, 84%, 4.9%);
+          }
+          
+          .growth-label {
+            color: hsl(215.4, 16.3%, 46.9%);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Courses Tab Styles
+.courses-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: hsl(222.2, 84%, 4.9%);
+  }
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.course-card-detailed {
+  background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px hsla(222.2, 84%, 4.9%, 0.1);
+  }
+  
+  .course-image-container {
+    position: relative;
+    
+    img {
+      width: 100%;
+      height: 12rem;
+      object-fit: cover;
+    }
+    
+    .status-badge {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: white;
+      
+      &.published {
+        background: hsl(142, 76%, 36%);
+      }
+      
+      &.draft {
+        background: hsl(48, 89%, 77%);
+        color: hsl(222.2, 84%, 4.9%);
+      }
+    }
+  }
+  
+  .course-details {
+    padding: 1.5rem;
+    
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      color: hsl(222.2, 84%, 4.9%);
+      line-height: 1.4;
+    }
+    
+    .course-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+      
+      .metric {
+        .metric-label {
+          font-size: 0.75rem;
+          color: hsl(215.4, 16.3%, 46.9%);
+          margin: 0 0 0.25rem 0;
+        }
+        
+        .metric-value {
+          font-weight: 500;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          
+          .icon-star.filled {
+            color: hsl(48, 89%, 77%);
+          }
+        }
+      }
+    }
+    
+    .last-updated {
+      font-size: 0.875rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+      margin: 0 0 1rem 0;
+    }
+    
+    .course-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+  }
+}
+
+// Analytics Tab Styles
+.analytics-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.analytics-card {
+  background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+  
+  .analytics-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .analytics-info {
+    .analytics-label {
+      font-size: 0.875rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .analytics-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: hsl(222.2, 84%, 4.9%);
+      margin: 0;
+    }
+  }
+  
+  .analytics-icon {
+    font-size: 2rem;
+    color: hsl(195, 84%, 65%);
+  }
+}
+
+.chart-card {
+  background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    color: hsl(222.2, 84%, 4.9%);
+  }
+  
+  .chart-container {
+    height: 16rem;
+    
+    .chart-bars {
+      height: 100%;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 0.5rem;
+      
+      .chart-bar-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        height: 100%;
+        
+        .chart-bar {
+          width: 100%;
+          background: linear-gradient(135deg, hsl(195, 84%, 65%) 0%, hsl(225, 87%, 68%) 100%);
+          border-radius: 0.25rem 0.25rem 0 0;
+          margin-bottom: 0.5rem;
+          min-height: 1.25rem;
+        }
+        
+        .chart-label {
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: hsl(222.2, 84%, 4.9%);
+        }
+        
+        .chart-value {
+          font-size: 0.75rem;
+          color: hsl(215.4, 16.3%, 46.9%);
+        }
+      }
+    }
+  }
+}
+
+// Coming Soon Styles
+.coming-soon {
+  text-align: center;
+  padding: 4rem 0;
+  
+  .coming-soon-icon {
+    font-size: 4rem;
+    color: hsl(215.4, 16.3%, 46.9%);
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: hsl(222.2, 84%, 4.9%);
+  }
+  
+  p {
+    color: hsl(215.4, 16.3%, 46.9%);
+    margin: 0 0 1.5rem 0;
+  }
+}
+
+// Button Styles
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  
+  &.btn-primary {
+    background: linear-gradient(135deg, hsl(195, 84%, 65%) 0%, hsl(225, 87%, 68%) 100%);
+    color: white;
+    
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-outline {
+    background: white;
+    border: 1px solid hsl(214.3, 31.8%, 91.4%);
+    color: hsl(222.2, 84%, 4.9%);
+    
+    &:hover {
+      background: hsl(0, 0%, 98%);
+      border-color: hsl(195, 84%, 65%);
+    }
+  }
+  
+  &.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  i {
+    font-size: 1rem;
+  }
+}
+
+// Badge Styles
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  
+  &.success {
+    background: hsl(142, 76%, 36%);
+    color: white;
+  }
+}
+
+// Icon Styles
+[class^="icon-"] {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
