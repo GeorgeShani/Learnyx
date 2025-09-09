@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: 'create-course',
+    path: 'teacher/create-course',
     loadComponent: () =>
       import('./views/course-builder/course-builder.component').then(
         (m) => m.CourseBuilderComponent
