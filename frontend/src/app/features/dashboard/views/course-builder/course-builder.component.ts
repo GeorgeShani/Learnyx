@@ -35,12 +35,12 @@ interface CourseSettings {
 }
 
 @Component({
-  selector: 'app-create-course',
+  selector: 'app-course-builder',
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './create-course.component.html',
-  styleUrl: './create-course.component.scss',
+  templateUrl: './course-builder.component.html',
+  styleUrl: './course-builder.component.scss',
 })
-export class CreateCourseComponent {
+export class CourseBuilderComponent {
   // UI State
   activeTab = 'basics';
 
