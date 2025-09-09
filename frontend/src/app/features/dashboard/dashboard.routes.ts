@@ -4,8 +4,8 @@ export const routes: Routes = [
   {
     path: 'create-course',
     loadComponent: () =>
-      import('./views/create-course/create-course.component').then(
-        (m) => m.CreateCourseComponent
+      import('./views/course-builder/course-builder.component').then(
+        (m) => m.CourseBuilderComponent
       ),
   },
   {
