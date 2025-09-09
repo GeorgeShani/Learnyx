@@ -14,6 +14,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'courses/:id',
+    loadComponent: () =>
+      import('./views/course-details/course-details.component').then(
+        (m) => m.CourseDetailsComponent
+      ),
+  },
+  {
     path: 'teachers',
     loadComponent: () =>
       import('./views/teachers/teachers.component').then(
