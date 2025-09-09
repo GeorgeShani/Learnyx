@@ -40,6 +40,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'profile',
+    loadComponent: () => import("./views/profile/profile.component").then(m => m.ProfileComponent)
+  },
+  {
+    path: 'billing',
+    loadComponent: () => import("./views/billing/billing.component").then(m => m.BillingComponent)
+  },
+  {
     path: 'help',
     loadComponent: () =>
       import('./views/support/support.component').then(
