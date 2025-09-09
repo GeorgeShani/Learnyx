@@ -1,0 +1,505 @@
+<div class="course-builder">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-container">
+      <div class="header-content">
+        <div class="header-title">
+          <h1 class="title">Course Builder</h1>
+          <p class="subtitle">Create your next course</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="handleSaveDraft()">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17,21 17,13 7,13 7,21"/>
+              <polyline points="7,3 7,8 15,8"/>
+            </svg>
+            Save Draft
+          </button>
+          <button class="btn btn-ghost" (click)="handlePreview()">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Preview
+          </button>
+          <button class="btn btn-primary" (click)="handlePublish()">
+            Publish Course
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab-list">
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'basics'"
+          (click)="setActiveTab('basics')"
+        >
+          Course Basics
+        </button>
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'curriculum'"
+          (click)="setActiveTab('curriculum')"
+        >
+          Curriculum
+        </button>
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'pricing'"
+          (click)="setActiveTab('pricing')"
+        >
+          Pricing & Media
+        </button>
+        <button 
+          class="tab-trigger" 
+          [class.active]="activeTab === 'settings'"
+          (click)="setActiveTab('settings')"
+        >
+          Settings
+        </button>
+      </div>
+
+      <!-- Course Basics Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'basics'">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Course Information</h3>
+          </div>
+          <div class="card-content">
+            <form [formGroup]="courseForm">
+              <div class="form-grid">
+                <div class="form-section">
+                  <div class="form-group">
+                    <label for="title">Course Title *</label>
+                    <input 
+                      id="title" 
+                      type="text" 
+                      class="form-input"
+                      formControlName="title"
+                      placeholder="e.g., Complete React Development Bootcamp"
+                    />
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="subtitle">Course Subtitle</label>
+                    <input 
+                      id="subtitle" 
+                      type="text" 
+                      class="form-input"
+                      formControlName="subtitle"
+                      placeholder="A compelling subtitle that explains your course value"
+                    />
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Category</label>
+                      <select class="form-select" formControlName="category">
+                        <option value="">Select category</option>
+                        <option value="development">Development</option>
+                        <option value="design">Design</option>
+                        <option value="business">Business</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="photography">Photography</option>
+                        <option value="music">Music</option>
+                      </select>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label>Level</label>
+                      <select class="form-select" formControlName="level">
+                        <option value="">Select level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-group">
+                    <label for="description">Course Description</label>
+                    <textarea 
+                      id="description" 
+                      class="form-textarea"
+                      formControlName="description"
+                      placeholder="Describe what students will learn in this course..."
+                      rows="6"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-lists">
+                <!-- Tags -->
+                <div class="form-group">
+                  <label>Course Tags</label>
+                  <div class="input-with-button">
+                    <input 
+                      type="text" 
+                      class="form-input"
+                      [(ngModel)]="currentTag"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="Add a tag"
+                      (keypress)="onTagKeyPress($event)"
+                    />
+                    <button type="button" class="btn btn-sm" (click)="addTag()">
+                      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="tag-list">
+                    <span 
+                      *ngFor="let tag of tags" 
+                      class="tag"
+                      (click)="removeTag(tag)"
+                    >
+                      {{tag}} ×
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Requirements -->
+                <div class="form-group">
+                  <label>Requirements</label>
+                  <div class="input-with-button">
+                    <input 
+                      type="text" 
+                      class="form-input"
+                      [(ngModel)]="currentRequirement"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="What should students know before taking this course?"
+                      (keypress)="onRequirementKeyPress($event)"
+                    />
+                    <button type="button" class="btn btn-sm" (click)="addRequirement()">
+                      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <ul class="requirement-list">
+                    <li *ngFor="let req of requirements" class="requirement-item">
+                      <span class="bullet primary"></span>
+                      {{req}}
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Learning Outcomes -->
+                <div class="form-group">
+                  <label>Learning Outcomes</label>
+                  <div class="input-with-button">
+                    <input 
+                      type="text" 
+                      class="form-input"
+                      [(ngModel)]="currentOutcome"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="What will students learn from this course?"
+                      (keypress)="onOutcomeKeyPress($event)"
+                    />
+                    <button type="button" class="btn btn-sm" (click)="addOutcome()">
+                      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <ul class="requirement-list">
+                    <li *ngFor="let outcome of learningOutcomes" class="requirement-item">
+                      <span class="bullet secondary"></span>
+                      {{outcome}}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Curriculum Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'curriculum'">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Course Curriculum</h3>
+            <button class="btn btn-outline" (click)="addSection()">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add Section
+            </button>
+          </div>
+          <div class="card-content">
+            <div class="curriculum-sections">
+              <div *ngFor="let section of sections; let sectionIndex = index" class="section">
+                <div class="section-header">
+                  <svg class="grip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="12" r="1"/>
+                    <circle cx="9" cy="5" r="1"/>
+                    <circle cx="9" cy="19" r="1"/>
+                    <circle cx="15" cy="12" r="1"/>
+                    <circle cx="15" cy="5" r="1"/>
+                    <circle cx="15" cy="19" r="1"/>
+                  </svg>
+                  <input 
+                    type="text" 
+                    class="section-title-input"
+                    [(ngModel)]="section.title"
+                    [ngModelOptions]="{standalone: true}"
+                  />
+                  <button class="btn btn-sm btn-ghost" (click)="addLesson(section.id)">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Lesson
+                  </button>
+                  <button 
+                    *ngIf="sections.length > 1"
+                    class="btn btn-sm btn-ghost btn-danger" 
+                    (click)="removeSection(section.id)"
+                  >
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3,6 5,6 21,6"/>
+                      <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="lessons">
+                  <div *ngFor="let lesson of section.lessons" class="lesson">
+                    <svg class="grip-icon small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="9" cy="12" r="1"/>
+                      <circle cx="9" cy="5" r="1"/>
+                      <circle cx="9" cy="19" r="1"/>
+                      <circle cx="15" cy="12" r="1"/>
+                      <circle cx="15" cy="5" r="1"/>
+                      <circle cx="15" cy="19" r="1"/>
+                    </svg>
+                    <div class="lesson-icon">
+                      <svg *ngIf="lesson.type === 'video'" class="icon video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="23,7 16,12 23,17 23,7"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                      </svg>
+                      <svg *ngIf="lesson.type === 'text'" class="icon text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V8Z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                      </svg>
+                      <svg *ngIf="lesson.type === 'quiz'" class="icon quiz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polygon points="10,8 16,12 10,16 10,8"/>
+                      </svg>
+                    </div>
+                    <input 
+                      type="text" 
+                      class="lesson-title-input"
+                      [(ngModel)]="lesson.title"
+                      [ngModelOptions]="{standalone: true}"
+                    />
+                    <select class="lesson-type-select" [(ngModel)]="lesson.type" [ngModelOptions]="{standalone: true}">
+                      <option value="video">Video</option>
+                      <option value="text">Article</option>
+                      <option value="quiz">Quiz</option>
+                    </select>
+                    <button class="btn btn-sm btn-ghost btn-danger" (click)="removeLesson(section.id, lesson.id)">
+                      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3,6 5,6 21,6"/>
+                        <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing & Media Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'pricing'">
+        <div class="pricing-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Pricing</h3>
+            </div>
+            <div class="card-content">
+              <div class="form-group">
+                <label for="price">Course Price ($)</label>
+                <input 
+                  id="price" 
+                  type="number" 
+                  class="form-input"
+                  [formControl]="priceControl"
+                  min="0"
+                  placeholder="99.99"
+                />
+              </div>
+              
+              <div class="switch-group">
+                <input type="checkbox" id="free-course" class="switch" [(ngModel)]="isFree" [ngModelOptions]="{standalone: true}">
+                <label for="free-course">Make this course free</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Course Media Upload</h2>
+            </div>
+            
+            <div class="card-content">
+              <!-- Hidden file inputs -->
+              <input 
+                #thumbnailInput 
+                type="file" 
+                class="hidden-input" 
+                accept="image/*"
+                (change)="onThumbnailSelected($event)" 
+              />
+              
+              <input 
+                #videoInput 
+                type="file" 
+                class="hidden-input" 
+                accept="video/*"
+                (change)="onVideoSelected($event)" 
+              />
+              
+              <div class="form-group">
+                <label>Course Thumbnail</label>
+                <div 
+                  class="upload-area"
+                  [class.dragover]="thumbnailDragover"
+                  (click)="triggerThumbnailUpload()"
+                  (dragover)="onDragOver($event, 'thumbnail')"
+                  (dragleave)="onDragLeave('thumbnail')"
+                  (drop)="onDrop($event, 'thumbnail')"
+                >  
+                  <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  <p>Upload a thumbnail image (1280x720 recommended)</p>
+                </div>
+                
+                <div class="file-info" [class.show]="thumbnailFile" *ngIf="thumbnailFile">
+                  <span>{{ thumbnailFile.name }} ({{ getFileSize(thumbnailFile) }} MB)</span>
+                  <button type="button" class="remove-file" (click)="removeThumbnail()">Remove</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Preview Video</label>
+                <div 
+                  class="upload-area"
+                  [class.dragover]="videoDragover"
+                  (click)="triggerVideoUpload()"
+                  (dragover)="onDragOver($event, 'video')"
+                  (dragleave)="onDragLeave('video')"
+                  (drop)="onDrop($event, 'video')"
+                >
+                  
+                  <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23,7 16,12 23,17 23,7"/>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                  </svg>
+                  <p>Upload a preview video (2-3 minutes recommended)</p>
+                </div>
+                
+                <div class="file-info" [class.show]="videoFile" *ngIf="videoFile">
+                  <span>{{ videoFile.name }} ({{ getFileSize(videoFile) }} MB)</span>
+                  <button type="button" class="remove-file" (click)="removeVideo()">Remove</button>
+                </div>
+              </div>
+
+              <div class="form-actions" *ngIf="thumbnailFile || videoFile">
+                <button type="button" class="submit-btn" (click)="submitCourseData()">
+                  Submit Course Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'settings'">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Course Settings</h3>
+          </div>
+          <div class="card-content">
+            <div class="settings-grid">
+              <div class="settings-section">
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <label>Enable Q&A</label>
+                    <p>Allow students to ask questions</p>
+                  </div>
+                  <input type="checkbox" class="switch" [(ngModel)]="settings.enableQA" [ngModelOptions]="{standalone: true}">
+                </div>
+                
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <label>Enable Reviews</label>
+                    <p>Allow students to leave reviews</p>
+                  </div>
+                  <input type="checkbox" class="switch" [(ngModel)]="settings.enableReviews" [ngModelOptions]="{standalone: true}">
+                </div>
+                
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <label>Enable Discussions</label>
+                    <p>Enable course discussion forum</p>
+                  </div>
+                  <input type="checkbox" class="switch" [(ngModel)]="settings.enableDiscussions" [ngModelOptions]="{standalone: true}">
+                </div>
+              </div>
+              
+              <div class="settings-section">
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <label>Auto-approve enrollments</label>
+                    <p>Automatically accept all enrollments</p>
+                  </div>
+                  <input type="checkbox" class="switch" [(ngModel)]="settings.autoApprove" [ngModelOptions]="{standalone: true}">
+                </div>
+                
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <label>Issue certificates</label>
+                    <p>Provide completion certificates</p>
+                  </div>
+                  <input type="checkbox" class="switch" [(ngModel)]="settings.issueCertificates" [ngModelOptions]="{standalone: true}">
+                </div>
+                
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <label>Send completion emails</label>
+                    <p>Email students when they complete lessons</p>
+                  </div>
+                  <input type="checkbox" class="switch" [(ngModel)]="settings.sendCompletionEmails" [ngModelOptions]="{standalone: true}">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
