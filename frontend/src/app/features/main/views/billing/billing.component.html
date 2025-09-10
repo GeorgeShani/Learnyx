@@ -1,6 +1,5 @@
 <div class="billing-container">
   <div class="billing-content">
-    <!-- Hero Section -->
     <div class="hero-section">
       <h1 class="hero-title">Choose Your Learning Plan</h1>
       <p class="hero-description">
@@ -128,46 +127,79 @@
             <form [formGroup]="cardForm" class="card-form">
               <div class="form-group">
                 <label for="cardName" class="form-label">Cardholder Name</label>
-                <input 
-                  id="cardName"
-                  type="text"
-                  class="form-input"
-                  placeholder="John Doe"
-                  formControlName="name"
-                />
+                <div class="input-wrapper">
+                  <input 
+                    id="cardName"
+                    type="text"
+                    class="form-input"
+                    [class.error]="cardForm.get('name')?.invalid && cardForm.get('name')?.touched"
+                    placeholder="John Doe"
+                    formControlName="name"
+                  />
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
               </div>
               
               <div class="form-group">
                 <label for="cardNumber" class="form-label">Card Number</label>
-                <input 
-                  id="cardNumber"
-                  type="text"
-                  class="form-input"
-                  placeholder="1234 5678 9012 3456"
-                  formControlName="number"
-                />
+                <div class="input-wrapper card-number-wrapper">
+                  <input 
+                    id="cardNumber"
+                    type="text"
+                    class="form-input card-number-input"
+                    [class.error]="cardForm.get('number')?.invalid && cardForm.get('number')?.touched"
+                    placeholder="1234 5678 9012 3456"
+                    formControlName="number"
+                    (input)="formatCardNumber($event)"
+                    maxlength="19"
+                  />
+                  <div class="card-brand-icon" [innerHTML]="getCardBrandIcon()"></div>
+                </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label for="expiry" class="form-label">Expiry Date</label>
-                  <input 
-                    id="expiry"
-                    type="text"
-                    class="form-input"
-                    placeholder="MM/YY"
-                    formControlName="expiry"
-                  />
+                  <div class="input-wrapper">
+                    <input 
+                      id="expiry"
+                      type="text"
+                      class="form-input"
+                      [class.error]="cardForm.get('expiry')?.invalid && cardForm.get('expiry')?.touched"
+                      placeholder="MM/YY"
+                      formControlName="expiry"
+                      (input)="formatExpiryDate($event)"
+                      maxlength="5"
+                    />
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                      <line x1="16" x2="16" y1="2" y2="6"/>
+                      <line x1="8" x2="8" y1="2" y2="6"/>
+                      <line x1="3" x2="21" y1="10" y2="10"/>
+                    </svg>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="cvv" class="form-label">CVV</label>
-                  <input 
-                    id="cvv"
-                    type="text"
-                    class="form-input"
-                    placeholder="123"
-                    formControlName="cvv"
-                  />
+                  <div class="input-wrapper">
+                    <input 
+                      id="cvv"
+                      type="password"
+                      class="form-input"
+                      [class.error]="cardForm.get('cvv')?.invalid && cardForm.get('cvv')?.touched"
+                      placeholder="123"
+                      formControlName="cvv"
+                      (input)="formatCVV($event)"
+                      maxlength="4"
+                    />
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect width="20" height="14" x="2" y="5" rx="2"/>
+                      <line x1="2" x2="22" y1="10" y2="10"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
 
