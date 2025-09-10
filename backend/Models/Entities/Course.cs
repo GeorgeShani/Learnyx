@@ -16,4 +16,6 @@ public class Course : BaseEntity
     
     public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
     public virtual ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
+    public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+    public virtual ICollection<PlanCourseAccess> PlanAccess { get; set; } = new List<PlanCourseAccess>();
 }

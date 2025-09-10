@@ -12,8 +12,12 @@ public class DataContext : DbContext
     public DbSet<Lesson> Lessons { get; set; }
     public DbSet<Assignment> Assignments { get; set; }
     public DbSet<Submission> Submissions { get; set; }
+    public DbSet<Enrollment> Enrollments { get; set; }
+    public DbSet<Plan> Plans { get; set; }
+    public DbSet<UserPlan> UserPlans { get; set; }
+    public DbSet<PlanCourseAccess> PlanCourseAccesses { get; set; }
 
-    public DataContext(DbContextOptions<DataContext> options) : base(options) {}
+    public DataContext(DbContextOptions<DataContext> options) : base(options) { }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,6 +28,10 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new LessonConfiguration());
         modelBuilder.ApplyConfiguration(new AssignmentConfiguration());
         modelBuilder.ApplyConfiguration(new SubmissionConfiguration());
+        modelBuilder.ApplyConfiguration(new EnrollmentConfiguration());
+        modelBuilder.ApplyConfiguration(new PlanConfiguration());
+        modelBuilder.ApplyConfiguration(new UserPlanConfiguration());
+        modelBuilder.ApplyConfiguration(new PlanCourseAccessConfiguration());
         
         modelBuilder.Entity<User>()
             .Property(e => e.Role)
@@ -51,28 +59,57 @@ public class DataContext : DbContext
         // Configure relationships
         ConfigureRelationships(modelBuilder);
     }
-
+    
     private static void ConfigureRelationships(ModelBuilder modelBuilder)
     {
-        // User -> Course (Teacher) relationship
-        modelBuilder.Entity<Course>()
-            .HasOne(c => c.Teacher)
-            .WithMany(u => u.Courses)
+        // User relationships
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.TeacherCourses)
+            .WithOne(c => c.Teacher)
             .HasForeignKey(c => c.TeacherId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Course -> Lesson relationship
-        modelBuilder.Entity<Lesson>()
-            .HasOne(l => l.Course)
-            .WithMany(c => c.Lessons)
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Enrollments)
+            .WithOne(e => e.Student)
+            .HasForeignKey(e => e.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.UserPlans)
+            .WithOne(up => up.User)
+            .HasForeignKey(up => up.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Submissions)
+            .WithOne(s => s.Student)
+            .HasForeignKey(s => s.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        // Course relationships
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.Lessons)
+            .WithOne(l => l.Course)
             .HasForeignKey(l => l.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Course -> Assignment relationship
-        modelBuilder.Entity<Assignment>()
-            .HasOne(a => a.Course)
-            .WithMany(c => c.Assignments)
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.Assignments)
+            .WithOne(a => a.Course)
             .HasForeignKey(a => a.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.Enrollments)
+            .WithOne(e => e.Course)
+            .HasForeignKey(e => e.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.PlanAccess)
+            .WithOne(pca => pca.Course)
+            .HasForeignKey(pca => pca.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Assignment -> Submission relationship
@@ -82,14 +119,20 @@ public class DataContext : DbContext
             .HasForeignKey(s => s.AssignmentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // User -> Submission (Student) relationship
-        modelBuilder.Entity<Submission>()
-            .HasOne(s => s.Student)
-            .WithMany(u => u.Submissions)
-            .HasForeignKey(s => s.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Plan relationships
+        modelBuilder.Entity<Plan>()
+            .HasMany(p => p.UserPlans)
+            .WithOne(up => up.Plan)
+            .HasForeignKey(up => up.PlanId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Indexes for better performance
+        modelBuilder.Entity<Plan>()
+            .HasMany(p => p.CourseAccess)
+            .WithOne(pca => pca.Plan)
+            .HasForeignKey(pca => pca.PlanId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Indexes
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
@@ -109,5 +152,16 @@ public class DataContext : DbContext
         modelBuilder.Entity<Submission>()
             .HasIndex(s => new { s.AssignmentId, s.StudentId })
             .IsUnique();
+
+        modelBuilder.Entity<UserPlan>()
+            .HasIndex(up => new { up.UserId, up.PlanId })
+            .IsUnique();
+
+        modelBuilder.Entity<PlanCourseAccess>()
+            .HasIndex(pca => new { pca.PlanId, pca.CourseId })
+            .IsUnique();
+
+        modelBuilder.Entity<UserPlan>()
+            .HasIndex(up => up.EndDate);
     }
 }

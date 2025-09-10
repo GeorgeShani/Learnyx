@@ -11,6 +11,12 @@ public class User : BaseEntity
     public UserRole Role { get; set; }
     public string? Avatar { get; set; }
     
-    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+    public virtual ICollection<Course> TeacherCourses { get; set; } = new List<Course>();
+    
+    // Student-specific navigation properties
+    public virtual ICollection<UserPlan> UserPlans { get; set; } = new List<UserPlan>();
+    public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+
+    // Common navigation properties
     public virtual ICollection<Submission> Submissions { get; set; } = new List<Submission>();
 }
