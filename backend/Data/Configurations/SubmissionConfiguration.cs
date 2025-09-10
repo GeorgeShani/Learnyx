@@ -29,5 +29,9 @@ public class SubmissionConfiguration : IEntityTypeConfiguration<Submission>
         builder.Property(s => s.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETDATE()");
+        
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETDATE()");
     }   
 }

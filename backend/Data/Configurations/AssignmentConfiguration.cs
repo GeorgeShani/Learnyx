@@ -27,5 +27,9 @@ public class AssignmentConfiguration : IEntityTypeConfiguration<Assignment>
         builder.Property(a => a.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETDATE()");
+        
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETDATE()");
     }
 }

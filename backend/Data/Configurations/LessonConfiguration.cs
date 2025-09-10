@@ -27,5 +27,9 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
         builder.Property(l => l.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETDATE()");
+        
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETDATE()");
     }
 }

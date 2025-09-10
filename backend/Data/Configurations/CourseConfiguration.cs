@@ -39,5 +39,9 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.Property(c => c.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETDATE()");
+        
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETDATE()");
     }
 }

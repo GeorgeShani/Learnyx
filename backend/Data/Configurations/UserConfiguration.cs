@@ -37,5 +37,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETDATE()");
+        
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETDATE()");
     }
 }
