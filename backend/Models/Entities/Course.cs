@@ -1,0 +1,19 @@
+﻿using learnyx.Models.Enums;
+
+namespace learnyx.Models.Entities;
+
+public class Course : BaseEntity
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public int Duration { get; set; }
+    public decimal Price { get; set; }
+    public CourseStatus Status { get; set; } = CourseStatus.DRAFT;
+
+    public int TeacherId { get; set; }
+    public virtual User Teacher { get; set; } = null!;
+    
+    public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+    public virtual ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
+}
