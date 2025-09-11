@@ -10,6 +10,8 @@ public class Course : BaseEntity
     public int Duration { get; set; }
     public decimal Price { get; set; }
     public CourseStatus Status { get; set; } = CourseStatus.DRAFT;
+    public string? Thumbnail { get; set; }
+    public DateTime? PublishedAt { get; set; }
 
     public int TeacherId { get; set; }
     public virtual User Teacher { get; set; } = null!;
