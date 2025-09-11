@@ -10,8 +10,6 @@ public class User : BaseEntity
     public string? Password { get; set; }
     public UserRole Role { get; set; }
     public string? Avatar { get; set; }
-    public bool IsEmailConfirmed { get; set; }
-    public bool IsActive { get; set; } = true;
     
     public string AuthProvider { get; set; } = "Local"; // "Google", "Facebook", "Local (JWT)"
     public string? GoogleId { get; set; }

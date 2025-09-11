@@ -45,14 +45,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.FacebookId)
             .HasMaxLength(100);
 
-        builder.Property(u => u.IsEmailConfirmed)
-            .IsRequired()
-            .HasDefaultValue(false);
-
-        builder.Property(u => u.IsActive)
-            .IsRequired()
-            .HasDefaultValue(true);
-
         builder.Property(u => u.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETDATE()");
