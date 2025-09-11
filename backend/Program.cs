@@ -6,7 +6,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()   // Allow all domains
+            .AllowAnyMethod()   // Allow all HTTP methods (GET, POST, PUT, DELETE...)
+            .AllowAnyHeader();  // Allow all headers
+    });
+});
+
+builder.Services.AddAuthentication(builder.Configuration);
 builder.Services.ConfigureDatabase(builder.Configuration);
 
 var app = builder.Build();

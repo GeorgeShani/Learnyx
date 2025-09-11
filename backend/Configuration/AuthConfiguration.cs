@@ -2,22 +2,35 @@
 using learnyx.Authentication.Implementation;
 using learnyx.Authentication.Interfaces;
 using learnyx.Models.Enums;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 namespace learnyx.Configuration;
 
-public static class JwtAuthConfiguration
+public static class AuthConfiguration
 {
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         // Register JWT service
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+        services.AddScoped<IFacebookAuthService, FacebookAuthService>();
+        services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
 
         var jwtSettings = configuration.GetSection("Jwt");
         var secretKey = jwtSettings["Key"]!;
         var issuer = jwtSettings["Issuer"]!;
         var audience = jwtSettings["Audience"]!;
+        
+        var googleSettings = configuration.GetSection("Authentication:Google");
+        var googleClientId = googleSettings["ClientId"]!;
+        var googleClientSecret = googleSettings["ClientSecret"]!;
+        
+        var facebookSettings = configuration.GetSection("Authentication:Facebook");
+        var facebookAppId = facebookSettings["AppId"]!;
+        var facebookAppSecret = facebookSettings["AppSecret"]!;
 
         var key = Encoding.UTF8.GetBytes(secretKey);
 
@@ -70,7 +83,38 @@ public static class JwtAuthConfiguration
                     return Task.CompletedTask;
                 }
             };
-        });
+        })
+        .AddCookie(options =>
+        {
+            options.Cookie.SameSite = SameSiteMode.None; // allow cross-site
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        })
+        .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+            options.SaveTokens = true;
+                
+            // Request additional scopes if needed
+            options.Scope.Add("email");
+            options.Scope.Add("profile");
+                
+            // Configure a callback path
+            options.CallbackPath = "/api/auth/google/callback";
+        })
+        .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
+        {
+            options.AppId = facebookAppId;
+            options.AppSecret = facebookAppSecret;
+            options.SaveTokens = true;
+            
+            // Request additional scopes if needed
+            options.Scope.Add("email");
+            options.Scope.Add("public_profile");
+            
+            // Configure a callback path
+            options.CallbackPath = "/api/auth/facebook/callback";
+        });;
 
         services.AddAuthorization(options =>
         {
