@@ -1,4 +1,5 @@
-﻿using learnyx.Models.Requests;
+﻿using FluentValidation;
+using learnyx.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 using learnyx.Authentication.Interfaces;
 
@@ -8,21 +9,67 @@ namespace learnyx.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
+    private readonly IAuthService _authService;
     private readonly IGoogleAuthService _googleAuthService;
     private readonly IFacebookAuthService _facebookAuthService;
-    private readonly IJwtService _jwtService;
     private readonly ILogger<AuthController> _logger;
+    private readonly IJwtService _jwtService;
 
     public AuthController(
+        IAuthService authService,
         IGoogleAuthService googleAuthService, 
         IFacebookAuthService facebookAuthService,
         IJwtService jwtService, 
         ILogger<AuthController> logger
     ) {
+        _authService = authService;
         _googleAuthService = googleAuthService;
         _facebookAuthService = facebookAuthService;
         _jwtService = jwtService;
         _logger = logger;
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
+        {
+            var result = await _authService.Login(request);
+            return Ok(result);
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(new
+            {
+                Errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage })
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Message = "Internal Server Error", Details = ex.Message });
+        }
+    }
+
+    [HttpPost("signup")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        try
+        {
+            var result = await _authService.Register(request);
+            return Created("", result);
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(new
+            {
+                Errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage })
+            });
+        }
+        catch (Exception ex)
+        {
+            // For logging and generic 500 response
+            return StatusCode(500, new { Message = "Internal Server Error", Details = ex.Message });
+        }
     }
 
     [HttpPost("google")]
