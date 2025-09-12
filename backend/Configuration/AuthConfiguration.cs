@@ -100,7 +100,8 @@ public static class AuthConfiguration
             options.Scope.Add("profile");
                 
             // Configure a callback path
-            options.CallbackPath = "/api/auth/google/callback";
+            options.CallbackPath = "/signin-google";
+            // options.CallbackPath = "/api/auth/google/callback";
         })
         .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
         {
@@ -113,31 +114,20 @@ public static class AuthConfiguration
             options.Scope.Add("public_profile");
             
             // Configure a callback path
-            options.CallbackPath = "/api/auth/facebook/callback";
+            options.CallbackPath = "/signin-facebook";
+            // options.CallbackPath = "/api/auth/facebook/callback";
         });;
 
-        services.AddAuthorization(options =>
-        {
-            // Add role-based policies
-            options.AddPolicy("AdminPolicy", policy => policy.RequireRole(nameof(UserRole.ADMIN)));
-            options.AddPolicy("TeacherPolicy", policy => policy.RequireRole(nameof(UserRole.TEACHER), nameof(UserRole.ADMIN)));
-            options.AddPolicy("StudentPolicy", policy => policy.RequireRole(nameof(UserRole.STUDENT), nameof(UserRole.TEACHER), nameof(UserRole.ADMIN)));
-            
-            // Add custom policies
-            options.AddPolicy("ActiveUser", policy =>
-                policy.RequireClaim("is_active", "True"));
-            
-            options.AddPolicy("EmailConfirmed", policy =>
-                policy.RequireClaim("is_email_confirmed", "True"));
-            
-            options.AddPolicy("LocalAuth", policy =>
-                policy.RequireClaim("auth_provider", "Local"));
-            
-            options.AddPolicy("SocialAuth", policy =>
+        services.AddAuthorizationBuilder()
+            .AddPolicy("AdminPolicy", policy => policy.RequireRole(nameof(UserRole.ADMIN)))
+            .AddPolicy("TeacherPolicy", policy => policy.RequireRole(nameof(UserRole.TEACHER), nameof(UserRole.ADMIN)))
+            .AddPolicy("StudentPolicy", policy => policy.RequireRole(nameof(UserRole.STUDENT), nameof(UserRole.TEACHER), nameof(UserRole.ADMIN)))
+            .AddPolicy("LocalAuth", policy =>
+                policy.RequireClaim("auth_provider", "Local"))
+            .AddPolicy("SocialAuth", policy =>
                 policy.RequireAssertion(context =>
                     context.User.HasClaim("auth_provider", "Google") ||
                     context.User.HasClaim("auth_provider", "Facebook")));
-        });
 
         return services;
     }   
