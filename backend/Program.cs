@@ -4,18 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()   // Allow all domains
-            .AllowAnyMethod()   // Allow all HTTP methods (GET, POST, PUT, DELETE...)
-            .AllowAnyHeader();  // Allow all headers
-    });
-});
-
+builder.Services.AddSwagger();
+builder.Services.AddCorsConfiguration();
+builder.Services.AddServices(builder.Configuration);
 builder.Services.AddAuthentication(builder.Configuration);
 builder.Services.ConfigureDatabase(builder.Configuration);
 
