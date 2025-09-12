@@ -132,6 +132,102 @@ public class FacebookAuthService : IFacebookAuthService
         }
     }
 
+    public async Task<User> AuthenticateWithCodeAsync(string authorizationCode)
+    {
+        try
+        {
+            // Step 1: Exchange authorization code for access token
+            var accessToken = await ExchangeCodeForTokenAsync(authorizationCode);
+            
+            // Step 2: Get user information using the access token
+            var facebookUser = await GetFacebookUserInfoWithTokenAsync(accessToken);
+            
+            // Step 3: Find or create user
+            var user = await FindOrCreateFacebookUserAsync(facebookUser);
+            
+            _logger.LogInformation("Successfully authenticated Facebook user with code: {Email}", user.Email);
+            return user;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error authenticating with Facebook authorization code");
+            throw new UnauthorizedAccessException("Failed to authenticate with Facebook authorization code", ex);
+        }
+    }
+
+    private async Task<string> ExchangeCodeForTokenAsync(string authorizationCode)
+    {
+        try
+        {
+            var appId = _configuration["Authentication:Facebook:AppId"]!;
+            var appSecret = _configuration["Authentication:Facebook:AppSecret"]!;
+            var redirectUri = _configuration["Authentication:Facebook:RedirectUri"]!;
+
+            var tokenUrl = $"{FacebookGraphApiUrl}/oauth/access_token" +
+                          $"?client_id={appId}" +
+                          $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+                          $"&client_secret={appSecret}" +
+                          $"&code={authorizationCode}";
+
+            var response = await _httpClient.GetAsync(tokenUrl);
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to exchange Facebook code for token: {Response}", json);
+                throw new UnauthorizedAccessException("Failed to exchange authorization code for access token");
+            }
+
+            var tokenResponse = JsonSerializer.Deserialize<FacebookTokenResponse>(json,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower });
+
+            if (tokenResponse?.AccessToken == null)
+            {
+                _logger.LogError("Facebook token response missing access token: {Response}", json);
+                throw new UnauthorizedAccessException("Invalid token response from Facebook");
+            }
+
+            return tokenResponse.AccessToken;
+        }
+        catch (Exception ex) when (!(ex is UnauthorizedAccessException))
+        {
+            _logger.LogError(ex, "Error exchanging Facebook authorization code for token");
+            throw new UnauthorizedAccessException("Failed to exchange authorization code for access token", ex);
+        }
+    }
+
+    private async Task<FacebookUserInfo> GetFacebookUserInfoWithTokenAsync(string accessToken)
+    {
+        try
+        {
+            var url = $"{FacebookGraphApiUrl}/me?fields={FacebookUserInfoFields}&access_token={accessToken}";
+            
+            var response = await _httpClient.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to get Facebook user info with token: {Response}", json);
+                throw new UnauthorizedAccessException("Failed to retrieve user information from Facebook");
+            }
+
+            var userInfo = JsonSerializer.Deserialize<FacebookUserInfo>(json, 
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower });
+
+            if (userInfo == null || string.IsNullOrEmpty(userInfo.Id))
+            {
+                throw new UnauthorizedAccessException("Invalid user information received from Facebook");
+            }
+
+            return userInfo;
+        }
+        catch (Exception ex) when (ex is not UnauthorizedAccessException)
+        {
+            _logger.LogError(ex, "Error getting Facebook user info with token");
+            throw new UnauthorizedAccessException("Failed to retrieve user information from Facebook", ex);
+        }
+    }
+
     private async Task<User> FindOrCreateFacebookUserAsync(FacebookUserInfo facebookUser)
     {
         using var scope = _serviceProvider.CreateScope();

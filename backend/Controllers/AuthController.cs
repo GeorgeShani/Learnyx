@@ -62,6 +62,52 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpGet("google/callback")]
+    public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string? state, [FromQuery] string? error)
+    {
+        // Handle error cases
+        if (!string.IsNullOrEmpty(error))
+        {
+            _logger.LogWarning("Google OAuth error: {Error}", error);
+            return BadRequest(new { message = $"Google OAuth error: {error}" });
+        }
+
+        if (string.IsNullOrEmpty(code))
+        {
+            return BadRequest(new { message = "Authorization code is required" });
+        }
+
+        try
+        {
+            var user = await _googleAuthService.AuthenticateWithCodeAsync(code);
+            var jwtToken = _jwtService.GenerateToken(user);
+            
+            return Ok(new
+            {
+                token = jwtToken,
+                user = new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    role = user.Role.ToString(),
+                    avatar = user.Avatar
+                }
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Invalid Google authorization code: {Error}", ex.Message);
+            return Unauthorized(new { message = "Invalid Google authorization code" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during Google OAuth callback");
+            return StatusCode(500, new { message = "Authentication failed" });
+        }
+    }
+
     [HttpPost("facebook")]
     public async Task<IActionResult> FacebookAuth([FromBody] FacebookAuthRequest request)
     {
@@ -109,6 +155,63 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during Facebook authentication");
+            return StatusCode(500, new { message = "Authentication failed" });
+        }
+    }
+    
+    [HttpGet("facebook/callback")]
+    public async Task<IActionResult> FacebookOAuthCallback([FromQuery] string code, [FromQuery] string? state, [FromQuery] string? error)
+    {
+        // Handle error cases
+        if (!string.IsNullOrEmpty(error))
+        {
+            _logger.LogWarning("Facebook OAuth error: {Error}", error);
+            return BadRequest(new { message = $"Facebook OAuth error: {error}" });
+        }
+
+        if (string.IsNullOrEmpty(code))
+        {
+            return BadRequest(new { message = "Authorization code is required" });
+        }
+
+        try
+        {
+            var user = await _facebookAuthService.AuthenticateWithCodeAsync(code);
+            
+            if (string.IsNullOrEmpty(user.Email))
+            {
+                return Ok(new 
+                { 
+                    requiresEmail = true,
+                    userId = user.Id,
+                    message = "Please provide your email address to complete registration"
+                });
+            }
+            
+            var jwtToken = _jwtService.GenerateToken(user);
+            
+            return Ok(new
+            {
+                token = jwtToken,
+                user = new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    role = user.Role.ToString(),
+                    avatar = user.Avatar
+                }
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Invalid Facebook authorization code: {Error}", ex.Message);
+            return Unauthorized(new { message = "Invalid Facebook authorization code" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during Facebook OAuth callback");
             return StatusCode(500, new { message = "Authentication failed" });
         }
     }

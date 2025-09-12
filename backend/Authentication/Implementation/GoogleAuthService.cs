@@ -1,7 +1,12 @@
 ﻿using learnyx.Data;
 using Google.Apis.Auth;
 using learnyx.Models.Enums;
+using Google.Apis.Services;
+using Google.Apis.Oauth2.v2;
 using learnyx.Models.Entities;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Oauth2.v2.Data;
+using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.EntityFrameworkCore;
 using learnyx.Authentication.Interfaces;
 
@@ -65,6 +70,69 @@ public class GoogleAuthService : IGoogleAuthService
         {
             _logger.LogError(ex, "Error authenticating Google user");
             throw new InvalidOperationException("Failed to authenticate user with Google", ex);
+        }
+    }
+
+    public async Task<User> AuthenticateWithCodeAsync(string authorizationCode)
+    {
+        try
+        {
+            var googleClientId = _configuration["Authentication:Google:ClientId"]!;
+            var googleClientSecret = _configuration["Authentication:Google:ClientSecret"]!;
+            var redirectUri = _configuration["Authentication:Google:RedirectUri"]!;
+
+            // Create OAuth2 flow
+            var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+            {
+                ClientSecrets = new ClientSecrets
+                {
+                    ClientId = googleClientId,
+                    ClientSecret = googleClientSecret
+                },
+                Scopes = new[] { "openid", "email", "profile" }
+            });
+
+            // Exchange authorization code for tokens
+            var tokenResponse = await flow.ExchangeCodeForTokenAsync("user", authorizationCode, redirectUri, CancellationToken.None);
+
+            // Get user information using the access token
+            var userInfo = await GetGoogleUserInfoAsync(tokenResponse.AccessToken);
+
+            var user = await FindOrCreateGoogleUserAsync(
+                userInfo.Email,
+                userInfo.GivenName ?? "",
+                userInfo.FamilyName ?? "",
+                userInfo.Id,
+                userInfo.Picture
+            );
+
+            return user;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error authenticating with Google authorization code");
+            throw new UnauthorizedAccessException("Failed to authenticate with Google authorization code", ex);
+        }
+    }
+
+    private async Task<Userinfo> GetGoogleUserInfoAsync(string accessToken)
+    {
+        try
+        {
+            var oauth2Service = new Oauth2Service(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = GoogleCredential.FromAccessToken(accessToken)
+            });
+
+            var userInfoRequest = oauth2Service.Userinfo.Get();
+            var userInfo = await userInfoRequest.ExecuteAsync();
+            
+            return userInfo;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving Google user info");
+            throw new UnauthorizedAccessException("Failed to retrieve user information from Google", ex);
         }
     }
 
