@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using learnyx.Authentication.Implementation;
-using learnyx.Authentication.Interfaces;
 using learnyx.Models.Enums;
-using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using learnyx.Authentication.Interfaces;
+using learnyx.Authentication.Implementation;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace learnyx.Configuration;
 
@@ -15,6 +15,7 @@ public static class AuthConfiguration
     {
         // Register JWT service
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
         services.AddScoped<IFacebookAuthService, FacebookAuthService>();
         services.AddHttpClient<IFacebookAuthService, FacebookAuthService>();
@@ -101,7 +102,6 @@ public static class AuthConfiguration
                 
             // Configure a callback path
             options.CallbackPath = "/signin-google";
-            // options.CallbackPath = "/api/auth/google/callback";
         })
         .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
         {
@@ -115,19 +115,34 @@ public static class AuthConfiguration
             
             // Configure a callback path
             options.CallbackPath = "/signin-facebook";
-            // options.CallbackPath = "/api/auth/facebook/callback";
-        });;
+        });
 
         services.AddAuthorizationBuilder()
-            .AddPolicy("AdminPolicy", policy => policy.RequireRole(nameof(UserRole.ADMIN)))
-            .AddPolicy("TeacherPolicy", policy => policy.RequireRole(nameof(UserRole.TEACHER), nameof(UserRole.ADMIN)))
-            .AddPolicy("StudentPolicy", policy => policy.RequireRole(nameof(UserRole.STUDENT), nameof(UserRole.TEACHER), nameof(UserRole.ADMIN)))
+            .AddPolicy("AdminPolicy", 
+                policy => policy.RequireRole(nameof(UserRole.ADMIN))
+            )
+            .AddPolicy("TeacherPolicy", 
+                policy => policy.RequireRole(
+                    nameof(UserRole.TEACHER), 
+                    nameof(UserRole.ADMIN)
+                )
+            )
+            .AddPolicy("StudentPolicy",
+                policy => policy.RequireRole(
+                    nameof(UserRole.STUDENT),
+                    nameof(UserRole.TEACHER),
+                    nameof(UserRole.ADMIN)
+                )
+            )
             .AddPolicy("LocalAuth", policy =>
-                policy.RequireClaim("auth_provider", "Local"))
+                policy.RequireClaim("auth_provider", "Local")
+            )
             .AddPolicy("SocialAuth", policy =>
                 policy.RequireAssertion(context =>
                     context.User.HasClaim("auth_provider", "Google") ||
-                    context.User.HasClaim("auth_provider", "Facebook")));
+                    context.User.HasClaim("auth_provider", "Facebook")
+                )
+            );
 
         return services;
     }   
