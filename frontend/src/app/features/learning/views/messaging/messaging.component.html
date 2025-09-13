@@ -47,7 +47,17 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-header">
-        <h1 class="sidebar-title">Messages</h1>
+        <h1 class="sidebar-title">
+          <a href="/">
+            <img 
+              src="learnyx.svg" 
+              alt="Learnyx Logo" 
+              width="32"
+              height="24" 
+            />
+          </a>
+          Learnyx Chat
+        </h1>
         <div class="search-container">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/>
@@ -108,11 +118,12 @@
         <!-- Contact Lists -->
         <div class="tab-content">
           <div class="contacts-scroll">
-            <div *ngFor="let contact of getFilteredContacts()" 
-                 class="contact-item"
-                 [class.selected]="selectedContact?.id === contact.id"
-                 (click)="selectContact(contact)">
-              
+            <div 
+              *ngFor="let contact of getFilteredContacts()" 
+              class="contact-item"
+              [class.selected]="selectedContact?.id === contact.id"
+              (click)="selectContact(contact)"
+            >  
               <div class="contact-avatar-container">
                 <div class="contact-avatar">
                   <img *ngIf="contact.avatar && contact.role !== 'AI'" 
@@ -124,7 +135,6 @@
                     {{ getInitials(contact.name) }}
                   </div>
                 </div>
-                <div class="status-indicator" [class.online]="contact.isOnline"></div>
               </div>
 
               <div class="contact-info">
@@ -136,8 +146,7 @@
                 </div>
 
                 <div class="contact-status">
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" 
-                       [class.online]="contact.isOnline">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" [class.online]="contact.isOnline">
                     <circle cx="12" cy="12" r="10"/>
                   </svg>
                   <span class="status-text">{{ getLastSeenText(contact) }}</span>
@@ -149,8 +158,7 @@
                 </p>
 
                 <div *ngIf="contact.expertise" class="expertise-tags">
-                  <span *ngFor="let skill of contact.expertise.slice(0, 2)" 
-                        class="expertise-tag">
+                  <span *ngFor="let skill of contact.expertise.slice(0, 2)" class="expertise-tag">
                     {{ skill }}
                   </span>
                   <span *ngIf="contact.expertise.length > 2" class="expertise-tag">
@@ -205,7 +213,7 @@
         </div>
 
         <!-- Messages -->
-        <div class="messages-container" #messagesContainer>
+        <div class="messages-content" #messagesContainer>
           <div class="messages-list">
             <div *ngFor="let message of messages" 
                  class="message-wrapper"
