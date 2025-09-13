@@ -1,0 +1,388 @@
+<div class="course-player-container">
+  <!-- Sidebar -->
+  <div class="sidebar" [class.sidebar-open]="sidebarOpen" [class.sidebar-closed]="!sidebarOpen">
+    <div class="sidebar-header">
+      <div class="sidebar-title-row">
+        <h2 class="sidebar-title">{{ course.title }}</h2>
+        <button class="close-sidebar-btn" (click)="setSidebarOpen(false)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 6-12 12"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <button class="back-to-course-btn" (click)="navigateToCoursePage()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Back to Course
+      </button>
+      <div class="progress-section">
+        <div class="progress-text">
+          <span>{{ course.completedLessons }}/{{ course.totalLessons }} lessons</span>
+          <span>{{ course.progress }}% complete</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="course.progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="curriculum-list">
+      <div *ngFor="let section of course.curriculum; let sectionIndex = index" class="curriculum-section">
+        <div class="section-header">
+          <h3>{{ section.section }}</h3>
+        </div>
+        <div class="lessons-list">
+          <button 
+            *ngFor="let lesson of section.lessons; let lessonIdx = index"
+            class="lesson-item"
+            [class.current-lesson]="isCurrentLesson(sectionIndex, lessonIdx)"
+            (click)="navigateToLesson(lesson.id)"
+          >
+            <div class="lesson-content">
+              <div class="lesson-icon">
+                <svg *ngIf="lesson.completed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="completed-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                <svg *ngIf="!lesson.completed && isCurrentLesson(sectionIndex, lessonIdx)" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="current-icon"><polygon points="5,3 19,12 5,21 5,3"/></svg>
+                <div *ngIf="!lesson.completed && !isCurrentLesson(sectionIndex, lessonIdx)" class="uncompleted-icon"></div>
+              </div>
+              <div class="lesson-details">
+                <p class="lesson-title" [class.current-title]="isCurrentLesson(sectionIndex, lessonIdx)">{{ lesson.title }}</p>
+                <p class="lesson-duration">{{ lesson.duration }}</p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Video Player -->
+    <div class="video-container">
+      <video 
+        #videoElement
+        class="video-player"
+        [src]="currentLesson?.videoUrl"
+        (timeupdate)="onTimeUpdate()"
+        (loadedmetadata)="onLoadedMetadata()"
+        (play)="onPlay()"
+        (pause)="onPause()"
+        (ended)="onVideoEnded()"
+      ></video>
+
+      <!-- Video Controls -->
+      <div class="video-controls">
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="time-display">
+            <span>{{ formatTime(currentTime) }}</span>
+            <span>{{ formatTime(duration) }}</span>
+          </div>
+          <div class="progress-bar-container" (click)="onProgressClick($event)">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="progressPercentage"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="controls-row">
+          <div class="left-controls">
+            <button class="control-btn" (click)="skipBack()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19,20 9,12 19,4 19,20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+            </button>
+            <button class="control-btn play-pause-btn" (click)="togglePlayPause()">
+              <svg *ngIf="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <svg *ngIf="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21 5,3"/></svg>
+            </button>
+            <button class="control-btn" (click)="skipForward()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,4 15,12 5,20 5,4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+            </button>
+
+            <!-- Volume Control -->
+            <div class="volume-control">
+              <button class="control-btn" (click)="toggleMute()">
+                <svg *ngIf="isMuted || volume === 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                <svg *ngIf="!isMuted && volume > 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/><path d="m19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              </button>
+              <div class="volume-slider-container">
+                <div class="volume-slider-bg">
+                  <div class="volume-slider-fill" [style.width.%]="volume"></div>
+                </div>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  [value]="volume"
+                  (input)="onVolumeChange($event)"
+                  class="volume-slider-input"
+                />
+              </div>
+            </div>
+
+            <div class="playback-rate">{{ playbackRate }}x</div>
+          </div>
+
+          <div class="right-controls">
+            <button *ngIf="!sidebarOpen" class="control-btn" (click)="setSidebarOpen(true)" title="Show course sidebar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+
+            <!-- Settings Menu -->
+            <div class="settings-menu">
+              <button class="control-btn" (click)="toggleSettings()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cog-icon lucide-cog">
+                  <path d="M11 10.27 7 3.34"/>
+                  <path d="m11 13.73-4 6.93"/>
+                  <path d="M12 22v-2"/>
+                  <path d="M12 2v2"/>
+                  <path d="M14 12h8"/>
+                  <path d="m17 20.66-1-1.73"/>
+                  <path d="m17 3.34-1 1.73"/>
+                  <path d="M2 12h2"/>
+                  <path d="m20.66 17-1.73-1"/>
+                  <path d="m20.66 7-1.73 1"/>
+                  <path d="m3.34 17 1.73-1"/>
+                  <path d="m3.34 7 1.73 1"/>
+                  <circle cx="12" cy="12" r="2"/>
+                  <circle cx="12" cy="12" r="8"/>
+                </svg>
+              </button>
+
+              <div *ngIf="showSettings" class="settings-dropdown">
+                <div class="settings-title">Playback Speed</div>
+                <button 
+                  *ngFor="let speed of playbackSpeeds"
+                  class="speed-option"
+                  [class.active-speed]="playbackRate === speed"
+                  (click)="setPlaybackSpeed(speed)"
+                >
+                  {{ speed }}x
+                </button>
+              </div>
+            </div>
+
+            <button class="control-btn" (click)="toggleFullscreen()">
+              <ng-container *ngIf="!isInFullscreen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-expand-icon lucide-expand">
+                  <path d="m15 15 6 6"/>
+                  <path d="m15 9 6-6"/>
+                  <path d="M21 16v5h-5"/>
+                  <path d="M21 8V3h-5"/>
+                  <path d="M3 16v5h5"/>
+                  <path d="m3 21 6-6"/>
+                  <path d="M3 8V3h5"/>
+                  <path d="M9 9 3 3"/>
+                </svg>
+              </ng-container>
+              <ng-container *ngIf="isInFullscreen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shrink-icon lucide-shrink">
+                  <path d="m15 15 6 6m-6-6v4.8m0-4.8h4.8"/>
+                  <path d="M9 19.8V15m0 0H4.2M9 15l-6 6"/>
+                  <path d="M15 4.2V9m0 0h4.8M15 9l6-6"/>
+                  <path d="M9 4.2V9m0 0H4.2M9 9 3 3"/>
+                </svg>
+              </ng-container>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson Content -->
+    <div class="lesson-content-section">
+      <div class="lesson-header">
+        <div class="lesson-info">
+          <h1 class="lesson-title">{{ currentLesson?.title }}</h1>
+          <p class="lesson-description">{{ currentLesson?.description }}</p>
+        </div>
+        <div class="navigation-buttons">
+          <button 
+            class="nav-btn prev-btn"
+            [disabled]="currentLessonIndex === 0"
+            (click)="goToPreviousLesson()"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Previous
+          </button>
+          <button 
+            class="nav-btn next-btn"
+            [disabled]="currentLessonIndex === allLessons.length - 1"
+            (click)="goToNextLesson()"
+          >
+            Next
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <div class="tabs-list">
+          <button 
+            *ngFor="let tab of tabs"
+            class="tab-button"
+            [class.active-tab]="activeTab === tab.value"
+            (click)="setActiveTab(tab.value)"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Overview Tab -->
+          <div *ngIf="activeTab === 'overview'" class="tab-panel">
+            <div class="overview-card">
+              <h3 class="overview-title">About this lesson</h3>
+              <p class="overview-description">{{ currentLesson?.description }}</p>
+              
+              <div class="lesson-stats">
+                <div class="stat-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                  <span>{{ currentLesson?.duration }}</span>
+                </div>
+                <div class="stat-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                  <span>{{ currentLesson?.resources?.length }} resources</span>
+                </div>
+                <div class="stat-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m22 21-3-3m0 0a2 2 0 0 0-3-3 2 2 0 0 0-3 3 2 2 0 0 0 3 3 2 2 0 0 0 3-3Z"/></svg>
+                  <span>89k students</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resources Tab -->
+          <div *ngIf="activeTab === 'resources'" class="tab-panel">
+            <div class="resources-card">
+              <h3 class="resources-title">Lesson Resources</h3>
+              <div class="resources-list">
+                <div *ngFor="let resource of currentLesson?.resources" class="resource-item">
+                  <div class="resource-info">
+                    <div class="resource-icon">
+                      <svg *ngIf="resource.type === 'pdf'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pdf-icon"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/></svg>
+                      <svg *ngIf="resource.type === 'zip'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="zip-icon"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>
+                      <svg *ngIf="resource.type === 'link'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="link-icon"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </div>
+                    <div class="resource-details">
+                      <p class="resource-name">{{ resource.name }}</p>
+                      <p class="resource-size">{{ resource.size }}</p>
+                    </div>
+                  </div>
+                  <button class="download-btn" (click)="downloadResource(resource)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transcript Tab -->
+          <div *ngIf="activeTab === 'transcript'" class="tab-panel">
+            <div class="transcript-card">
+              <h3 class="transcript-title">Video Transcript</h3>
+              <div class="transcript-list">
+                <div *ngFor="let item of currentLesson?.transcript" class="transcript-item" (click)="jumpToTime(item.time)">
+                  <div class="transcript-time">{{ item.time }}</div>
+                  <p class="transcript-text">{{ item.text }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q&A Tab -->
+          <div *ngIf="activeTab === 'qa'" class="tab-panel">
+            <div class="qa-card">
+              <h3 class="qa-title">Questions & Answers</h3>
+
+              <!-- Ask Question Form -->
+              <div class="ask-question-form">
+                <textarea 
+                  placeholder="Ask a question about this lesson..."
+                  [(ngModel)]="newQuestion"
+                  class="question-textarea"
+                  rows="3"
+                ></textarea>
+                <div class="question-form-footer">
+                  <span class="timestamp-info">Question will be timestamped at {{ formatTime(currentTime) }}</span>
+                  <button 
+                    class="ask-btn"
+                    [disabled]="!newQuestion.trim()"
+                    (click)="askQuestion()"
+                  >
+                    Ask Question
+                  </button>
+                </div>
+              </div>
+
+              <!-- Questions List -->
+              <div class="questions-list">
+                <div *ngFor="let question of questions" class="question-item">
+                  <div class="question-header">
+                    <div class="question-user-info">
+                      <span class="question-user">{{ question.user }}</span>
+                      <div class="question-timestamp">{{ question.timestamp }}</div>
+                    </div>
+                    <button class="like-btn" (click)="likeQuestion(question.id)">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56Z"/></svg>
+                      <span>{{ question.likes }}</span>
+                    </button>
+                  </div>
+                  <p class="question-text">{{ question.question }}</p>
+                  
+                  <div *ngIf="question.answer" class="answer-section">
+                    <p class="answer-text">{{ question.answer }}</p>
+                  </div>
+
+                  <!-- Replies -->
+                  <div *ngIf="question.replies && question.replies.length > 0" class="replies-section">
+                    <div *ngFor="let reply of question.replies" class="reply-item">
+                      <div class="reply-header">
+                        <div class="reply-user-info">
+                          <span class="reply-user">{{ reply.user }}</span>
+                          <div class="reply-timestamp">{{ reply.timestamp }}</div>
+                        </div>
+                        <button class="like-btn" (click)="likeReply(question.id, reply.id)">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56Z"/></svg>
+                          <span>{{ reply.likes }}</span>
+                        </button>
+                      </div>
+                      <p class="reply-text">{{ reply.text }}</p>
+                    </div>
+                  </div>
+
+                  <div class="question-actions">
+                    <button class="reply-btn" (click)="toggleReply(question.id)">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,17 4,12 9,7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+                      Reply
+                    </button>
+                  </div>
+
+                  <!-- Reply Form -->
+                  <div *ngIf="replyingTo === question.id" class="reply-form">
+                    <textarea 
+                      placeholder="Write a reply..."
+                      [(ngModel)]="replyText"
+                      class="reply-textarea"
+                      rows="2"
+                    ></textarea>
+                    <div class="reply-form-actions">
+                      <button class="cancel-reply-btn" (click)="cancelReply()">Cancel</button>
+                      <button 
+                        class="submit-reply-btn"
+                        [disabled]="!replyText.trim()"
+                        (click)="submitReply(question.id)"
+                      >
+                        Reply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

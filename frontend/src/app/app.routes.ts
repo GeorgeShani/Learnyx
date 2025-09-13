@@ -29,6 +29,15 @@ export const routes: Routes = [
       import('./features/dashboard/dashboard.routes').then((m) => m.routes),
   },
   {
+    path: 'learning',
+    loadComponent: () =>
+      import('./layout/learning-layout/learning-layout.component').then(
+        (m) => m.LearningLayoutComponent
+      ),
+    loadChildren: () =>
+      import('./features/learning/learning.routes').then((m) => m.routes),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./layout/error-layout/error-layout.component').then(
