@@ -122,7 +122,7 @@ export class LearnComponent {
     // Get route parameters
     this.route.params.subscribe((params) => {
       this.courseId = params['courseId'] || '1';
-      this.lessonId = params['lessonId'];
+      this.lessonId = params['lessonId'] || null;
       this.loadCurrentLesson();
     });
 
@@ -457,12 +457,12 @@ export class LearnComponent {
     this.sidebarOpen = open;
   }
 
-  navigateToCoursePage() {
-    this.router.navigate(['/learn', this.courseId]);
+  navigateToDashboard() {
+    this.router.navigate(['/dashboard/student']);
   }
 
   navigateToLesson(lessonId: number) {
-    this.router.navigate(['/learn', this.courseId, lessonId]);
+    this.router.navigate(['/learning', this.courseId, lessonId]);
     this.currentTime = 0;
     this.isPlaying = false;
   }

@@ -474,7 +474,7 @@ export class StudentDashboardComponent {
   }
 
   navigateToCourse(courseId: number): void {
-    this.router.navigate(['/learn', courseId]);
+    this.router.navigate(['/learning', courseId]);
   }
 
   navigateToCourses(): void {
