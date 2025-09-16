@@ -37,7 +37,7 @@ export class HeaderComponent {
       });
     
     this.isSignedIn = this.tokenService.isAuthenticated();
-    this.role = this.tokenService.getUserRole()!.toLocaleLowerCase();
+    this.role = this.tokenService.getUserRole()?.toLowerCase() ?? '';
 
     // Set initial route
     this.currentRoute = this.router.url;
