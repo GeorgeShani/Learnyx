@@ -480,4 +480,8 @@ export class StudentDashboardComponent {
   navigateToCourses(): void {
     this.router.navigate(['/courses']);
   }
+
+  navigateToHelp(): void {
+    this.router.navigate(['/help']);
+  }
 }

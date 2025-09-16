@@ -1,3 +1,4 @@
+using learnyx.Hubs;
 using learnyx.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,4 +24,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
 app.Run();
