@@ -40,4 +40,12 @@ export class TokenService {
     const now = Math.floor(Date.now() / 1000);
     return decoded.exp < now;
   }
+
+  getUserRole(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    const decoded = jwtDecode<Record<string, any>>(token);
+    return decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+  }
 }

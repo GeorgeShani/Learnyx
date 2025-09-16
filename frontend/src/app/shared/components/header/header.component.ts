@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { IsActiveMatchOptions, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { filter } from 'rxjs';
 import { NotificationCenterComponent } from "@shared/components/notification-center/notification-center.component";
+import { TokenService } from '@core/services/token.service';
 import { FormsModule } from '@angular/forms';
+import { filter } from 'rxjs';
 
 type Role = 'student' | 'teacher' | 'admin';
 
@@ -21,18 +22,22 @@ type Role = 'student' | 'teacher' | 'admin';
 export class HeaderComponent {
   isMobileMenuOpen = false;
   isUserMenuOpen = false;
-  isSignedIn = true;
   currentRoute = '';
-  role: Role = 'student';
   searchQuery: string = '';
 
-  constructor(private router: Router) {
+  isSignedIn: boolean;
+  role: string;
+
+  constructor(private router: Router, private tokenService: TokenService) {
     // Listen to route changes to update active state
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.currentRoute = event.urlAfterRedirects;
       });
+    
+    this.isSignedIn = this.tokenService.isAuthenticated();
+    this.role = this.tokenService.getUserRole()!.toLocaleLowerCase();
 
     // Set initial route
     this.currentRoute = this.router.url;
@@ -73,5 +78,8 @@ export class HeaderComponent {
     this.router.navigate([path]);
   }
 
-  signOut(): void {}
+  signOut(): void {
+    this.tokenService.logout();
+    this.router.navigate(['/auth/login']);
+  }
 }

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { TokenService } from '@core/services/token.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
@@ -18,6 +19,7 @@ export class SignUpComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private tokenService: TokenService,
     private router: Router
   ) {
     this.registerForm = this.formBuilder.group(
@@ -60,7 +62,7 @@ export class SignUpComponent {
       this.authService.signUp(formData).subscribe({
         next: (response) => {
           console.log('Registration successful:', response);
-          localStorage.setItem("access_token", (response as any).token);
+          this.tokenService.setToken((response as any).token);
           this.router.navigate(['/']);
         },
         error: (err) => {
