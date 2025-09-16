@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TokenService } from '@core/services/token.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
@@ -14,10 +14,12 @@ import { AuthService } from '@features/auth/services/auth.service';
 export class LogInComponent {
   loginForm: FormGroup;
   showPassword = false;
+  returnUrl!: string;
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private route: ActivatedRoute,
     private tokenService: TokenService,
     private router: Router
   ) {
@@ -28,6 +30,10 @@ export class LogInComponent {
         [Validators.required, Validators.minLength(8), this.passwordValidator],
       ],
       rememberMe: [false],
+    });
+
+    this.route.queryParams.subscribe((params) => {
+      this.returnUrl = params['returnUrl'] || '/';
     });
   }
 
@@ -42,7 +48,12 @@ export class LogInComponent {
         next: (response) => {
           this.tokenService.setToken((response as any).token);
           console.log('Login successful:', response);
-          this.router.navigate(['/']);
+
+          if (this.returnUrl) {
+            this.router.navigate([this.returnUrl]);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
         error: (err) => {
           console.error('Login error:', err);

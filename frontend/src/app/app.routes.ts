@@ -32,6 +32,7 @@ export const routes: Routes = [
   },
   {
     path: 'learning',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./layout/learning-layout/learning-layout.component').then(
         (m) => m.LearningLayoutComponent
