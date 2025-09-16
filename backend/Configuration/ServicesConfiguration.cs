@@ -16,6 +16,7 @@ public static class ServicesConfiguration
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         // External Services
+        services.AddSignalR();
         services.AddAWSService<IAmazonS3>();
         services.AddValidatorsFromAssemblyContaining<Program>();
         services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());

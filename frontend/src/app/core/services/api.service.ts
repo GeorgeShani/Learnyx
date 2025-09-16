@@ -12,21 +12,21 @@ export class ApiService {
 
   // 🔹 GET
   get<T>(endpoint: string, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { params, headers });
+    return this.http.get<T>(`${this.apiUrl}${endpoint}`, { params, headers });
   }
 
   // 🔹 POST
   post<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
-    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body, { headers });
+    return this.http.post<T>(`${this.apiUrl}${endpoint}`, body, { headers });
   }
 
   // 🔹 PUT
   put<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
-    return this.http.put<T>(`${this.apiUrl}/${endpoint}`, body, { headers });
+    return this.http.put<T>(`${this.apiUrl}${endpoint}`, body, { headers });
   }
 
   // 🔹 DELETE
   delete<T>(endpoint: string, headers?: HttpHeaders): Observable<T> {
-    return this.http.delete<T>(`${this.apiUrl}/${endpoint}`, { headers });
+    return this.http.delete<T>(`${this.apiUrl}${endpoint}`, { headers });
   }
 }

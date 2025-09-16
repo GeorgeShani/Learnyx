@@ -6,11 +6,12 @@ public static class CorsConfiguration
     {
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", policy =>
+            options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.AllowAnyOrigin()  // Allow all domains
-                    .AllowAnyMethod()    // Allow all HTTP methods (GET, POST, PUT, DELETE...)
-                    .AllowAnyHeader();   // Allow all headers
+                policy.WithOrigins("http://localhost:4200")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
             });
         });
         

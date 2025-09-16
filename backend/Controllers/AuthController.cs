@@ -83,19 +83,8 @@ public class AuthController : ControllerBase
             var user = await _googleAuthService.AuthenticateGoogleUserAsync(request.IdToken);
             var jwtToken = _jwtService.GenerateToken(user);
 
-            return Ok(new
-            {
-                token = jwtToken,
-                user = new
-                {
-                    id = user.Id,
-                    email = user.Email,
-                    firstName = user.FirstName,
-                    lastName = user.LastName,
-                    role = user.Role.ToString(),
-                    avatar = user.Avatar
-                }
-            });
+            var callbackUrl = $"https://localhost:4200/auth/callback?token={jwtToken}";
+            return Redirect(callbackUrl);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -129,19 +118,8 @@ public class AuthController : ControllerBase
             var user = await _googleAuthService.AuthenticateWithCodeAsync(code);
             var jwtToken = _jwtService.GenerateToken(user);
             
-            return Ok(new
-            {
-                token = jwtToken,
-                user = new
-                {
-                    id = user.Id,
-                    email = user.Email,
-                    firstName = user.FirstName,
-                    lastName = user.LastName,
-                    role = user.Role.ToString(),
-                    avatar = user.Avatar
-                }
-            });
+            var callbackUrl = $"http://localhost:4200/auth/callback?token={jwtToken}";
+            return Redirect(callbackUrl);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -180,19 +158,8 @@ public class AuthController : ControllerBase
             // Generate JWT token
             var jwtToken = _jwtService.GenerateToken(user);
         
-            return Ok(new 
-            { 
-                token = jwtToken,
-                user = new
-                {
-                    id = user.Id,
-                    email = user.Email,
-                    firstName = user.FirstName,
-                    lastName = user.LastName,
-                    role = user.Role.ToString(),
-                    avatar = user.Avatar
-                }
-            });
+            var callbackUrl = $"http://localhost:4200/auth/callback?token={jwtToken}";
+            return Redirect(callbackUrl);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -237,19 +204,8 @@ public class AuthController : ControllerBase
             
             var jwtToken = _jwtService.GenerateToken(user);
             
-            return Ok(new
-            {
-                token = jwtToken,
-                user = new
-                {
-                    id = user.Id,
-                    email = user.Email,
-                    firstName = user.FirstName,
-                    lastName = user.LastName,
-                    role = user.Role.ToString(),
-                    avatar = user.Avatar
-                }
-            });
+            var callbackUrl = $"http://localhost:4200/auth/callback?token={jwtToken}";
+            return Redirect(callbackUrl);
         }
         catch (UnauthorizedAccessException ex)
         {

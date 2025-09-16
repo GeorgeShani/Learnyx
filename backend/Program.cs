@@ -3,7 +3,7 @@ using learnyx.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddJsonOptions();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
@@ -23,6 +23,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRouting();
+app.UseCors("AllowFrontend");
 app.MapControllers();
 app.MapHub<ChatHub>("/chathub");
 app.Run();

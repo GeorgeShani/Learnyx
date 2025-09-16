@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -14,7 +15,11 @@ export class SignUpComponent {
   showPassword = false;
   showConfirmPassword = false;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.registerForm = this.formBuilder.group(
       {
         firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -41,23 +46,28 @@ export class SignUpComponent {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      const formData = this.registerForm.value;
-      console.log('Registration attempt:', formData);
+      const { firstName, lastName, email, password, role } = this.registerForm.value;
+      const formData = {
+        firstName,
+        lastName,
+        email,
+        password,
+        role: (role as string).toLocaleUpperCase()
+      };
 
-      // Handle registration logic here
-      // Example: this.authService.register(formData)
-      //   .subscribe(
-      //     response => {
-      //       console.log('Registration successful:', response);
-      //       this.router.navigate(['/login'], {
-      //         queryParams: { message: 'Registration successful! Please sign in.' }
-      //       });
-      //     },
-      //     error => {
-      //       console.error('Registration error:', error);
-      //       // Handle registration error
-      //     }
-      //   );
+      console.log("Registration attempted:", formData);
+
+      this.authService.signUp(formData).subscribe({
+        next: (response) => {
+          console.log('Registration successful:', response);
+          localStorage.setItem("access_token", (response as any).token);
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          console.error('Registration error:', err);
+        },
+      });
+
     } else {
       // Mark all fields as touched to show validation errors
       this.markFormGroupTouched();
@@ -74,8 +84,7 @@ export class SignUpComponent {
 
   onSocialLogin(provider: 'google' | 'facebook'): void {
     console.log(`${provider} registration clicked`);
-    // Handle social registration logic here
-    // Example: this.authService.socialRegister(provider)
+    this.authService.provideOAuth(provider);
   }
 
   // Custom Validators

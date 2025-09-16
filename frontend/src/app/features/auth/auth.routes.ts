@@ -20,4 +20,11 @@ export const routes: Routes = [
         (m) => m.ForgotPasswordComponent
       ),
   },
+  {
+    path: 'callback',
+    loadComponent: () =>
+      import('./views/callback/callback.component').then(
+        (m) => m.CallbackComponent
+      ),
+  },
 ];

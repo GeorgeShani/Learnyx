@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,11 @@ export class LogInComponent {
   loginForm: FormGroup;
   showPassword = false;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: [
@@ -26,23 +31,20 @@ export class LogInComponent {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      const formData = this.loginForm.value;
+      const { email, password } = this.loginForm.value;
+      const formData = { email, password };
+
       console.log('Login attempt:', formData);
 
-      // Handle login logic here
-      // Example: this.authService.login(formData.email, formData.password)
-      //   .subscribe(
-      //     response => {
-      //       if (formData.rememberMe) {
-      //         // Handle remember me logic
-      //       }
-      //       this.router.navigate(['/dashboard']);
-      //     },
-      //     error => {
-      //       console.error('Login error:', error);
-      //       // Handle login error
-      //     }
-      //   );
+      this.authService.logIn(formData).subscribe({
+        next: (response) => {
+          console.log('Registration successful:', response);
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          console.error('Registration error:', err);
+        },
+      });
     } else {
       // Mark all fields as touched to show validation errors
       this.markFormGroupTouched();
@@ -55,8 +57,7 @@ export class LogInComponent {
 
   onSocialLogin(provider: 'google' | 'facebook'): void {
     console.log(`${provider} login clicked`);
-    // Handle social login logic here
-    // Example: this.authService.socialLogin(provider)
+    this.authService.provideOAuth(provider);
   }
 
   private markFormGroupTouched(): void {
