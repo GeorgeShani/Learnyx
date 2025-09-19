@@ -1,59 +1,155 @@
 import { Injectable } from '@angular/core';
+import { MessageContentDto, MessageDto } from '@core/models/messaging.model';
+import { BehaviorSubject } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SignalRService {
-  private hubConnection!: signalR.HubConnection;
+  private hubConnection?: signalR.HubConnection;
+  private isConnectedSubject = new BehaviorSubject<boolean>(false);
+  private messageReceivedSubject = new BehaviorSubject<MessageDto | null>(null);
+  private assistantTypingSubject = new BehaviorSubject<boolean>(false);
+  private userTypingSubject = new BehaviorSubject<{
+    userId: number;
+    userName: string;
+  } | null>(null);
 
-  messages: { user: string; message: string }[] = [];
-  onlineUsers: Set<string> = new Set();
-  lastSeen: { [user: string]: string } = {};
-  unreadCount: { [user: string]: number } = {};
+  public isConnected$ = this.isConnectedSubject.asObservable();
+  public messageReceived$ = this.messageReceivedSubject.asObservable();
+  public userTyping$ = this.userTypingSubject.asObservable();
+  public assistantTyping$ = this.assistantTypingSubject.asObservable();
 
-  startConnection() {
+  constructor() {}
+
+  public async startConnection(token: string): Promise<void> {
+    if (this.hubConnection?.state === 'Connected') {
+      return;
+    }
+
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7188/chathub')
+      .withUrl('https://localhost:7188/chathub', {
+        accessTokenFactory: () => token,
+        skipNegotiation: true,
+        transport: 1,
+      })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    this.hubConnection
-      .start()
-      .then(() => console.log('SignalR connected'))
-      .catch((err) => console.error('SignalR error: ' + err));
+    // Set up event listeners
+    this.setupEventListeners();
 
-    // 1. Messages
-    this.hubConnection.on('ReceiveMessage', (user: string, message: string) => {
-      this.messages.push({ user, message });
+    try {
+      await this.hubConnection.start();
+      this.isConnectedSubject.next(true);
+      console.log('SignalR Connected');
+    } catch (err) {
+      console.error('SignalR Connection Error: ', err);
+      this.isConnectedSubject.next(false);
+    }
+  }
 
-      // increment unread if chat not active
-      if (!this.isActiveChat(user)) {
-        this.unreadCount[user] = (this.unreadCount[user] || 0) + 1;
+  public async stopConnection(): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.stop();
+      this.isConnectedSubject.next(false);
+    }
+  }
+
+  public async joinConversation(conversationId: number): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.invoke('JoinConversation', conversationId);
+    }
+  }
+
+  public async leaveConversation(conversationId: number): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.invoke('LeaveConversation', conversationId);
+    }
+  }
+
+  public async sendMessage(
+    conversationId: number,
+    textContent: string,
+    contents: MessageContentDto[]
+  ): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.invoke(
+        'SendMessage',
+        conversationId,
+        textContent,
+        contents
+      );
+    }
+  }
+
+  public async markMessageAsRead(messageId: number): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.invoke('MarkMessageAsRead', messageId);
+    }
+  }
+
+  public async startTyping(conversationId: number): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.invoke('StartTyping', conversationId);
+    }
+  }
+
+  public async stopTyping(conversationId: number): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.invoke('StopTyping', conversationId);
+    }
+  }
+
+  private setupEventListeners(): void {
+    if (!this.hubConnection) return;
+
+    this.hubConnection.on('ReceiveMessage', (message: MessageDto) => {
+      this.messageReceivedSubject.next(message);
+    });
+
+    this.hubConnection.on('UserTyping', (userId: number, userName: string) => {
+      this.userTypingSubject.next({ userId, userName });
+    });
+
+    this.hubConnection.on(
+      'UserStoppedTyping',
+      (userId: number, userName: string) => {
+        this.userTypingSubject.next(null);
       }
+    );
+
+    this.hubConnection.on('AssistantTyping', (isTyping: boolean) => {
+      this.assistantTypingSubject.next(isTyping);
     });
 
-    // 2. Online
-    this.hubConnection.on('UserOnline', (user: string) => {
-      this.onlineUsers.add(user);
-      delete this.lastSeen[user]; // reset last seen
+    this.hubConnection.on(
+      'MessageRead',
+      (messageId: number, userId: number) => {
+        // Handle message read status
+        console.log(`Message ${messageId} read by user ${userId}`);
+      }
+    );
+
+    this.hubConnection.on('Error', (error: string) => {
+      console.error('SignalR Error:', error);
     });
 
-    // 3. Offline
-    this.hubConnection.on('UserOffline', (user: string, lastSeen: string) => {
-      this.onlineUsers.delete(user);
-      this.lastSeen[user] = lastSeen;
+    this.hubConnection.onreconnected(() => {
+      this.isConnectedSubject.next(true);
+      console.log('SignalR Reconnected');
     });
-  }
 
-  sendMessage(user: string, message: string) {
-    this.hubConnection
-      .invoke('SendMessage', user, message)
-      .catch((err) => console.error(err));
-  }
+    this.hubConnection.onreconnecting(() => {
+      this.isConnectedSubject.next(false);
+      console.log('SignalR Reconnecting...');
+    });
 
-  // Dummy method – replace with actual active chat state
-  private isActiveChat(user: string): boolean {
-    return false; // later tie this to your open chat
+    this.hubConnection.onclose(() => {
+      this.isConnectedSubject.next(false);
+      console.log('SignalR Disconnected');
+    });
   }
 }

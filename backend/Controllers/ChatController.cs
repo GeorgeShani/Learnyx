@@ -76,7 +76,7 @@ public class ChatController : ControllerBase
         {
             var userId = GetCurrentUserId();
             
-            if (request.Type == ConversationType.UserToUser && !request.User2Id.HasValue)
+            if (request is { Type: ConversationType.UserToUser, User2Id: null })
             {
                 return BadRequest("User2Id is required for user-to-user conversations");
             }
@@ -110,7 +110,7 @@ public class ChatController : ControllerBase
                 return Forbid("You don't have access to this conversation");
             }
 
-            if (string.IsNullOrEmpty(request.TextContent) && (request.Contents?.Any() != true))
+            if (string.IsNullOrEmpty(request.TextContent) && request.Contents?.Any() != true)
             {
                 return BadRequest("Message must have text content or attachments");
             }
@@ -138,45 +138,50 @@ public class ChatController : ControllerBase
 
     // POST: api/chat/messages/upload
     [HttpPost("messages/upload")]
-    public async Task<ActionResult<MessageContentDTO>> UploadFile([FromForm] IFormFile? file)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<MessageContentDTO>> UploadFile([FromForm] FileUploadRequest request)
     {
         try
         {
-            if (file == null || file.Length == 0)
+            var file = request.File;
+            if (file.Length == 0)
             {
                 return BadRequest("No file provided");
             }
-
+    
             // Validate file type and size
-            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp", 
-                                     "application/pdf", "text/plain", "application/msword", 
-                                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
+            var allowedTypes = new[] 
+            { 
+                "image/jpeg", "image/png", "image/gif", "image/webp",                      
+                "application/pdf", "text/plain", "application/msword", 
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+            };
             
             if (!allowedTypes.Contains(file.ContentType))
             {
                 return BadRequest("File type not allowed");
             }
-
+    
             if (file.Length > 10 * 1024 * 1024) // 10MB limit
             {
                 return BadRequest("File size exceeds limit (10MB)");
             }
-
+    
             var imageUrl = await _amazonS3Service.UploadImageToS3(file, file.FileName);
             
             var contentType = file.ContentType.StartsWith("image/") 
                 ? MessageContentType.Image 
                 : MessageContentType.File;
-
+    
             var messageContent = new MessageContentDTO
             {
                 ContentType = contentType,
                 FileUrl = imageUrl,
                 FileName = file.FileName,
                 MimeType = file.ContentType,
-                FileSize = file.Length,
+                FileSize = file.Length
             };
-
+    
             return Ok(messageContent);
         }
         catch (Exception ex)
@@ -186,7 +191,7 @@ public class ChatController : ControllerBase
     }
 
     // PUT: api/chat/messages/{id}/read
-    [HttpPut("messages/{id}/read")]
+    [HttpPut("messages/{id:int}/read")]
     public async Task<IActionResult> MarkMessageAsRead(int id)
     {
         try
@@ -318,10 +323,6 @@ public class ChatController : ControllerBase
             }
 
             var conversation = await _chatService.GetConversationWithInfoAsync(id);
-            if (conversation == null)
-            {
-                return NotFound("Conversation not found");
-            }
 
             return Ok(conversation);
         }
@@ -410,7 +411,6 @@ public class ChatController : ControllerBase
 
             if (!string.IsNullOrEmpty(response))
             {
-                // Send assistant message
                 var assistantMessage = await _chatService.SendAssistantMessageAsync(conversationId, response);
 
                 await _hubContext.Clients.Group($"conversation_{conversationId}")
