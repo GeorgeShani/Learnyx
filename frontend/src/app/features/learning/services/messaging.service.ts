@@ -22,7 +22,7 @@ export interface Contact {
   id: string;
   name: string;
   role: 'INSTRUCTOR' | 'STUDENT' | 'AI';
-  avatar?: string;
+  avatar?: string | null;
   isOnline: boolean;
   lastSeen?: Date;
   expertise?: string[];
@@ -38,8 +38,7 @@ export class MessagingService {
       id: 'instructor-1',
       name: 'Dr. Sarah Johnson',
       role: 'INSTRUCTOR',
-      avatar:
-        'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      avatar: null,
       isOnline: true,
       expertise: ['Web Development', 'React', 'JavaScript'],
       courses: ['Complete Web Development Bootcamp', 'Advanced React Patterns'],

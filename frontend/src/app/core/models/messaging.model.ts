@@ -1,19 +1,19 @@
 export enum ConversationType {
   UserToUser = 0,
-  UserToAssistant = 1,
+  UserToAssistant = 1
 }
 
 export enum MessageContentType {
   Text = 0,
   Image = 1,
   File = 2,
-  System = 3,
+  System = 3
 }
 
 export enum MessageStatus {
   Sent = 0,
   Delivered = 1,
-  Read = 2,
+  Read = 2
 }
 
 export interface ConversationDto {

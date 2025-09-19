@@ -2,101 +2,6 @@
   background: hsl(220, 15%, 98%);
 }
 
-// Authentication Prompt Styles
-.auth-prompt {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 4rem);
-  padding: 1rem;
-}
-
-.auth-card {
-  max-width: 28rem;
-  width: 100%;
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 20px 25px -5px rgba(111, 220, 217, 0.1), 0 10px 10px -5px rgba(111, 220, 217, 0.04);
-  text-align: center;
-  overflow: hidden;
-}
-
-.auth-header {
-  padding: 2rem 1.5rem 1rem;
-
-  .auth-icon {
-    width: 4rem;
-    height: 4rem;
-    background: linear-gradient(135deg, hsl(178, 60%, 70%) 0%, hsl(220, 85%, 70%) 100%);
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    color: white;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: hsl(220, 15%, 20%);
-    margin: 0 0 0.5rem;
-  }
-
-  p {
-    color: hsl(220, 15%, 50%);
-    margin: 0;
-  }
-}
-
-.auth-content {
-  padding: 0 1.5rem 2rem;
-}
-
-.feature-grid {
-  display: grid;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, hsl(178, 60%, 95%) 0%, hsl(220, 85%, 95%) 100%);
-  border-radius: 0.5rem;
-
-  svg {
-    color: hsl(178, 60%, 50%);
-    flex-shrink: 0;
-  }
-
-  span {
-    font-size: 0.875rem;
-    color: hsl(220, 15%, 40%);
-  }
-}
-
-.auth-button {
-  width: 100%;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, hsl(178, 60%, 70%) 0%, hsl(220, 85%, 70%) 100%);
-  color: white;
-  border: none;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(111, 220, 217, 0.4);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(111, 220, 217, 0.5);
-  }
-}
-
 // Messaging Interface Styles
 .messaging-interface {
   display: flex;
@@ -127,6 +32,13 @@
   display: flex;
   align-self: flex-start;
   gap: 6px;
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
 }
 
 .search-container {

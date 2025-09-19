@@ -1,4 +1,4 @@
-import { Component, type OnInit, ViewChild, type ElementRef, type AfterViewChecked } from "@angular/core";
+import { Component, ViewChild, ElementRef, OnInit, AfterViewChecked, } from "@angular/core";
 import { MessagingService, Contact, Message, Conversation } from "../../services/messaging.service";
 import { Router } from "@angular/router"
 import { CommonModule } from "@angular/common";
@@ -10,10 +10,9 @@ import { FormsModule } from "@angular/forms";
   templateUrl: './messaging.component.html',
   styleUrl: './messaging.component.scss',
 })
-export class MessagingComponent {
+export class MessagingComponent implements OnInit, AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-  isAuthenticated = true; // This should come from your auth service
   activeTab: 'instructors' | 'students' | 'ai' = 'instructors';
   searchQuery = '';
   selectedContact: Contact | null = null;
@@ -151,7 +150,7 @@ export class MessagingComponent {
           id: `ai-${Date.now()}`,
           senderId: this.selectedContact!.id,
           receiverId: 'current-user',
-          content: this.getAIResponse(message.content),
+          content: this.getAIResponse(),
           timestamp: new Date(),
           isRead: true,
           type: 'text',
@@ -162,7 +161,7 @@ export class MessagingComponent {
     }
   }
 
-  private getAIResponse(userMessage: string): string {
+  private getAIResponse(): string {
     const responses = [
       "That's a great question! Based on your learning progress, I'd recommend focusing on practical projects to reinforce your understanding.",
       'I can help you with that! Have you checked out the recommended resources in your course materials?',

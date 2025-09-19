@@ -1,49 +1,6 @@
 <div class="messages-container">
-  <!-- Authentication Check -->
-  <div *ngIf="!isAuthenticated" class="auth-prompt">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="auth-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-        </div>
-        <h2>Access Your Messages</h2>
-        <p>Connect with instructors, collaborate with fellow students, and get help from our AI assistant.</p>
-      </div>
-      <div class="auth-content">
-        <div class="feature-grid">
-          <div class="feature-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
-            <span>Message your instructors</span>
-          </div>
-          <div class="feature-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="8.5" cy="7" r="4"/>
-              <path d="M20 8v6M23 11h-6"/>
-            </svg>
-            <span>Connect with students</span>
-          </div>
-          <div class="feature-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span>Chat with AI assistant</span>
-          </div>
-        </div>
-        <button class="auth-button" (click)="navigateToLogin()">
-          Sign In to Continue
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Messaging Interface -->
-  <div *ngIf="isAuthenticated" class="messaging-interface">
+  <div class="messaging-interface">
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-header">
@@ -55,8 +12,9 @@
               width="32"
               height="24" 
             />
+            Learnyx 
           </a>
-          Learnyx Chat
+          Chat
         </h1>
         <div class="search-container">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
