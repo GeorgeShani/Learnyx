@@ -14,13 +14,4 @@ public class User : BaseEntity
     public string AuthProvider { get; set; } = "Local"; // "Google", "Facebook", "Local (JWT)"
     public string? GoogleId { get; set; }
     public string? FacebookId { get; set; }
-    
-    public virtual ICollection<Course> TeacherCourses { get; set; } = new List<Course>();
-    
-    // Student-specific navigation properties
-    public virtual ICollection<UserPlan> UserPlans { get; set; } = new List<UserPlan>();
-    public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
-
-    // Common navigation properties
-    public virtual ICollection<Submission> Submissions { get; set; } = new List<Submission>();
 }

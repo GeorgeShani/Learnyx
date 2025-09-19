@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using learnyx.Models.Entities;
-using learnyx.Data.Configurations;
+﻿using learnyx.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace learnyx.Data;
@@ -8,227 +6,125 @@ namespace learnyx.Data;
 public class DataContext : DbContext
 {
     public DbSet<User> Users { get; set; }
-    public DbSet<Course> Courses { get; set; }
-    public DbSet<Lesson> Lessons { get; set; }
-    public DbSet<Assignment> Assignments { get; set; }
-    public DbSet<Submission> Submissions { get; set; }
-    public DbSet<Enrollment> Enrollments { get; set; }
-    public DbSet<Plan> Plans { get; set; }
-    public DbSet<UserPlan> UserPlans { get; set; }
-    public DbSet<PlanCourseAccess> PlanCourseAccesses { get; set; }
-
-    public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<Message> Messages { get; set; }
+    public DbSet<MessageContent> MessageContents { get; set; }
+    public DbSet<MessageReadStatus> MessageReadStatuses { get; set; }
+    public DbSet<AssistantConversationContext> AssistantConversationContexts { get; set; }
     
+    public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Apply all entity configurations
-        modelBuilder.ApplyConfiguration(new UserConfiguration());
-        modelBuilder.ApplyConfiguration(new CourseConfiguration());
-        modelBuilder.ApplyConfiguration(new LessonConfiguration());
-        modelBuilder.ApplyConfiguration(new AssignmentConfiguration());
-        modelBuilder.ApplyConfiguration(new SubmissionConfiguration());
-        modelBuilder.ApplyConfiguration(new EnrollmentConfiguration());
-        modelBuilder.ApplyConfiguration(new PlanConfiguration());
-        modelBuilder.ApplyConfiguration(new UserPlanConfiguration());
-        modelBuilder.ApplyConfiguration(new PlanCourseAccessConfiguration());
+        // User entity configuration
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Email).IsUnique();
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+        });
 
-        // Configure enum conversions to strings
-        ConfigureEnumConversions(modelBuilder);
+        // Conversation entity configuration
+        modelBuilder.Entity<Conversation>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.LastActivityAt);
+            entity.HasIndex(e => new { e.User1Id, e.User2Id })
+                .IsUnique()
+                .HasFilter("[Type] = 0"); // Unique constraint for user-to-user conversations
+            entity.HasIndex(e => e.User1Id)
+                .HasFilter("[Type] = 1"); // Index for user-to-assistant conversations
+            
+            // Foreign key configurations
+            entity.HasOne(e => e.User1)
+                .WithMany()
+                .HasForeignKey(e => e.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure JSON conversions for arrays
-        ConfigureJsonConversions(modelBuilder);
+            entity.HasOne(e => e.User2)
+                .WithMany()
+                .HasForeignKey(e => e.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        // Configure entity relationships
-        ConfigureRelationships(modelBuilder);
-    }
+        // Message entity configuration
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TextContent).HasMaxLength(4000);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => new { e.ConversationId, e.CreatedAt });
+            entity.HasIndex(e => e.SenderId);
 
-    private static void ConfigureEnumConversions(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<User>()
-            .Property(e => e.Role)
-            .HasConversion<string>();
+            // Foreign key configurations
+            entity.HasOne(e => e.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(e => e.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Course>()
-            .Property(e => e.Status)
-            .HasConversion<string>();
+            entity.HasOne(e => e.Sender)
+                .WithMany()
+                .HasForeignKey(e => e.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Enrollment>()
-            .Property(e => e.Status)
-            .HasConversion<string>();
+            entity.HasOne(e => e.ReplyToMessage)
+                .WithMany(m => m.Replies)
+                .HasForeignKey(e => e.ReplyToMessageId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        modelBuilder.Entity<Plan>()
-            .Property(e => e.Status)
-            .HasConversion<string>();
+        // MessageContent entity configuration
+        modelBuilder.Entity<MessageContent>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TextContent).HasMaxLength(4000);
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.MimeType).HasMaxLength(100);
+            entity.HasIndex(e => new { e.MessageId, e.Order });
 
-        modelBuilder.Entity<UserPlan>()
-            .Property(e => e.Status)
-            .HasConversion<string>();
-    }
+            // Foreign key configurations
+            entity.HasOne(e => e.Message)
+                .WithMany(m => m.Contents)
+                .HasForeignKey(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
-    private static void ConfigureJsonConversions(ModelBuilder modelBuilder)
-    {
-        // Configure JSON arrays for lesson attachments
-        modelBuilder.Entity<Lesson>()
-            .Property(e => e.Attachments)
-            .HasConversion(
-                v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => v == null ? null : JsonSerializer.Deserialize<string[]>(v, (JsonSerializerOptions?)null))
-            .HasColumnType("nvarchar(max)");
+        // MessageReadStatus entity configuration
+        modelBuilder.Entity<MessageReadStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.MessageId, e.UserId }).IsUnique();
+            entity.HasIndex(e => new { e.UserId, e.Status });
 
-        // Configure JSON arrays for submission attachments
-        modelBuilder.Entity<Submission>()
-            .Property(e => e.Attachments)
-            .HasConversion(
-                v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => v == null ? null : JsonSerializer.Deserialize<string[]>(v, (JsonSerializerOptions?)null))
-            .HasColumnType("nvarchar(max)");
+            // Foreign key configurations
+            entity.HasOne(e => e.Message)
+                .WithMany(m => m.ReadStatuses)
+                .HasForeignKey(e => e.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure JSON arrays for plan features
-        modelBuilder.Entity<Plan>()
-            .Property(e => e.Features)
-            .HasConversion(
-                v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => v == null ? null : JsonSerializer.Deserialize<string[]>(v, (JsonSerializerOptions?)null))
-            .HasColumnType("nvarchar(max)");
-    }
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
-    private void ConfigureRelationships(ModelBuilder modelBuilder)
-    {
-        // User (Teacher) -> Course relationship
-        modelBuilder.Entity<Course>()
-            .HasOne(c => c.Teacher)
-            .WithMany(u => u.TeacherCourses)
-            .HasForeignKey(c => c.TeacherId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // AssistantConversationContext entity configuration
+        modelBuilder.Entity<AssistantConversationContext>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SystemPrompt).HasMaxLength(2000);
+            entity.HasIndex(e => e.ConversationId).IsUnique();
+            entity.HasIndex(e => e.LastInteractionAt);
 
-        // Course -> Lesson relationship
-        modelBuilder.Entity<Lesson>()
-            .HasOne(l => l.Course)
-            .WithMany(c => c.Lessons)
-            .HasForeignKey(l => l.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Course -> Assignment relationship
-        modelBuilder.Entity<Assignment>()
-            .HasOne(a => a.Course)
-            .WithMany(c => c.Assignments)
-            .HasForeignKey(a => a.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Assignment -> Submission relationship
-        modelBuilder.Entity<Submission>()
-            .HasOne(s => s.Assignment)
-            .WithMany(a => a.Submissions)
-            .HasForeignKey(s => s.AssignmentId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // User (Student) -> Submission relationship
-        modelBuilder.Entity<Submission>()
-            .HasOne(s => s.Student)
-            .WithMany(u => u.Submissions)
-            .HasForeignKey(s => s.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // User (Student) -> Enrollment relationship
-        modelBuilder.Entity<Enrollment>()
-            .HasOne(e => e.Student)
-            .WithMany(u => u.Enrollments)
-            .HasForeignKey(e => e.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Course -> Enrollment relationship
-        modelBuilder.Entity<Enrollment>()
-            .HasOne(e => e.Course)
-            .WithMany(c => c.Enrollments)
-            .HasForeignKey(e => e.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // User -> UserPlan relationship
-        modelBuilder.Entity<UserPlan>()
-            .HasOne(up => up.User)
-            .WithMany(u => u.UserPlans)
-            .HasForeignKey(up => up.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Plan -> UserPlan relationship
-        modelBuilder.Entity<UserPlan>()
-            .HasOne(up => up.Plan)
-            .WithMany(p => p.UserPlans)
-            .HasForeignKey(up => up.PlanId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Plan -> PlanCourseAccess relationship
-        modelBuilder.Entity<PlanCourseAccess>()
-            .HasOne(pca => pca.Plan)
-            .WithMany(p => p.CourseAccess)
-            .HasForeignKey(pca => pca.PlanId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Course -> PlanCourseAccess relationship
-        modelBuilder.Entity<PlanCourseAccess>()
-            .HasOne(pca => pca.Course)
-            .WithMany(c => c.PlanAccess)
-            .HasForeignKey(pca => pca.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Configure additional indexes for performance
-        ConfigureIndexes(modelBuilder);
-    }
-
-    private void ConfigureIndexes(ModelBuilder modelBuilder)
-    {
-        // User indexes
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique()
-            .HasDatabaseName("IX_Users_Email");
-
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Role)
-            .HasDatabaseName("IX_Users_Role");
-
-        // Course indexes
-        modelBuilder.Entity<Course>()
-            .HasIndex(c => c.Category)
-            .HasDatabaseName("IX_Courses_Category");
-
-        modelBuilder.Entity<Course>()
-            .HasIndex(c => c.Status)
-            .HasDatabaseName("IX_Courses_Status");
-
-        modelBuilder.Entity<Course>()
-            .HasIndex(c => c.TeacherId)
-            .HasDatabaseName("IX_Courses_TeacherId");
-
-        modelBuilder.Entity<Course>()
-            .HasIndex(c => c.PublishedAt)
-            .HasDatabaseName("IX_Courses_PublishedAt");
-
-        // Lesson indexes
-        modelBuilder.Entity<Lesson>()
-            .HasIndex(l => new { l.CourseId, l.OrderIndex })
-            .HasDatabaseName("IX_Lessons_CourseId_OrderIndex");
-
-        // Assignment indexes
-        modelBuilder.Entity<Assignment>()
-            .HasIndex(a => a.DueDate)
-            .HasDatabaseName("IX_Assignments_DueDate");
-
-        modelBuilder.Entity<Assignment>()
-            .HasIndex(a => a.CourseId)
-            .HasDatabaseName("IX_Assignments_CourseId");
-
-        // Submission indexes
-        modelBuilder.Entity<Submission>()
-            .HasIndex(s => new { s.AssignmentId, s.StudentId })
-            .IsUnique()
-            .HasDatabaseName("IX_Submissions_AssignmentId_StudentId");
-
-        modelBuilder.Entity<Submission>()
-            .HasIndex(s => s.SubmittedAt)
-            .HasDatabaseName("IX_Submissions_SubmittedAt");
+            // Foreign key configurations
+            entity.HasOne(e => e.Conversation)
+                .WithOne()
+                .HasForeignKey<AssistantConversationContext>(e => e.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }

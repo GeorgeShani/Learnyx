@@ -170,7 +170,7 @@ public class GoogleAuthService : IGoogleAuthService
             Email = email,
             FirstName = firstName,
             LastName = lastName,
-            Role = UserRole.STUDENT, // Default role - you might want to make this configurable
+            Role = UserRole.Student, // Default role - you might want to make this configurable
             AuthProvider = "Google",
             GoogleId = googleId,
             Avatar = profilePicture

@@ -5,7 +5,7 @@ export const routes: Routes = [
   {
     path: 'teacher/create-course',
     canActivate: [roleGuard],
-    data: { roles: ['TEACHER'] },
+    data: { roles: ['Teacher'] },
     loadComponent: () =>
       import('./views/course-builder/course-builder.component').then(
         (m) => m.CourseBuilderComponent
@@ -14,7 +14,7 @@ export const routes: Routes = [
   {
     path: 'student',
     canActivate: [roleGuard],
-    data: { roles: ['STUDENT'] },
+    data: { roles: ['Student'] },
     loadComponent: () =>
       import('./views/student-dashboard/student-dashboard.component').then(
         (m) => m.StudentDashboardComponent
@@ -23,7 +23,7 @@ export const routes: Routes = [
   {
     path: 'teacher',
     canActivate: [roleGuard],
-    data: { roles: ['TEACHER'] },
+    data: { roles: ['Teacher'] },
     loadComponent: () =>
       import('./views/teacher-dashboard/teacher-dashboard.component').then(
         (m) => m.TeacherDashboardComponent
@@ -32,7 +32,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [roleGuard],
-    data: { roles: ['ADMIN'] },
+    data: { roles: ['Admin'] },
     loadComponent: () =>
       import('./views/admin-dashboard/admin-dashboard.component').then(
         (m) => m.AdminDashboardComponent

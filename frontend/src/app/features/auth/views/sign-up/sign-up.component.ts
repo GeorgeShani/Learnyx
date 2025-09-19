@@ -49,13 +49,7 @@ export class SignUpComponent {
   onSubmit(): void {
     if (this.registerForm.valid) {
       const { firstName, lastName, email, password, role } = this.registerForm.value;
-      const formData = {
-        firstName,
-        lastName,
-        email,
-        password,
-        role: (role as string).toLocaleUpperCase()
-      };
+      const formData = { firstName, lastName, email, password, role };
 
       console.log("Registration attempted:", formData);
 

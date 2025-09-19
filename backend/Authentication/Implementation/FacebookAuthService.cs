@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+﻿using learnyx.Data;
+using System.Text.Json;
 using learnyx.Models.Auth;
-using learnyx.Models.Entities;
-using learnyx.Authentication.Interfaces;
-using learnyx.Data;
 using learnyx.Models.Enums;
+using learnyx.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using learnyx.Authentication.Interfaces;
 
 namespace learnyx.Authentication.Implementation;
 
@@ -260,7 +260,7 @@ public class FacebookAuthService : IFacebookAuthService
             Email = facebookUser.Email,
             FirstName = facebookUser.FirstName,
             LastName = facebookUser.LastName,
-            Role = UserRole.STUDENT,
+            Role = UserRole.Student,
             AuthProvider = "Facebook",
             FacebookId = facebookUser.Id,
             Avatar = facebookUser.Picture?.Data?.Url

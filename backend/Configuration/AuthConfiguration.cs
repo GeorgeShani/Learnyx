@@ -119,19 +119,19 @@ public static class AuthConfiguration
 
         services.AddAuthorizationBuilder()
             .AddPolicy("AdminPolicy", 
-                policy => policy.RequireRole(nameof(UserRole.ADMIN))
+                policy => policy.RequireRole(nameof(UserRole.Admin))
             )
             .AddPolicy("TeacherPolicy", 
                 policy => policy.RequireRole(
-                    nameof(UserRole.TEACHER), 
-                    nameof(UserRole.ADMIN)
+                    nameof(UserRole.Teacher), 
+                    nameof(UserRole.Admin)
                 )
             )
             .AddPolicy("StudentPolicy",
                 policy => policy.RequireRole(
-                    nameof(UserRole.STUDENT),
-                    nameof(UserRole.TEACHER),
-                    nameof(UserRole.ADMIN)
+                    nameof(UserRole.Student),
+                    nameof(UserRole.Teacher),
+                    nameof(UserRole.Admin)
                 )
             )
             .AddPolicy("LocalAuth", policy =>

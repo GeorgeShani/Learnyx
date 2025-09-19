@@ -17,7 +17,8 @@ public static class DatabaseConfiguration
                 sqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 3,
                     maxRetryDelay: TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null);
+                    errorNumbersToAdd: null
+                );
             });
                 
             options.EnableSensitiveDataLogging();

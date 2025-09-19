@@ -15,15 +15,23 @@ public static class ServicesConfiguration
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // External Services
-        services.AddSignalR();
-        services.AddAWSService<IAmazonS3>();
-        services.AddValidatorsFromAssemblyContaining<Program>();
-        services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
-        
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IAmazonS3Service, AmazonS3Service>();
+        services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IGeminiService, GeminiService>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        
+        // External Services
+        services.AddAWSService<IAmazonS3>();
+        services.AddHttpClient<IGeminiService, GeminiService>();
+        services.AddValidatorsFromAssemblyContaining<Program>();
+        services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true; // Only for development
+            options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+            options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+        });
 
         // Settings
         services.Configure<SmtpSettings>(configuration.GetSection("Smtp"));
