@@ -6,7 +6,7 @@ import {
   MessageContentDto,
   MessageDto,
   SendMessageRequest,
-} from '@core/models/messaging.model';
+} from '@features/learning/models/messaging.model';
 import { ApiService } from '@core/services/api.service';
 import { Observable } from 'rxjs';
 
@@ -82,7 +82,7 @@ export class ChatApiService {
   uploadFile(file: File): Observable<MessageContentDto> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     return this.apiService.post<MessageContentDto>(
       `/messages/upload`,
       formData

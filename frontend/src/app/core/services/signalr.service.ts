@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { MessageContentDto, MessageDto } from '@core/models/messaging.model';
+import {
+  MessageContentDto,
+  MessageDto,
+} from '@features/learning/models/messaging.model';
 import { BehaviorSubject } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 

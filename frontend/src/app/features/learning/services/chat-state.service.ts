@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ConversationDto, MessageDto } from '@core/models/messaging.model';
+import {
+  ConversationDto,
+  MessageDto,
+} from '@features/learning/models/messaging.model';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 
 @Injectable({
@@ -11,14 +14,17 @@ export class ChatStateService {
     [conversationId: number]: MessageDto[];
   }>({});
 
-  private activeConversationIdSubject = new BehaviorSubject<number | null>(null);
+  private activeConversationIdSubject = new BehaviorSubject<number | null>(
+    null
+  );
   private typingUsersSubject = new BehaviorSubject<{
     [conversationId: number]: string[];
   }>({});
 
   public conversations$ = this.conversationsSubject.asObservable();
   public messages$ = this.messagesSubject.asObservable();
-  public activeConversationId$ = this.activeConversationIdSubject.asObservable();
+  public activeConversationId$ =
+    this.activeConversationIdSubject.asObservable();
   public typingUsers$ = this.typingUsersSubject.asObservable();
 
   public activeConversationMessages$: Observable<MessageDto[]> = combineLatest([
