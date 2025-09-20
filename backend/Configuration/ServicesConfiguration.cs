@@ -6,8 +6,6 @@ using learnyx.Utilities.Constants;
 using learnyx.Services.Interfaces;
 using learnyx.SMTP.Implementation;
 using learnyx.Services.Implementation;
-using learnyx.Repositories.Interfaces;
-using learnyx.Repositories.Implementation;
 
 namespace learnyx.Configuration;
 
@@ -15,11 +13,11 @@ public static class ServicesConfiguration
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IAmazonS3Service, AmazonS3Service>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IGeminiService, GeminiService>();
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         
         // External Services
         services.AddAWSService<IAmazonS3>();
