@@ -140,7 +140,7 @@ public class ChatService : IChatService
         var response = await _geminiService.AskGeminiAsync(prompt);
 
         // Update context
-        context.LastInteractionAt = DateTime.UtcNow;
+        context.LastInteractionAt = DateTime.Now;
         await _context.SaveChangesAsync();
 
         return response;
@@ -158,14 +158,14 @@ public class ChatService : IChatService
                 MessageId = messageId,
                 UserId = userId,
                 Status = MessageStatus.Read,
-                StatusChangedAt = DateTime.UtcNow
+                StatusChangedAt = DateTime.Now
             };
             _context.MessageReadStatuses.Add(status);
         }
         else
         {
             existingStatus.Status = MessageStatus.Read;
-            existingStatus.StatusChangedAt = DateTime.UtcNow;
+            existingStatus.StatusChangedAt = DateTime.Now;
         }
 
         await _context.SaveChangesAsync();
@@ -227,7 +227,7 @@ public class ChatService : IChatService
                 Type = type,
                 User1Id = user1Id,
                 User2Id = user2Id,
-                LastActivityAt = DateTime.UtcNow,
+                LastActivityAt = DateTime.Now,
                 IsActive = true
             };
 
@@ -243,7 +243,7 @@ public class ChatService : IChatService
         var conversation = await _context.Conversations.FindAsync(conversationId);
         if (conversation != null)
         {
-            conversation.LastActivityAt = DateTime.UtcNow;
+            conversation.LastActivityAt = DateTime.Now;
             await _context.SaveChangesAsync();
         }
     }
@@ -260,7 +260,7 @@ public class ChatService : IChatService
         return prompt;
     }
 
-    private ConversationDTO MapToConversationDTO(Conversation conversation)
+    private static ConversationDTO MapToConversationDTO(Conversation conversation)
     {
         return new ConversationDTO
         {
@@ -324,7 +324,7 @@ public class ChatService : IChatService
 
         message.TextContent = newContent;
         message.IsEdited = true;
-        message.EditedAt = DateTime.UtcNow;
+        message.EditedAt = DateTime.Now;
 
         await _context.SaveChangesAsync();
         return await MapToMessageDTO(message);
@@ -337,21 +337,6 @@ public class ChatService : IChatService
         {
             message.IsDeleted = true;
             await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task MarkAllMessagesAsReadAsync(int conversationId, int userId)
-    {
-        var unreadMessages = await _context.Messages
-            .Where(m => m.ConversationId == conversationId && 
-                       m.SenderId != userId && 
-                       !m.IsDeleted)
-            .Select(m => m.Id)
-            .ToListAsync();
-
-        foreach (var messageId in unreadMessages)
-        {
-            await MarkMessageAsReadAsync(messageId, userId);
         }
     }
 

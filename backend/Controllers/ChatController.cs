@@ -104,35 +104,68 @@ public class ChatController : ControllerBase
         try
         {
             var userId = GetCurrentUserId();
-
+    
             if (!await _chatService.CanUserAccessConversationAsync(id, userId))
             {
                 return Forbid("You don't have access to this conversation");
             }
-
+    
             if (string.IsNullOrEmpty(request.TextContent) && request.Contents?.Any() != true)
             {
                 return BadRequest("Message must have text content or attachments");
             }
-
+    
             var message = await _chatService.SendMessageAsync(id, userId, request.TextContent, request.Contents ?? new List<MessageContentDTO>());
-
+    
             // Notify other users via SignalR
             await _hubContext.Clients.Group($"conversation_{id}")
                 .SendAsync("ReceiveMessage", message);
-
-            // Handle assistant response if needed
+    
             var conversation = await _chatService.GetConversationAsync(id);
             if (conversation?.Type == ConversationType.UserToAssistant)
             {
-                _ = Task.Run(async () => await HandleAssistantResponse(id));
+                await _hubContext.Clients.Group($"conversation_{id}")
+                    .SendAsync("AssistantTyping", true);
+    
+                _ = ProcessAssistantResponseInBackground(id);
             }
-
+    
             return Ok(message);
         }
         catch (Exception ex)
         {
             return BadRequest($"Error sending message: {ex.Message}");
+        }
+    }
+
+    private async Task ProcessAssistantResponseInBackground(int conversationId)
+    {
+        try
+        {
+            // Small delay to let the user message appear first
+            await Task.Delay(1000);
+
+            var response = await _chatService.GetAssistantResponseAsync(conversationId);
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                var assistantMessage = await _chatService.SendAssistantMessageAsync(conversationId, response);
+                
+                await _hubContext.Clients.Group($"conversation_{conversationId}")
+                    .SendAsync("ReceiveMessage", assistantMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Background assistant response error: {ex}");
+            
+            await _hubContext.Clients.Group($"conversation_{conversationId}")
+                .SendAsync("Error", $"Assistant temporarily unavailable: {ex.Message}");
+        }
+        finally
+        {
+            await _hubContext.Clients.Group($"conversation_{conversationId}")
+                .SendAsync("AssistantTyping", false);
         }
     }
 
@@ -187,56 +220,6 @@ public class ChatController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest($"Error uploading file: {ex.Message}");
-        }
-    }
-
-    // PUT: api/chat/messages/{id}/read
-    [HttpPut("messages/{id:int}/read")]
-    public async Task<IActionResult> MarkMessageAsRead(int id)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            await _chatService.MarkMessageAsReadAsync(id, userId);
-
-            var message = await _chatService.GetMessageAsync(id);
-            if (message != null)
-            {
-                await _hubContext.Clients.Group($"conversation_{message.ConversationId}")
-                    .SendAsync("MessageRead", id, userId);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest($"Error marking message as read: {ex.Message}");
-        }
-    }
-
-    // PUT: api/chat/conversations/{id}/messages/read-all
-    [HttpPut("conversations/{id}/messages/read-all")]
-    public async Task<IActionResult> MarkAllMessagesAsRead(int id)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-
-            if (!await _chatService.CanUserAccessConversationAsync(id, userId))
-            {
-                return Forbid("You don't have access to this conversation");
-            }
-
-            await _chatService.MarkAllMessagesAsReadAsync(id, userId);
-
-            await _hubContext.Clients.Group($"conversation_{id}")
-                .SendAsync("AllMessagesRead", userId);
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest($"Error marking messages as read: {ex.Message}");
         }
     }
 
@@ -310,7 +293,7 @@ public class ChatController : ControllerBase
     }
 
     // GET: api/chat/conversations/{id}/info
-    [HttpGet("conversations/{id}/info")]
+    [HttpGet("conversations/{id:int}/info")]
     public async Task<ActionResult<ConversationDTO>> GetConversationInfo(int id)
     {
         try
@@ -333,7 +316,7 @@ public class ChatController : ControllerBase
     }
 
     // POST: api/chat/conversations/{id}/assistant-message
-    [HttpPost("conversations/{id}/assistant-message")]
+    [HttpPost("conversations/{id:int}/assistant-message")]
     public async Task<ActionResult<MessageDTO>> TriggerAssistantResponse(int id)
     {
         try

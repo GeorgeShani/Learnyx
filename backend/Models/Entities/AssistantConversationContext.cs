@@ -3,7 +3,6 @@
 public class AssistantConversationContext : BaseEntity
 {
     public string? SystemPrompt { get; set; }
-    public string? ConversationHistory { get; set; }
     public int MaxContextMessages { get; set; } = 10;
     public DateTime LastInteractionAt { get; set; }
     
