@@ -178,8 +178,7 @@ public class ChatService : IChatService
 
         await _context.SaveChangesAsync();
     }
-
-    // UPDATED: Return conversations relative to the current user
+    
     public async Task<List<ConversationDTO>> GetUserConversationsAsync(int userId)
     {
         var conversations = await _context.Conversations
@@ -215,7 +214,7 @@ public class ChatService : IChatService
             .Include(m => m.Sender)
             .Include(m => m.Contents)
             .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
-            .OrderByDescending(m => m.CreatedAt)
+            .OrderBy(m => m.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -437,7 +436,7 @@ public class ChatService : IChatService
         // Get last message
         var lastMessage = await _context.Messages
             .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
-            .OrderByDescending(m => m.CreatedAt)
+            .OrderBy(m => m.CreatedAt)
             .Select(m => m.TextContent)
             .FirstOrDefaultAsync();
 
@@ -464,7 +463,7 @@ public class ChatService : IChatService
         }
 
         var messages = await messagesQuery
-            .OrderByDescending(m => m.CreatedAt)
+            .OrderBy(m => m.CreatedAt)
             .Take(50)
             .ToListAsync();
 
