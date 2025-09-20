@@ -292,29 +292,6 @@ public class ChatController : ControllerBase
         }
     }
 
-    // GET: api/chat/conversations/{id}/info
-    [HttpGet("conversations/{id:int}/info")]
-    public async Task<ActionResult<ConversationDTO>> GetConversationInfo(int id)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-
-            if (!await _chatService.CanUserAccessConversationAsync(id, userId))
-            {
-                return Forbid("You don't have access to this conversation");
-            }
-
-            var conversation = await _chatService.GetConversationWithInfoAsync(id);
-
-            return Ok(conversation);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest($"Error retrieving conversation info: {ex.Message}");
-        }
-    }
-
     // POST: api/chat/conversations/{id}/assistant-message
     [HttpPost("conversations/{id:int}/assistant-message")]
     public async Task<ActionResult<MessageDTO>> TriggerAssistantResponse(int id)

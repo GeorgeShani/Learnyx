@@ -6,24 +6,29 @@
       <div class="sidebar-header">
         <h1 class="sidebar-title">
           <a href="/">
-            <img 
-              src="learnyx.svg" 
-              alt="Learnyx Logo" 
-              width="32"
-              height="24" 
-            />
-            Learnyx 
+            <img src="learnyx.svg" alt="Learnyx Logo" width="32" height="24" />
+            Learnyx
           </a>
           Chat
         </h1>
         <div class="search-container">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
+          <svg
+            class="search-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
           </svg>
-          <input 
-            type="text" 
-            placeholder="Search conversations..." 
+          <input
+            type="text"
+            placeholder="Search conversations..."
             [(ngModel)]="searchQuery"
             class="search-input"
           />
@@ -33,41 +38,68 @@
       <!-- Tabs -->
       <div class="tabs-container">
         <div class="tabs-list">
-          <button 
+          <button
             class="tab-trigger"
-            [class.active]="activeTab === 'instructors'"
-            (click)="setActiveTab('instructors')"
+            [class.active]="activeTab === 'teachers'"
+            (click)="setActiveTab('teachers')"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
             </svg>
             <span>Instructors</span>
           </button>
-          <button 
+          <button
             class="tab-trigger"
             [class.active]="activeTab === 'students'"
             (click)="setActiveTab('students')"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="8.5" cy="7" r="4"/>
-              <path d="M20 8v6M23 11h-6"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <path d="M20 8v6M23 11h-6" />
             </svg>
             <span>Students</span>
           </button>
-          <button 
+          <button
             class="tab-trigger"
             [class.active]="activeTab === 'ai'"
             (click)="setActiveTab('ai')"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 8V4H8"/>
-              <rect width="16" height="12" x="4" y="8" rx="2"/>
-              <path d="M2 14h2"/>
-              <path d="M20 14h2"/>
-              <path d="M15 13v2"/>
-              <path d="M9 13v2"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 8V4H8" />
+              <rect width="16" height="12" x="4" y="8" rx="2" />
+              <path d="M2 14h2" />
+              <path d="M20 14h2" />
+              <path d="M15 13v2" />
+              <path d="M9 13v2" />
             </svg>
             <span>AI</span>
           </button>
@@ -76,20 +108,25 @@
         <!-- Contact Lists -->
         <div class="tab-content">
           <div class="contacts-scroll">
-            <div 
-              *ngFor="let contact of getFilteredContacts()" 
+            <div
+              *ngFor="let contact of getFilteredContacts()"
               class="contact-item"
               [class.selected]="selectedContact?.id === contact.id"
               (click)="selectContact(contact)"
-            >  
+            >
               <div class="contact-avatar-container">
                 <div class="contact-avatar">
-                  <img *ngIf="contact.avatar && contact.role !== 'AI'" 
-                       [src]="contact.avatar" 
-                       [alt]="contact.name"
-                       class="avatar-image" />
+                  <img
+                    *ngIf="contact.avatar && contact.role !== 'AI'"
+                    [src]="contact.avatar"
+                    [alt]="contact.name"
+                    class="avatar-image"
+                  />
                   <div *ngIf="contact.role === 'AI'" class="ai-avatar">🤖</div>
-                  <div *ngIf="!contact.avatar && contact.role !== 'AI'" class="avatar-fallback">
+                  <div
+                    *ngIf="!contact.avatar && contact.role !== 'AI'"
+                    class="avatar-fallback"
+                  >
                     {{ getInitials(contact.name) }}
                   </div>
                 </div>
@@ -98,31 +135,37 @@
               <div class="contact-info">
                 <div class="contact-header">
                   <h3 class="contact-name">{{ contact.name }}</h3>
-                  <div *ngIf="getConversationForContact(contact)?.unreadCount as unread" class="unread-badge">
+                  <div
+                    *ngIf="
+                      getConversationForContact(contact)?.unreadCount as unread
+                    "
+                    class="unread-badge"
+                  >
                     {{ getConversationForContact(contact)?.unreadCount }}
                   </div>
                 </div>
 
                 <div class="contact-status">
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" [class.online]="contact.isOnline">
-                    <circle cx="12" cy="12" r="10"/>
+                  <svg
+                    width="8"
+                    height="8"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    [class.online]="contact.isOnline"
+                  >
+                    <circle cx="12" cy="12" r="10" />
                   </svg>
-                  <span class="status-text">{{ getLastSeenText(contact) }}</span>
+                  <span class="status-text">{{
+                    getLastSeenText(contact)
+                  }}</span>
                 </div>
 
-                <p *ngIf="getConversationForContact(contact)?.lastMessage" 
-                   class="last-message">
-                  {{ getConversationForContact(contact)?.lastMessage?.content }}
+                <p
+                  *ngIf="getConversationForContact(contact)?.lastMessage"
+                  class="last-message"
+                >
+                  {{ getConversationForContact(contact)?.lastMessage }}
                 </p>
-
-                <div *ngIf="contact.expertise" class="expertise-tags">
-                  <span *ngFor="let skill of contact.expertise.slice(0, 2)" class="expertise-tag">
-                    {{ skill }}
-                  </span>
-                  <span *ngIf="contact.expertise.length > 2" class="expertise-tag">
-                    +{{ contact.expertise.length - 2 }}
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -134,8 +177,19 @@
     <div class="chat-area">
       <!-- No Contact Selected -->
       <div *ngIf="!selectedContact" class="no-contact">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+          />
         </svg>
         <h3>Select a conversation</h3>
         <p>Choose a contact to start messaging</p>
@@ -147,25 +201,41 @@
         <div class="chat-header">
           <div class="chat-contact-info">
             <div class="chat-avatar">
-              <img *ngIf="selectedContact.avatar && selectedContact.role !== 'AI'" 
-                   [src]="selectedContact.avatar" 
-                   [alt]="selectedContact.name"
-                   class="avatar-image" />
-              <div *ngIf="selectedContact.role === 'AI'" class="ai-avatar">🤖</div>
-              <div *ngIf="!selectedContact.avatar && selectedContact.role !== 'AI'" class="avatar-fallback">
+              <img
+                *ngIf="selectedContact.avatar && selectedContact.role !== 'AI'"
+                [src]="selectedContact.avatar"
+                [alt]="selectedContact.name"
+                class="avatar-image"
+              />
+              <div *ngIf="selectedContact.role === 'AI'" class="ai-avatar">
+                🤖
+              </div>
+              <div
+                *ngIf="!selectedContact.avatar && selectedContact.role !== 'AI'"
+                class="avatar-fallback"
+              >
                 {{ getInitials(selectedContact.name) }}
               </div>
             </div>
             <div class="chat-contact-details">
               <h3>{{ selectedContact.name }}</h3>
-              <p>{{ selectedContact.isOnline ? 'Online' : 'Offline' }}</p>
+              <p>{{ selectedContact.isOnline ? "Online" : "Offline" }}</p>
             </div>
           </div>
           <button class="more-options">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="1"/>
-              <circle cx="12" cy="5" r="1"/>
-              <circle cx="12" cy="19" r="1"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="12" cy="5" r="1" />
+              <circle cx="12" cy="19" r="1" />
             </svg>
           </button>
         </div>
@@ -173,18 +243,31 @@
         <!-- Messages -->
         <div class="messages-content" #messagesContainer>
           <div class="messages-list">
-            <div *ngFor="let message of messages" 
-                 class="message-wrapper"
-                 [class.sent]="message.senderId === 'current-user'"
-                 [class.received]="message.senderId !== 'current-user'">
+            <div
+              *ngFor="let message of messages"
+              class="message-wrapper"
+              [class.received]="isReceivedMessage(message)"
+              [class.sent]="isSentMessage(message)"
+            >
               <div class="message-bubble">
-                <p class="message-content">{{ message.content }}</p>
+                <p class="message-content">
+                  {{ message.textContent || getMessageContent(message) }}
+                </p>
                 <div class="message-time">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12,6 12,12 16,14"/>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12,6 12,12 16,14" />
                   </svg>
-                  <span>{{ formatTime(message.timestamp) }}</span>
+                  <span>{{ formatTime(message.createdAt) }}</span>
                 </div>
               </div>
             </div>
@@ -194,21 +277,45 @@
         <!-- Message Input -->
         <div class="message-input-container">
           <button class="attachment-button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"
+              />
             </svg>
           </button>
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Type your message..."
             [(ngModel)]="newMessage"
             (keyup.enter)="sendMessage()"
             class="message-input"
           />
-          <button class="send-button" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m22 2-7 20-4-9-9-4Z"/>
-              <path d="M22 2 11 13"/>
+          <button
+            class="send-button"
+            (click)="sendMessage()"
+            [disabled]="!newMessage.trim()"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m22 2-7 20-4-9-9-4Z" />
+              <path d="M22 2 11 13" />
             </svg>
           </button>
         </div>

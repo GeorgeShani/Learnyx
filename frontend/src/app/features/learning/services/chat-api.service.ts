@@ -18,18 +18,21 @@ export class ChatApiService {
 
   // Conversations
   getConversations(): Observable<ConversationDto[]> {
-    return this.apiService.get<ConversationDto[]>(`/conversations`);
+    return this.apiService.get<ConversationDto[]>(`/api/chat/conversations`);
   }
 
   createConversation(
     request: CreateConversationRequest
   ): Observable<ConversationDto> {
-    return this.apiService.post<ConversationDto>(`/conversations`, request);
+    return this.apiService.post<ConversationDto>(
+      `/api/chat/conversations`,
+      request
+    );
   }
 
   getConversationInfo(conversationId: number): Observable<ConversationDto> {
     return this.apiService.get<ConversationDto>(
-      `/conversations/${conversationId}/info`
+      `/api/chat/conversations/${conversationId}/info`
     );
   }
 
@@ -40,7 +43,7 @@ export class ChatApiService {
     pageSize: number = 50
   ): Observable<MessageDto[]> {
     return this.apiService.get<MessageDto[]>(
-      `/conversations/${conversationId}/messages`,
+      `/api/chat/conversations/${conversationId}/messages`,
       new HttpParams()
         .set('page', page.toString())
         .set('pageSize', pageSize.toString())
@@ -52,28 +55,31 @@ export class ChatApiService {
     request: SendMessageRequest
   ): Observable<MessageDto> {
     return this.apiService.post<MessageDto>(
-      `/conversations/${conversationId}/messages`,
+      `/api/chat/conversations/${conversationId}/messages`,
       request
     );
   }
 
   editMessage(messageId: number, textContent: string): Observable<MessageDto> {
-    return this.apiService.put<MessageDto>(`/messages/${messageId}`, {
+    return this.apiService.put<MessageDto>(`/api/chat/messages/${messageId}`, {
       textContent,
     });
   }
 
   deleteMessage(messageId: number): Observable<void> {
-    return this.apiService.delete<void>(`/messages/${messageId}`);
+    return this.apiService.delete<void>(`/api/chat/messages/${messageId}`);
   }
 
   markMessageAsRead(messageId: number): Observable<void> {
-    return this.apiService.put<void>(`/messages/${messageId}/read`, {});
+    return this.apiService.put<void>(
+      `/api/chat/messages/${messageId}/read`,
+      {}
+    );
   }
 
   markAllMessagesAsRead(conversationId: number): Observable<void> {
     return this.apiService.put<void>(
-      `/conversations/${conversationId}/messages/read-all`,
+      `/api/chat/conversations/${conversationId}/messages/read-all`,
       {}
     );
   }
@@ -84,7 +90,7 @@ export class ChatApiService {
     formData.append('file', file);
 
     return this.apiService.post<MessageContentDto>(
-      `/messages/upload`,
+      `/api/chat/messages/upload`,
       formData
     );
   }
@@ -101,13 +107,13 @@ export class ChatApiService {
       params.set('conversationId', conversationId.toString());
     }
 
-    return this.apiService.get<MessageDto[]>(`/search`, params);
+    return this.apiService.get<MessageDto[]>(`/api/chat/search`, params);
   }
 
   // Assistant
   triggerAssistantResponse(conversationId: number): Observable<any> {
     return this.apiService.post(
-      `$/conversations/${conversationId}/assistant-message`,
+      `$/api/chat/conversations/${conversationId}/assistant-message`,
       {}
     );
   }

@@ -45,6 +45,7 @@ public class ChatHub : Hub
             var userId = GetCurrentUserId();
             var message = await _chatService.SendMessageAsync(conversationId, userId, textContent, contents);
             
+            // Send to all users in the conversation
             await Clients.Group($"conversation_{conversationId}")
                 .SendAsync("ReceiveMessage", message);
 
@@ -58,6 +59,26 @@ public class ChatHub : Hub
         catch (Exception ex)
         {
             await Clients.Caller.SendAsync("Error", $"Failed to send message: {ex.Message}");
+        }
+    }
+
+    public async Task MarkMessageAsRead(int messageId)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            await _chatService.MarkMessageAsReadAsync(messageId, userId);
+            
+            var message = await _chatService.GetMessageAsync(messageId);
+            if (message != null)
+            {
+                await Clients.Group($"conversation_{message.ConversationId}")
+                    .SendAsync("MessageRead", messageId, userId);
+            }
+        }
+        catch (Exception ex)
+        {
+            await Clients.Caller.SendAsync("Error", $"Failed to mark message as read: {ex.Message}");
         }
     }
 

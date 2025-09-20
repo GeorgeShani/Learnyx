@@ -19,16 +19,14 @@ export enum MessageStatus {
 export interface ConversationDto {
   id: number;
   type: ConversationType;
-  user1Id?: number;
-  user2Id?: number;
-  user1Name?: string;
-  user2Name?: string;
-  user1Avatar?: string;
-  user2Avatar?: string;
   lastActivityAt: Date;
   isActive: boolean;
   lastMessage?: string;
   unreadCount: number;
+  otherUserId: number;
+  otherUserName: string;
+  otherUserAvatar?: string;
+  isAssistantConversation: boolean;
 }
 
 export interface MessageContentDto {

@@ -107,11 +107,14 @@ public class ChatService : IChatService
 
     public async Task<string> GetAssistantResponseAsync(int conversationId)
     {
+        Console.WriteLine($"GetAssistantResponseAsync called for conversation {conversationId}");
+        
         var context = await _context.AssistantConversationContexts
             .FirstOrDefaultAsync(c => c.ConversationId == conversationId);
 
         if (context == null)
         {
+            Console.WriteLine("Creating new assistant context");
             context = new AssistantConversationContext
             {
                 ConversationId = conversationId,
@@ -127,17 +130,22 @@ public class ChatService : IChatService
             .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
             .OrderByDescending(m => m.CreatedAt)
             .Take(context.MaxContextMessages)
-            .Select(m => new { m.TextContent, m.IsFromAssistant })
+            .Select(m => new { m.TextContent, m.IsFromAssistant, m.CreatedAt })
             .ToListAsync();
 
-        // Build conversation history for Gemini
+        Console.WriteLine($"Found {recentMessages.Count} recent messages");
+
+        // Build conversation history for Gemini - chronological order
         var conversationHistory = recentMessages
-            .OrderBy(m => m.IsFromAssistant) // User messages first, then assistant
+            .OrderBy(m => m.CreatedAt) // Chronological order for better context
             .Select(m => m.IsFromAssistant ? $"Assistant: {m.TextContent}" : $"User: {m.TextContent}")
             .ToList();
 
         var prompt = BuildGeminiPrompt(context.SystemPrompt, conversationHistory);
+        Console.WriteLine($"Calling Gemini with prompt length: {prompt.Length}");
+        
         var response = await _geminiService.AskGeminiAsync(prompt);
+        Console.WriteLine($"Gemini response received: {response?.Substring(0, Math.Min(100, response?.Length ?? 0))}...");
 
         // Update context
         context.LastInteractionAt = DateTime.Now;
@@ -171,6 +179,7 @@ public class ChatService : IChatService
         await _context.SaveChangesAsync();
     }
 
+    // UPDATED: Return conversations relative to the current user
     public async Task<List<ConversationDTO>> GetUserConversationsAsync(int userId)
     {
         var conversations = await _context.Conversations
@@ -180,7 +189,24 @@ public class ChatService : IChatService
             .OrderByDescending(c => c.LastActivityAt)
             .ToListAsync();
 
-        return conversations.Select(MapToConversationDTO).ToList();
+        var conversationDTOs = new List<ConversationDTO>();
+        
+        foreach (var conversation in conversations)
+        {
+            var lastMessage = await _context.Messages
+                .Where(m => m.ConversationId == conversation.Id && !m.IsDeleted)
+                .OrderByDescending(m => m.CreatedAt)
+                .Select(m => m.TextContent)
+                .FirstOrDefaultAsync();
+
+            // Get unread count for this user
+            var unreadCount = await GetUnreadMessageCountAsync(conversation.Id, userId);
+
+            // Map conversation relative to the current user
+            conversationDTOs.Add(MapToConversationDTORelative(conversation, userId, lastMessage, unreadCount));
+        }
+
+        return conversationDTOs;
     }
 
     public async Task<List<MessageDTO>> GetConversationMessagesAsync(int conversationId, int userId, int page = 1, int pageSize = 50)
@@ -210,6 +236,8 @@ public class ChatService : IChatService
         if (type == ConversationType.UserToUser && user2Id.HasValue)
         {
             conversation = await _context.Conversations
+                .Include(c => c.User1)
+                .Include(c => c.User2)
                 .FirstOrDefaultAsync(c => c.Type == ConversationType.UserToUser &&
                     ((c.User1Id == user1Id && c.User2Id == user2Id) ||
                      (c.User1Id == user2Id && c.User2Id == user1Id)));
@@ -217,6 +245,8 @@ public class ChatService : IChatService
         else if (type == ConversationType.UserToAssistant)
         {
             conversation = await _context.Conversations
+                .Include(c => c.User1)
+                .Include(c => c.User2)
                 .FirstOrDefaultAsync(c => c.Type == ConversationType.UserToAssistant && c.User1Id == user1Id);
         }
 
@@ -233,9 +263,16 @@ public class ChatService : IChatService
 
             _context.Conversations.Add(conversation);
             await _context.SaveChangesAsync();
+
+            // Reload with navigation properties
+            conversation = await _context.Conversations
+                .Include(c => c.User1)
+                .Include(c => c.User2)
+                .FirstOrDefaultAsync(c => c.Id == conversation.Id);
         }
 
-        return MapToConversationDTO(conversation);
+        // Return conversation relative to user1 (the requesting user)
+        return MapToConversationDTORelative(conversation!, user1Id, null, 0);
     }
 
     private async Task UpdateConversationActivity(int conversationId)
@@ -259,22 +296,66 @@ public class ChatService : IChatService
 
         return prompt;
     }
-
-    private static ConversationDTO MapToConversationDTO(Conversation conversation)
+    
+    private static ConversationDTO MapToConversationDTORelative(Conversation conversation, int currentUserId, string? lastMessage = null, int unreadCount = 0)
     {
-        return new ConversationDTO
+        var dto = new ConversationDTO
         {
             Id = conversation.Id,
             Type = conversation.Type,
-            User1Id = conversation.User1Id,
-            User2Id = conversation.User2Id,
-            User1Name = conversation.User1 != null ? $"{conversation.User1.FirstName} {conversation.User1.LastName}" : null,
-            User2Name = conversation.User2 != null ? $"{conversation.User2.FirstName} {conversation.User2.LastName}" : null,
-            User1Avatar = conversation.User1?.Avatar,
-            User2Avatar = conversation.User2?.Avatar,
             LastActivityAt = conversation.LastActivityAt,
-            IsActive = conversation.IsActive
+            IsActive = conversation.IsActive,
+            LastMessage = lastMessage,
+            UnreadCount = unreadCount
         };
+
+        if (conversation.Type == ConversationType.UserToAssistant)
+        {
+            // For assistant conversations, show assistant info
+            dto.OtherUserId = null;
+            dto.OtherUserName = "Learning Assistant";
+            dto.OtherUserAvatar = "/assets/avatars/ai-avatar.png";
+            dto.IsAssistantConversation = true;
+        }
+        else
+        {
+            // For user-to-user conversations, show the OTHER user's info
+            if (conversation.User1Id == currentUserId)
+            {
+                // Current user is User1, show User2's info
+                dto.OtherUserId = conversation.User2Id;
+                dto.OtherUserName = conversation.User2 != null 
+                    ? $"{conversation.User2.FirstName} {conversation.User2.LastName}" 
+                    : "Unknown User";
+                dto.OtherUserAvatar = conversation.User2?.Avatar;
+            }
+            else
+            {
+                // Current user is User2, show User1's info
+                dto.OtherUserId = conversation.User1Id;
+                dto.OtherUserName = conversation.User1 != null 
+                    ? $"{conversation.User1.FirstName} {conversation.User1.LastName}" 
+                    : "Unknown User";
+                dto.OtherUserAvatar = conversation.User1?.Avatar;
+            }
+            dto.IsAssistantConversation = false;
+        }
+
+        return dto;
+    }
+
+    // Helper method to get unread message count for a user in a conversation
+    private async Task<int> GetUnreadMessageCountAsync(int conversationId, int userId)
+    {
+        return await _context.Messages
+            .Where(m => m.ConversationId == conversationId && 
+                       m.SenderId != userId &&
+                       !m.IsFromAssistant &&
+                       !m.IsDeleted &&
+                       !_context.MessageReadStatuses.Any(rs => rs.MessageId == m.Id && 
+                                                               rs.UserId == userId && 
+                                                               rs.Status == MessageStatus.Read))
+            .CountAsync();
     }
 
     private async Task<MessageDTO> MapToMessageDTO(Message message)
@@ -289,8 +370,10 @@ public class ChatService : IChatService
             Id = message.Id,
             ConversationId = message.ConversationId,
             SenderId = message.SenderId,
-            SenderName = message.Sender != null ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
-            SenderAvatar = message.Sender?.Avatar,
+            SenderName = message.Sender != null ? $"{message.Sender.FirstName} {message.Sender.LastName}" : 
+                        message.IsFromAssistant ? "Learning Assistant" : "Unknown",
+            SenderAvatar = message.Sender?.Avatar ?? 
+                          (message.IsFromAssistant ? "/assets/avatars/ai-avatar.png" : null),
             IsFromAssistant = message.IsFromAssistant,
             TextContent = message.TextContent,
             Contents = contents.Select(c => new MessageContentDTO
@@ -340,7 +423,8 @@ public class ChatService : IChatService
         }
     }
 
-    public async Task<ConversationDTO> GetConversationWithInfoAsync(int conversationId)
+    // UPDATED: Return conversation info relative to the requesting user
+    public async Task<ConversationDTO> GetConversationWithInfoAsync(int conversationId, int userId)
     {
         var conversation = await _context.Conversations
             .Include(c => c.User1)
@@ -350,8 +434,6 @@ public class ChatService : IChatService
         if (conversation == null)
             return null;
 
-        var DTO = MapToConversationDTO(conversation);
-
         // Get last message
         var lastMessage = await _context.Messages
             .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
@@ -359,9 +441,10 @@ public class ChatService : IChatService
             .Select(m => m.TextContent)
             .FirstOrDefaultAsync();
 
-        DTO.LastMessage = lastMessage;
+        // Get unread count
+        var unreadCount = await GetUnreadMessageCountAsync(conversationId, userId);
 
-        return DTO;
+        return MapToConversationDTORelative(conversation, userId, lastMessage, unreadCount);
     }
 
     public async Task<List<MessageDTO>> SearchMessagesAsync(int userId, string query, int? conversationId = null)
@@ -392,5 +475,20 @@ public class ChatService : IChatService
         }
 
         return messageDTOs;
+    }
+
+    public async Task MarkAllMessagesAsReadAsync(int conversationId, int userId)
+    {
+        var unreadMessages = await _context.Messages
+            .Where(m => m.ConversationId == conversationId && 
+                       m.SenderId != userId && 
+                       !m.IsDeleted)
+            .Select(m => m.Id)
+            .ToListAsync();
+
+        foreach (var messageId in unreadMessages)
+        {
+            await MarkMessageAsReadAsync(messageId, userId);
+        }
     }
 }
