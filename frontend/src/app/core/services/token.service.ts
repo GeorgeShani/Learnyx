@@ -45,7 +45,15 @@ export class TokenService {
     const token = this.getToken();
     if (!token) return null;
 
-    const decoded = jwtDecode<Record<string, any>>(token);
+    const decoded = jwtDecode<Record<string, string>>(token);
     return decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+  }
+
+  getUserId(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    const decoded = jwtDecode<Record<string, number>>(token);
+    return decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || 0;
   }
 }
