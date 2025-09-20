@@ -13,7 +13,6 @@ public static class ServicesConfiguration
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IAmazonS3Service, AmazonS3Service>();
         services.AddScoped<IChatService, ChatService>();
