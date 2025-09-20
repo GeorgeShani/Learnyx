@@ -322,6 +322,55 @@ public class ChatController : ControllerBase
         }
     }
 
+    // POST: api/chat/conversations/{id}/mark-read
+    [HttpPost("conversations/{id:int}/mark-read")]
+    public async Task<IActionResult> MarkAllMessagesAsRead(int id)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+
+            if (!await _chatService.CanUserAccessConversationAsync(id, userId))
+            {
+                return Forbid("You don't have access to this conversation");
+            }
+
+            await _chatService.MarkAllMessagesAsReadAsync(id, userId);
+
+            // Notify other users that messages were marked as read
+            await _hubContext.Clients.Group($"conversation_{id}")
+                .SendAsync("MessagesMarkedAsRead", userId);
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error marking messages as read: {ex.Message}");
+        }
+    }
+
+    // GET: api/chat/conversations/{id}/info
+    [HttpGet("conversations/{id:int}/info")]
+    public async Task<ActionResult<ConversationDTO>> GetConversationInfo(int id)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+
+            if (!await _chatService.CanUserAccessConversationAsync(id, userId))
+            {
+                return Forbid("You don't have access to this conversation");
+            }
+
+            var conversation = await _chatService.GetConversationWithInfoAsync(id, userId);
+            return Ok(conversation);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error retrieving conversation info: {ex.Message}");
+        }
+    }
+
     // GET: api/chat/search
     [HttpGet("search")]
     public async Task<ActionResult<List<MessageDTO>>> SearchMessages([FromQuery] string query, [FromQuery] int? conversationId = null)

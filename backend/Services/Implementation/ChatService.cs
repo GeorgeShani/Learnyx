@@ -145,7 +145,7 @@ public class ChatService : IChatService
         Console.WriteLine($"Calling Gemini with prompt length: {prompt.Length}");
         
         var response = await _geminiService.AskGeminiAsync(prompt);
-        Console.WriteLine($"Gemini response received: {response?.Substring(0, Math.Min(100, response?.Length ?? 0))}...");
+        Console.WriteLine($"Gemini response received: {response[..Math.Min(100, response.Length)]}...");
 
         // Update context
         context.LastInteractionAt = DateTime.Now;
@@ -179,7 +179,7 @@ public class ChatService : IChatService
         await _context.SaveChangesAsync();
     }
     
-    public async Task<List<ConversationDTO>> GetUserConversationsAsync(int userId)
+    public async Task<List<ConversationDTO?>> GetUserConversationsAsync(int userId)
     {
         var conversations = await _context.Conversations
             .Include(c => c.User1)
@@ -188,7 +188,7 @@ public class ChatService : IChatService
             .OrderByDescending(c => c.LastActivityAt)
             .ToListAsync();
 
-        var conversationDTOs = new List<ConversationDTO>();
+        var conversationDTOs = new List<ConversationDTO?>();
         
         foreach (var conversation in conversations)
         {
@@ -228,7 +228,7 @@ public class ChatService : IChatService
         return messageDTOs;
     }
 
-    public async Task<ConversationDTO> CreateOrGetConversationAsync(int user1Id, int? user2Id, ConversationType type)
+    public async Task<ConversationDTO?> CreateOrGetConversationAsync(int user1Id, int? user2Id, ConversationType type)
     {
         Conversation? conversation = null;
 
@@ -271,7 +271,7 @@ public class ChatService : IChatService
         }
 
         // Return conversation relative to user1 (the requesting user)
-        return MapToConversationDTORelative(conversation!, user1Id, null, 0);
+        return MapToConversationDTORelative(conversation!, user1Id);
     }
 
     private async Task UpdateConversationActivity(int conversationId)
@@ -423,7 +423,7 @@ public class ChatService : IChatService
     }
 
     // UPDATED: Return conversation info relative to the requesting user
-    public async Task<ConversationDTO> GetConversationWithInfoAsync(int conversationId, int userId)
+    public async Task<ConversationDTO?> GetConversationWithInfoAsync(int conversationId, int userId)
     {
         var conversation = await _context.Conversations
             .Include(c => c.User1)

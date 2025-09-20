@@ -13,10 +13,12 @@ public interface IChatService
     Task<MessageDTO> SendAssistantMessageAsync(int conversationId, string response);
     Task<string> GetAssistantResponseAsync(int conversationId);
     Task MarkMessageAsReadAsync(int messageId, int userId);
-    Task<List<ConversationDTO>> GetUserConversationsAsync(int userId);
+    Task<List<ConversationDTO?>> GetUserConversationsAsync(int userId);
     Task<List<MessageDTO>> GetConversationMessagesAsync(int conversationId, int userId, int page = 1, int pageSize = 50);
-    Task<ConversationDTO> CreateOrGetConversationAsync(int user1Id, int? user2Id, ConversationType type);
+    Task<ConversationDTO?> CreateOrGetConversationAsync(int user1Id, int? user2Id, ConversationType type);
     Task<MessageDTO> EditMessageAsync(int messageId, string newContent);
     Task DeleteMessageAsync(int messageId);
     Task<List<MessageDTO>> SearchMessagesAsync(int userId, string query, int? conversationId = null);
+    Task MarkAllMessagesAsReadAsync(int conversationId, int userId);
+    Task<ConversationDTO?> GetConversationWithInfoAsync(int conversationId, int userId);
 }

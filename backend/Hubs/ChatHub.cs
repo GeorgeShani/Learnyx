@@ -96,6 +96,22 @@ public class ChatHub : Hub
             .SendAsync("UserStoppedTyping", userId, Context.User?.Identity?.Name);
     }
 
+    public async Task MarkAllMessagesAsRead(int conversationId)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            await _chatService.MarkAllMessagesAsReadAsync(conversationId, userId);
+            
+            await Clients.Group($"conversation_{conversationId}")
+                .SendAsync("MessagesMarkedAsRead", userId);
+        }
+        catch (Exception ex)
+        {
+            await Clients.Caller.SendAsync("Error", $"Failed to mark messages as read: {ex.Message}");
+        }
+    }
+
     private async Task HandleAssistantResponse(int conversationId, int userId)
     {
         try
