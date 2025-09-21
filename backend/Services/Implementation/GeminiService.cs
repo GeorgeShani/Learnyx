@@ -20,11 +20,6 @@ public class GeminiService : IGeminiService
     public async Task<string> AskGeminiAsync(string prompt)
     {
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_apiKey}";
-
-        const string systemInstruction = "You are the Learnyx AI Assistant. " +
-                                         "Learnyx provides courses with a variety of learning materials. " +
-                                         "Your role is to guide students: explain concepts, give hints for homework without solving it, " +
-                                         "suggest helpful resources, and help them build a personalized learning path.";
         
         var body = new
         {
@@ -34,8 +29,7 @@ public class GeminiService : IGeminiService
                 {
                     parts = new[]
                     {
-                        new { text = systemInstruction },
-                        new { text = $"Student request: {prompt}" }
+                        new { text = prompt }
                     }
                 }
             }

@@ -1,6 +1,6 @@
 export enum ConversationType {
-  UserToUser = 0,
-  UserToAssistant = 1
+  UserToUser = "UserToUser",
+  UserToAssistant = "UserToAssistant"
 }
 
 export enum MessageContentType {

@@ -124,10 +124,8 @@ public class ChatController : ControllerBase
             var conversation = await _chatService.GetConversationAsync(id);
             if (conversation?.Type == ConversationType.UserToAssistant)
             {
-                await _hubContext.Clients.Group($"conversation_{id}")
-                    .SendAsync("AssistantTyping", true);
-    
-                _ = ProcessAssistantResponseInBackground(id);
+                // Trigger assistant response in background with small delay
+                _ = HandleAssistantResponseAsync(id, delayMs: 1000);
             }
     
             return Ok(message);
@@ -135,37 +133,6 @@ public class ChatController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest($"Error sending message: {ex.Message}");
-        }
-    }
-
-    private async Task ProcessAssistantResponseInBackground(int conversationId)
-    {
-        try
-        {
-            // Small delay to let the user message appear first
-            await Task.Delay(1000);
-
-            var response = await _chatService.GetAssistantResponseAsync(conversationId);
-
-            if (!string.IsNullOrEmpty(response))
-            {
-                var assistantMessage = await _chatService.SendAssistantMessageAsync(conversationId, response);
-                
-                await _hubContext.Clients.Group($"conversation_{conversationId}")
-                    .SendAsync("ReceiveMessage", assistantMessage);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Background assistant response error: {ex}");
-            
-            await _hubContext.Clients.Group($"conversation_{conversationId}")
-                .SendAsync("Error", $"Assistant temporarily unavailable: {ex.Message}");
-        }
-        finally
-        {
-            await _hubContext.Clients.Group($"conversation_{conversationId}")
-                .SendAsync("AssistantTyping", false);
         }
     }
 
@@ -311,8 +278,8 @@ public class ChatController : ControllerBase
                 return BadRequest("This endpoint is only for assistant conversations");
             }
 
-            // Trigger assistant response
-            await HandleAssistantResponse(id);
+            // Trigger assistant response with standard delay
+            await HandleAssistantResponseAsync(id, delayMs: 1500);
 
             return Ok(new { message = "Assistant response triggered" });
         }
@@ -404,7 +371,7 @@ public class ChatController : ControllerBase
         return userId;
     }
 
-    private async Task HandleAssistantResponse(int conversationId)
+    private async Task HandleAssistantResponseAsync(int conversationId, int delayMs = 0)
     {
         try
         {
@@ -412,8 +379,11 @@ public class ChatController : ControllerBase
             await _hubContext.Clients.Group($"conversation_{conversationId}")
                 .SendAsync("AssistantTyping", true);
 
-            // Add delay to simulate thinking
-            await Task.Delay(1500);
+            // Optional delay (for background processing or simulating thinking)
+            if (delayMs > 0)
+            {
+                await Task.Delay(delayMs);
+            }
 
             // Get assistant response
             var response = await _chatService.GetAssistantResponseAsync(conversationId);
@@ -429,7 +399,7 @@ public class ChatController : ControllerBase
         catch (Exception ex)
         {
             await _hubContext.Clients.Group($"conversation_{conversationId}")
-                .SendAsync("Error", $"Assistant error: {ex.Message}");
+                .SendAsync("Error", $"Assistant temporarily unavailable: {ex.Message}");
         }
         finally
         {

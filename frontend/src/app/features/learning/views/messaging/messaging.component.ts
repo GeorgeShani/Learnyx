@@ -275,9 +275,14 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
         this.newMessage = '';
         this.shouldScrollToBottom = true;
 
-        if (this.selectedConversation?.type === ConversationType.UserToAssistant) {
-          this.chatApiService.triggerAssistantResponse(this.selectedConversation.id);
-        }
+          this.chatApiService.triggerAssistantResponse(this.selectedConversation?.id ?? 0).subscribe({
+            next: (message) => {
+              console.log("AI Response triggered: ", message);
+            },
+            error: (error) => {
+              console.error("Error triggering AI Response: ", error);
+            } 
+          });
       })
       .catch((error) => {
         console.error('Error sending message via SignalR:', error);

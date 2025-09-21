@@ -21,10 +21,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseRouting();
-app.UseCors("AllowFrontend");
+app.UseRouting();             // 1. Routing comes first
+app.UseCors("AllowFrontend"); // 2. Then CORS
+app.UseAuthentication();      // 3. Authentication
+app.UseAuthorization();       // 4. Authorization
 app.MapControllers();
 app.MapHub<ChatHub>("/chathub");
 app.Run();

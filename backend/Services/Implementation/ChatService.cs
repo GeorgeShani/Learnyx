@@ -118,7 +118,10 @@ public class ChatService : IChatService
             context = new AssistantConversationContext
             {
                 ConversationId = conversationId,
-                SystemPrompt = "You are a helpful learning assistant. Provide clear, accurate, and educational responses.",
+                SystemPrompt = "You are the Learnyx AI Assistant. " +
+                               "Learnyx provides courses with a variety of learning materials. " +
+                               "Your role is to guide students: explain concepts, give hints for homework without solving it, " +
+                               "suggest helpful resources, and help them build a personalized learning path.",
                 MaxContextMessages = 10
             };
             _context.AssistantConversationContexts.Add(context);
@@ -128,7 +131,7 @@ public class ChatService : IChatService
         // Get recent messages for context
         var recentMessages = await _context.Messages
             .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
-            .OrderByDescending(m => m.CreatedAt)
+            .OrderBy(m => m.CreatedAt)
             .Take(context.MaxContextMessages)
             .Select(m => new { m.TextContent, m.IsFromAssistant, m.CreatedAt })
             .ToListAsync();
@@ -142,10 +145,7 @@ public class ChatService : IChatService
             .ToList();
 
         var prompt = BuildGeminiPrompt(context.SystemPrompt, conversationHistory);
-        Console.WriteLine($"Calling Gemini with prompt length: {prompt.Length}");
-        
         var response = await _geminiService.AskGeminiAsync(prompt);
-        Console.WriteLine($"Gemini response received: {response[..Math.Min(100, response.Length)]}...");
 
         // Update context
         context.LastInteractionAt = DateTime.Now;
@@ -284,7 +284,7 @@ public class ChatService : IChatService
         }
     }
 
-    private string BuildGeminiPrompt(string? systemPrompt, List<string> conversationHistory)
+    private static string BuildGeminiPrompt(string? systemPrompt, List<string> conversationHistory)
     {
         var prompt = systemPrompt ?? "You are a helpful assistant.";
         
