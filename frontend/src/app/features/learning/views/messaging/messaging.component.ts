@@ -21,10 +21,11 @@ import {
 } from '../../models/messaging.model';
 import { Subscription } from 'rxjs';
 import { TokenService } from '@core/services/token.service';
+import { MarkdownComponent } from "ngx-markdown";
 
 @Component({
   selector: 'app-messaging',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownComponent],
   templateUrl: './messaging.component.html',
   styleUrl: './messaging.component.scss',
 })
@@ -49,13 +50,13 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
     private chatApiService: ChatApiService,
     private chatStateService: ChatStateService,
     private signalRService: SignalRService,
-    public tokenService: TokenService
+    private tokenService: TokenService
   ) {}
 
   ngOnInit() {
     this.loadData();
     this.setupSubscriptions();
-    console.log(this.tokenService.getUserId());
+    this.signalRService.startConnection(this.tokenService.getToken() ?? '');
   }
 
   ngAfterViewChecked() {
@@ -67,6 +68,7 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.signalRService.stopConnection();
   }
 
   loadData() {
@@ -106,6 +108,7 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
       (message) => {
         if (message) {
           this.chatStateService.addMessage(message);
+           this.shouldScrollToBottom = true;
         }
       }
     );
@@ -216,6 +219,8 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
             console.error('Error loading messages:', error);
           },
         });
+      
+      this.chatApiService.markAllMessagesAsRead(this.selectedConversation.id);
     } else {
       this.messages = [];
       this.chatStateService.setActiveConversation(null);
@@ -269,6 +274,10 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
       .then(() => {
         this.newMessage = '';
         this.shouldScrollToBottom = true;
+
+        if (this.selectedConversation?.type === ConversationType.UserToAssistant) {
+          this.chatApiService.triggerAssistantResponse(this.selectedConversation.id);
+        }
       })
       .catch((error) => {
         console.error('Error sending message via SignalR:', error);

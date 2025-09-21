@@ -113,7 +113,7 @@ export class ChatApiService {
   // Assistant
   triggerAssistantResponse(conversationId: number): Observable<any> {
     return this.apiService.post(
-      `$/api/chat/conversations/${conversationId}/assistant-message`,
+      `/api/chat/conversations/${conversationId}/assistant-message`,
       {}
     );
   }

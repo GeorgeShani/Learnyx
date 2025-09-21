@@ -251,7 +251,7 @@
             >
               <div class="message-bubble">
                 <p class="message-content">
-                  {{ message.textContent || getMessageContent(message) }}
+                  <markdown [data]="message.textContent || getMessageContent(message)"></markdown>
                 </p>
                 <div class="message-time">
                   <svg
