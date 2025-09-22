@@ -3,6 +3,7 @@ using learnyx.Models.DTOs;
 using learnyx.Models.Enums;
 using System.Security.Claims;
 using learnyx.Models.Requests;
+using learnyx.Models.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using learnyx.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
@@ -189,6 +190,55 @@ public class ChatController : ControllerBase
             return BadRequest($"Error uploading file: {ex.Message}");
         }
     }
+    
+    [HttpGet("users/presence")]
+    public Task<ActionResult<List<UserPresenceDTO>>> GetUsersPresence([FromQuery] List<int> userIds)
+    {
+        try
+        {
+            // For now, return basic presence info
+            var presenceList = new List<UserPresenceDTO>();
+        
+            foreach (var id in userIds)
+            {
+                // This is a simple implementation
+                // You could enhance this by checking actual user activity from your database
+                presenceList.Add(new UserPresenceDTO
+                {
+                    UserId = id,
+                    IsOnline = false, // Default to offline, SignalR will update this
+                    LastSeen = DateTime.UtcNow.AddMinutes(-Random.Shared.Next(1, 60))
+                });
+            }
+
+            return Task.FromResult<ActionResult<List<UserPresenceDTO>>>(Ok(presenceList));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult<ActionResult<List<UserPresenceDTO>>>(BadRequest($"Error retrieving user presence: {ex.Message}"));
+        }
+    }
+
+// GET: api/chat/users/{id}/presence
+    [HttpGet("users/{id:int}/presence")]
+    public Task<ActionResult<UserPresenceDTO>> GetUserPresence(int id)
+    {
+        try
+        {
+            var presence = new UserPresenceDTO
+            {
+                UserId = id,
+                IsOnline = false, // Default to offline, SignalR will update this
+                LastSeen = DateTime.UtcNow.AddMinutes(-Random.Shared.Next(1, 60))
+            };
+
+            return Task.FromResult<ActionResult<UserPresenceDTO>>(Ok(presence));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult<ActionResult<UserPresenceDTO>>(BadRequest($"Error retrieving user presence: {ex.Message}"));
+        }
+    }
 
     // DELETE: api/chat/messages/{id}
     [HttpDelete("messages/{id}")]
@@ -278,7 +328,6 @@ public class ChatController : ControllerBase
                 return BadRequest("This endpoint is only for assistant conversations");
             }
 
-            // Trigger assistant response with standard delay
             await HandleAssistantResponseAsync(id, delayMs: 1500);
 
             return Ok(new { message = "Assistant response triggered" });

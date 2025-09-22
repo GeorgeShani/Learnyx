@@ -5,6 +5,12 @@ import {
 } from '@features/learning/models/messaging.model';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 
+export interface UserPresence {
+  userId: number;
+  isOnline: boolean;
+  lastSeen?: Date | string; // Allow both Date and string
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,11 +27,17 @@ export class ChatStateService {
     [conversationId: number]: string[];
   }>({});
 
+  // User presence state
+  private userPresenceSubject = new BehaviorSubject<{
+    [userId: number]: UserPresence;
+  }>({});
+
   public conversations$ = this.conversationsSubject.asObservable();
   public messages$ = this.messagesSubject.asObservable();
   public activeConversationId$ =
     this.activeConversationIdSubject.asObservable();
   public typingUsers$ = this.typingUsersSubject.asObservable();
+  public userPresence$ = this.userPresenceSubject.asObservable();
 
   public activeConversationMessages$: Observable<MessageDto[]> = combineLatest([
     this.messages$,
@@ -125,6 +137,102 @@ export class ChatStateService {
     }
   }
 
+  // User presence methods
+  setUserOnline(userId: number, lastSeen?: Date): void {
+    const current = this.userPresenceSubject.value;
+    current[userId] = {
+      userId,
+      isOnline: true,
+      lastSeen,
+    };
+    this.userPresenceSubject.next({ ...current });
+  }
+
+  setUserOffline(userId: number, lastSeen: Date): void {
+    const current = this.userPresenceSubject.value;
+    current[userId] = {
+      userId,
+      isOnline: false,
+      lastSeen,
+    };
+    this.userPresenceSubject.next({ ...current });
+  }
+
+  setOnlineUsers(userIds: number[]): void {
+    const current = this.userPresenceSubject.value;
+
+    // Mark all existing users as offline first
+    Object.keys(current).forEach((userId) => {
+      const id = parseInt(userId);
+      if (!userIds.includes(id)) {
+        current[id] = {
+          ...current[id],
+          isOnline: false,
+          lastSeen: current[id].lastSeen || new Date(),
+        };
+      }
+    });
+
+    // Mark online users as online
+    userIds.forEach((userId) => {
+      current[userId] = {
+        userId,
+        isOnline: true,
+        lastSeen: undefined, // Clear lastSeen for online users
+      };
+    });
+
+    this.userPresenceSubject.next({ ...current });
+  }
+
+  isUserOnline(userId: number): boolean {
+    return this.userPresenceSubject.value[userId]?.isOnline || false;
+  }
+
+  getUserPresence(userId: number): UserPresence | null {
+    return this.userPresenceSubject.value[userId] || null;
+  }
+
+  getLastSeenText(userId: number): string {
+    const presence = this.getUserPresence(userId);
+
+    if (!presence) {
+      return 'Unknown';
+    }
+
+    if (presence.isOnline) {
+      return 'Online';
+    }
+
+    if (presence.lastSeen) {
+      const now = new Date();
+      // Convert to Date object if it's a string
+      const lastSeen =
+        presence.lastSeen instanceof Date
+          ? presence.lastSeen
+          : new Date(presence.lastSeen);
+      const diffInMinutes = Math.floor(
+        (now.getTime() - lastSeen.getTime()) / (1000 * 60)
+      );
+
+      if (diffInMinutes < 1) {
+        return 'Just now';
+      } else if (diffInMinutes < 60) {
+        return `${diffInMinutes} min ago`;
+      } else if (diffInMinutes < 1440) {
+        // 24 hours
+        const hours = Math.floor(diffInMinutes / 60);
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      } else {
+        const days = Math.floor(diffInMinutes / 1440);
+        return `${days} day${days > 1 ? 's' : ''} ago`;
+      }
+    }
+
+    return 'Offline';
+  }
+
+  // Existing getter methods
   getConversations(): ConversationDto[] {
     return this.conversationsSubject.value;
   }

@@ -6,6 +6,7 @@ import {
   MessageContentDto,
   MessageDto,
   SendMessageRequest,
+  UserPresenceDto,
 } from '@features/learning/models/messaging.model';
 import { ApiService } from '@core/services/api.service';
 import { Observable } from 'rxjs';
@@ -68,6 +69,24 @@ export class ChatApiService {
 
   deleteMessage(messageId: number): Observable<void> {
     return this.apiService.delete<void>(`/api/chat/messages/${messageId}`);
+  }
+
+  getUsersPresence(userIds: number[]): Observable<UserPresenceDto[]> {
+    let params = new HttpParams();
+    userIds.forEach((id) => {
+      params = params.append('userIds', id.toString());
+    });
+    
+    return this.apiService.get<UserPresenceDto[]>(
+      `/api/chat/users/presence`,
+      params
+    );
+  }
+
+  getUserPresence(userId: number): Observable<UserPresenceDto> {
+    return this.apiService.get<UserPresenceDto>(
+      `/api/chat/users/${userId}/presence`
+    );
   }
 
   markMessageAsRead(messageId: number): Observable<void> {

@@ -37,6 +37,19 @@ export class SignalRService {
   );
   private errorSubject = new BehaviorSubject<string | null>(null);
 
+  // User presence tracking
+  private onlineUsersSubject = new BehaviorSubject<Set<number>>(new Set());
+  private userOnlineSubject = new BehaviorSubject<{
+    userId: number;
+    userName: string;
+    lastSeen?: Date;
+  } | null>(null);
+  private userOfflineSubject = new BehaviorSubject<{
+    userId: number;
+    userName: string;
+    lastSeen: Date;
+  } | null>(null);
+
   public isConnected$ = this.isConnectedSubject.asObservable();
   public messageReceived$ = this.messageReceivedSubject.asObservable();
   public userTyping$ = this.userTypingSubject.asObservable();
@@ -46,8 +59,14 @@ export class SignalRService {
   public messageDeleted$ = this.messageDeletedSubject.asObservable();
   public messageEdited$ = this.messageEditedSubject.asObservable();
   public messageRead$ = this.messageReadSubject.asObservable();
-  public messagesMarkedAsRead$ = this.messagesMarkedAsReadSubject.asObservable();
+  public messagesMarkedAsRead$ =
+    this.messagesMarkedAsReadSubject.asObservable();
   public error$ = this.errorSubject.asObservable();
+
+  // User presence observables
+  public onlineUsers$ = this.onlineUsersSubject.asObservable();
+  public userOnline$ = this.userOnlineSubject.asObservable();
+  public userOffline$ = this.userOfflineSubject.asObservable();
 
   public async startConnection(token: string): Promise<void> {
     if (this.hubConnection?.state === 'Connected') {
@@ -71,6 +90,9 @@ export class SignalRService {
       await this.hubConnection.start();
       this.isConnectedSubject.next(true);
       console.log('SignalR Connected');
+
+      // Request current online users when connected
+      await this.requestOnlineUsers();
     } catch (err) {
       console.error('SignalR Connection Error: ', err);
       this.isConnectedSubject.next(false);
@@ -81,6 +103,8 @@ export class SignalRService {
     if (this.hubConnection) {
       await this.hubConnection.stop();
       this.isConnectedSubject.next(false);
+      // Clear online users when disconnected
+      this.onlineUsersSubject.next(new Set());
     }
   }
 
@@ -135,6 +159,21 @@ export class SignalRService {
     }
   }
 
+  // User presence methods
+  public async requestOnlineUsers(): Promise<void> {
+    if (this.hubConnection) {
+      await this.hubConnection.invoke('GetOnlineUsers');
+    }
+  }
+
+  public isUserOnline(userId: number): boolean {
+    return this.onlineUsersSubject.value.has(userId);
+  }
+
+  public getOnlineUsers(): Set<number> {
+    return new Set(this.onlineUsersSubject.value);
+  }
+
   // Utility methods for clearing subjects
   public clearMessageEvents(): void {
     this.messageReceivedSubject.next(null);
@@ -148,6 +187,11 @@ export class SignalRService {
     this.userJoinedSubject.next(null);
     this.userLeftSubject.next(null);
     this.userTypingSubject.next(null);
+  }
+
+  public clearPresenceEvents(): void {
+    this.userOnlineSubject.next(null);
+    this.userOfflineSubject.next(null);
   }
 
   public clearError(): void {
@@ -206,6 +250,44 @@ export class SignalRService {
       this.assistantTypingSubject.next(isTyping);
     });
 
+    // User presence events
+    this.hubConnection.on(
+      'UserOnline',
+      (userId: number, userName: string, lastSeen?: string) => {
+        console.log('SignalR: User came online:', userId, userName);
+        const current = this.onlineUsersSubject.value;
+        current.add(userId);
+        this.onlineUsersSubject.next(new Set(current));
+
+        this.userOnlineSubject.next({
+          userId,
+          userName,
+          lastSeen: lastSeen ? new Date(lastSeen) : undefined,
+        });
+      }
+    );
+
+    this.hubConnection.on(
+      'UserOffline',
+      (userId: number, userName: string, lastSeen: string) => {
+        console.log('SignalR: User went offline:', userId, userName);
+        const current = this.onlineUsersSubject.value;
+        current.delete(userId);
+        this.onlineUsersSubject.next(new Set(current));
+
+        this.userOfflineSubject.next({
+          userId,
+          userName,
+          lastSeen: new Date(lastSeen),
+        });
+      }
+    );
+
+    this.hubConnection.on('OnlineUsers', (userIds: number[]) => {
+      console.log('SignalR: Received online users list:', userIds);
+      this.onlineUsersSubject.next(new Set(userIds));
+    });
+
     // Error handling
     this.hubConnection.on('Error', (error: string) => {
       console.error('SignalR Error:', error);
@@ -213,9 +295,11 @@ export class SignalRService {
     });
 
     // Connection events
-    this.hubConnection.onreconnected(() => {
+    this.hubConnection.onreconnected(async () => {
       this.isConnectedSubject.next(true);
       console.log('SignalR Reconnected');
+      // Re-request online users after reconnection
+      await this.requestOnlineUsers();
     });
 
     this.hubConnection.onreconnecting(() => {
@@ -225,6 +309,7 @@ export class SignalRService {
 
     this.hubConnection.onclose(() => {
       this.isConnectedSubject.next(false);
+      this.onlineUsersSubject.next(new Set());
       console.log('SignalR Disconnected');
     });
   }

@@ -66,3 +66,9 @@ export interface SendMessageRequest {
   contents?: MessageContentDto[];
   replyToMessageId?: number;
 }
+
+export interface UserPresenceDto {
+  userId: number;
+  isOnline: boolean;
+  lastSeen?: Date;
+}

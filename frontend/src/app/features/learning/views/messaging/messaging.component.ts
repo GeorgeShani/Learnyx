@@ -19,9 +19,9 @@ import {
   CreateConversationRequest,
   ConversationType,
 } from '../../models/messaging.model';
-import { Subscription } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { TokenService } from '@core/services/token.service';
-import { MarkdownComponent } from "ngx-markdown";
+import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
   selector: 'app-messaging',
@@ -72,12 +72,51 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   loadData() {
-    // Load conversations from API
     this.chatApiService.getConversations().subscribe({
       next: (conversations) => {
         this.conversations = conversations;
         this.chatStateService.setConversations(conversations);
         this.extractContactsFromConversations();
+
+        // Load initial presence data for all users in conversations
+        const userIds = conversations
+          .filter((c) => c.otherUserId)
+          .map((c) => c.otherUserId!)
+          .filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
+
+        if (userIds.length > 0) {
+          this.chatApiService.getUsersPresence(userIds).subscribe({
+            next: (presenceData) => {
+              presenceData.forEach((presence) => {
+                // Convert lastSeen string to Date object if it exists
+                const lastSeenDate = presence.lastSeen
+                  ? new Date(presence.lastSeen)
+                  : undefined;
+
+                if (presence.isOnline) {
+                  this.chatStateService.setUserOnline(
+                    presence.userId,
+                    lastSeenDate
+                  );
+                } else if (lastSeenDate) {
+                  this.chatStateService.setUserOffline(
+                    presence.userId,
+                    lastSeenDate
+                  );
+                }
+              });
+              console.log(
+                'Loaded initial presence data for',
+                presenceData.length,
+                'users'
+              );
+            },
+            error: (error) => {
+              console.error('Error loading user presence:', error);
+              // Don't fail the entire load process if presence fails
+            },
+          });
+        }
       },
       error: (error) => {
         console.error('Error loading conversations:', error);
@@ -108,7 +147,7 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
       (message) => {
         if (message) {
           this.chatStateService.addMessage(message);
-           this.shouldScrollToBottom = true;
+          this.shouldScrollToBottom = true;
         }
       }
     );
@@ -122,23 +161,79 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
       }
     );
 
+    const userPresenceSub = this.chatStateService.userPresence$.subscribe(
+      (presenceMap) => {
+        // Update contacts with current presence information
+        this.updateContactsPresence();
+      }
+    );
+
+    // Subscribe to SignalR user online events
+    const userOnlineSub = this.signalRService.userOnline$.subscribe(
+      (userOnline) => {
+        if (userOnline) {
+          this.chatStateService.setUserOnline(
+            userOnline.userId,
+            userOnline.lastSeen
+          );
+        }
+      }
+    );
+
+    // Subscribe to SignalR user offline events
+    const userOfflineSub = this.signalRService.userOffline$.subscribe(
+      (userOffline) => {
+        if (userOffline) {
+          this.chatStateService.setUserOffline(
+            userOffline.userId,
+            userOffline.lastSeen
+          );
+        }
+      }
+    );
+
+    // Subscribe to online users list updates
+    const onlineUsersSub = this.signalRService.onlineUsers$.subscribe(
+      (onlineUserIds) => {
+        this.chatStateService.setOnlineUsers(Array.from(onlineUserIds));
+      }
+    );
+
     this.subscriptions.push(
       conversationsSub,
       messagesSub,
       signalRSub,
-      connectionSub
+      connectionSub,
+      userPresenceSub,
+      userOnlineSub,
+      userOfflineSub,
+      onlineUsersSub
     );
   }
 
   extractContactsFromConversations() {
-    this.contacts = this.conversations.map((conv) => ({
-      id: conv.otherUserId,
-      name: conv.otherUserName || 'Unknown User',
-      role: conv.isAssistantConversation ? 'AI' : this.determineUserRole(conv),
-      avatar: conv.otherUserAvatar,
-      isOnline: true, // This would need to be tracked separately
-      conversation: conv,
-    }));
+    this.contacts = this.conversations.map((conv) => {
+      const contact = {
+        id: conv.otherUserId,
+        name: conv.otherUserName || 'Unknown User',
+        role: conv.isAssistantConversation
+          ? 'AI'
+          : this.determineUserRole(conv),
+        avatar: conv.otherUserAvatar,
+        isOnline: this.chatStateService.isUserOnline(conv.otherUserId || 0),
+        conversation: conv,
+      };
+
+      return contact;
+    });
+  }
+
+  private updateContactsPresence(): void {
+    this.contacts.forEach((contact) => {
+      if (contact.id) {
+        contact.isOnline = this.chatStateService.isUserOnline(contact.id);
+      }
+    });
   }
 
   private determineUserRole(conversation: ConversationDto): string {
@@ -219,7 +314,7 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
             console.error('Error loading messages:', error);
           },
         });
-      
+
       this.chatApiService.markAllMessagesAsRead(this.selectedConversation.id);
     } else {
       this.messages = [];
@@ -240,8 +335,13 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   getLastSeenText(contact: any): string {
-    if (contact.isOnline) return 'Online';
-    return 'Offline';
+    if (!contact.id) return 'Unknown';
+
+    if (contact.role === 'AI') {
+      return 'Online';
+    }
+
+    return this.chatStateService.getLastSeenText(contact.id);
   }
 
   formatTime(timestamp: Date): string {
@@ -275,13 +375,15 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
         this.newMessage = '';
         this.shouldScrollToBottom = true;
 
-          this.chatApiService.triggerAssistantResponse(this.selectedConversation?.id ?? 0).subscribe({
+        this.chatApiService
+          .triggerAssistantResponse(this.selectedConversation?.id ?? 0)
+          .subscribe({
             next: (message) => {
-              console.log("AI Response triggered: ", message);
+              console.log('AI Response triggered: ', message);
             },
             error: (error) => {
-              console.error("Error triggering AI Response: ", error);
-            } 
+              console.error('Error triggering AI Response: ', error);
+            },
           });
       })
       .catch((error) => {
