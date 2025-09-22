@@ -216,9 +216,7 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
       const contact = {
         id: conv.otherUserId,
         name: conv.otherUserName || 'Unknown User',
-        role: conv.isAssistantConversation
-          ? 'AI'
-          : this.determineUserRole(conv),
+        role: conv.isAssistantConversation ? 'AI' : conv.otherUserRole,
         avatar: conv.otherUserAvatar,
         isOnline: this.chatStateService.isUserOnline(conv.otherUserId || 0),
         conversation: conv,
@@ -234,14 +232,6 @@ export class MessagingComponent implements OnInit, AfterViewChecked, OnDestroy {
         contact.isOnline = this.chatStateService.isUserOnline(contact.id);
       }
     });
-  }
-
-  private determineUserRole(conversation: ConversationDto): string {
-    // For now, we'll determine role based on conversation type
-    // This could be enhanced with actual user role data from the backend
-    return conversation.type === ConversationType.UserToUser
-      ? 'Teacher'
-      : 'Student';
   }
 
   createNewConversation(

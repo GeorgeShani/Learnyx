@@ -7,6 +7,7 @@ public class MessageDTO
     public int? SenderId { get; set; }
     public string? SenderName { get; set; }
     public string? SenderAvatar { get; set; }
+    public string? SenderRole { get; set; }
     public bool IsFromAssistant { get; set; }
     public string? TextContent { get; set; }
     public List<MessageContentDTO> Contents { get; set; } = new();

@@ -26,6 +26,7 @@ export interface ConversationDto {
   otherUserId: number;
   otherUserName: string;
   otherUserAvatar?: string;
+  otherUserRole?: string;
   isAssistantConversation: boolean;
 }
 
@@ -48,6 +49,7 @@ export interface MessageDto {
   senderId?: number;
   senderName?: string;
   senderAvatar?: string;
+  senderRole?: string;
   isFromAssistant: boolean;
   textContent?: string;
   contents: MessageContentDto[];

@@ -15,5 +15,6 @@ public class ConversationDTO
     public int? OtherUserId { get; set; }
     public string? OtherUserName { get; set; }
     public string? OtherUserAvatar { get; set; }
+    public string? OtherUserRole { get; set; }
     public bool IsAssistantConversation { get; set; }
 }
