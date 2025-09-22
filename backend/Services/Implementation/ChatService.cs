@@ -109,49 +109,92 @@ public class ChatService : IChatService
     {
         Console.WriteLine($"GetAssistantResponseAsync called for conversation {conversationId}");
         
-        var context = await _context.AssistantConversationContexts
-            .FirstOrDefaultAsync(c => c.ConversationId == conversationId);
-
-        if (context == null)
+        try
         {
-            Console.WriteLine("Creating new assistant context");
-            context = new AssistantConversationContext
+            var assistantContext = await _context.AssistantConversationContexts
+                .FirstOrDefaultAsync(c => c.ConversationId == conversationId);
+
+            if (assistantContext == null)
             {
-                ConversationId = conversationId,
-                SystemPrompt = "You are the Learnyx AI Assistant. " +
-                               "Learnyx provides courses with a variety of learning materials. " +
-                               "Your role is to guide students: explain concepts, give hints for homework without solving it, " +
-                               "suggest helpful resources, and help them build a personalized learning path.",
-                MaxContextMessages = 10
-            };
-            _context.AssistantConversationContexts.Add(context);
-            await _context.SaveChangesAsync();
+                Console.WriteLine("Creating new assistant context");
+                assistantContext = new AssistantConversationContext
+                {
+                    ConversationId = conversationId,
+                    SystemPrompt = "You are the Learnyx AI Assistant. " +
+                                   "Learnyx provides courses with a variety of learning materials. " +
+                                   "Your role is to guide students: explain concepts, give hints for homework without solving it, " +
+                                   "suggest helpful resources, and help them build a personalized learning path.",
+                    MaxContextMessages = 10,
+                    LastInteractionAt = DateTime.Now  // Set initial value
+                };
+                
+                _context.AssistantConversationContexts.Add(assistantContext);
+                
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("Assistant context created successfully");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating assistant context: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    }
+                    throw;
+                }
+            }
+
+            // Get recent messages for context
+            var recentMessages = await _context.Messages
+                .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
+                .OrderBy(m => m.CreatedAt)
+                .Take(assistantContext.MaxContextMessages)
+                .Select(m => new { m.TextContent, m.IsFromAssistant, m.CreatedAt })
+                .ToListAsync();
+
+            Console.WriteLine($"Found {recentMessages.Count} recent messages");
+
+            // Build conversation history for Gemini - chronological order
+            var conversationHistory = recentMessages
+                .OrderBy(m => m.CreatedAt)
+                .Select(m => m.IsFromAssistant ? $"Assistant: {m.TextContent}" : $"User: {m.TextContent}")
+                .ToList();
+
+            var prompt = BuildGeminiPrompt(assistantContext.SystemPrompt, conversationHistory);
+            var response = await _geminiService.AskGeminiAsync(prompt);
+
+            // Update context - ensure we're updating the tracked entity
+            assistantContext.LastInteractionAt = DateTime.Now;
+            
+            try
+            {
+                await _context.SaveChangesAsync();
+                Console.WriteLine("Assistant context updated successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating assistant context: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                // Don't throw here - the response was generated successfully
+                // Just log the error and continue
+            }
+
+            return response;
         }
-
-        // Get recent messages for context
-        var recentMessages = await _context.Messages
-            .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
-            .OrderBy(m => m.CreatedAt)
-            .Take(context.MaxContextMessages)
-            .Select(m => new { m.TextContent, m.IsFromAssistant, m.CreatedAt })
-            .ToListAsync();
-
-        Console.WriteLine($"Found {recentMessages.Count} recent messages");
-
-        // Build conversation history for Gemini - chronological order
-        var conversationHistory = recentMessages
-            .OrderBy(m => m.CreatedAt) // Chronological order for better context
-            .Select(m => m.IsFromAssistant ? $"Assistant: {m.TextContent}" : $"User: {m.TextContent}")
-            .ToList();
-
-        var prompt = BuildGeminiPrompt(context.SystemPrompt, conversationHistory);
-        var response = await _geminiService.AskGeminiAsync(prompt);
-
-        // Update context
-        context.LastInteractionAt = DateTime.Now;
-        await _context.SaveChangesAsync();
-
-        return response;
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetAssistantResponseAsync: {ex.Message}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+            }
+            throw;
+        }
     }
 
     public async Task MarkMessageAsReadAsync(int messageId, int userId)

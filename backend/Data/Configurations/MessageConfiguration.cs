@@ -9,7 +9,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
     public void Configure(EntityTypeBuilder<Message> builder)
     {
         builder.HasKey(e => e.Id);
-        builder.Property(e => e.TextContent).HasMaxLength(4000);
+        builder.Property(e => e.TextContent).HasColumnType("nvarchar(max)");;
         builder.HasIndex(e => e.CreatedAt);
         builder.HasIndex(e => new { e.ConversationId, e.CreatedAt });
         builder.HasIndex(e => e.SenderId);
