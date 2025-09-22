@@ -14,4 +14,12 @@ public class User : BaseEntity
     public string AuthProvider { get; set; } = "Local"; // "Google", "Facebook", "Local (JWT)"
     public string? GoogleId { get; set; }
     public string? FacebookId { get; set; }
+    
+    public ICollection<Course> CreatedCourses { get; set; } = new List<Course>();
+    public ICollection<CourseEnrollment> Enrollments { get; set; } = new List<CourseEnrollment>();
+    public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
+    
+    public bool IsTeacher => Role == UserRole.Teacher || Role == UserRole.Admin;
+    public int TotalStudents => CreatedCourses.Sum(c => c.EnrolledStudents);
+    public double AverageRating => CreatedCourses.Any() ? CreatedCourses.Average(c => c.Rating) : 0;
 }
