@@ -49,7 +49,8 @@ export class AuthService {
           auth_type: 'rerequest',
         });
     }
-
+      
+    console.log(oauthUrl);
     // Simply redirect the whole window
     window.location.href = oauthUrl;
   }
