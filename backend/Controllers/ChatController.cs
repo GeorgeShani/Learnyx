@@ -17,15 +17,18 @@ public class ChatController : ControllerBase
     private readonly IChatService _chatService;
     private readonly IHubContext<ChatHub> _hubContext;
     private readonly IAmazonS3Service _amazonS3Service;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public ChatController(
         IChatService chatService, 
         IHubContext<ChatHub> hubContext,
-        IAmazonS3Service amazonS3Service
+        IAmazonS3Service amazonS3Service,
+        IServiceScopeFactory serviceScopeFactory
     ) {
         _chatService = chatService;
         _hubContext = hubContext;
         _amazonS3Service = amazonS3Service;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     // GET: api/chat/conversations
@@ -434,12 +437,16 @@ public class ChatController : ControllerBase
                 await Task.Delay(delayMs);
             }
 
-            // Get assistant response
-            var response = await _chatService.GetAssistantResponseAsync(conversationId);
+            // Create a new scope for the background task to avoid disposed context
+            using var scope = _serviceScopeFactory.CreateScope();
+            var scopedChatService = scope.ServiceProvider.GetRequiredService<IChatService>();
+
+            // Get assistant response using the scoped service
+            var response = await scopedChatService.GetAssistantResponseAsync(conversationId);
 
             if (!string.IsNullOrEmpty(response))
             {
-                var assistantMessage = await _chatService.SendAssistantMessageAsync(conversationId, response);
+                var assistantMessage = await scopedChatService.SendAssistantMessageAsync(conversationId, response);
 
                 await _hubContext.Clients.Group($"conversation_{conversationId}")
                     .SendAsync("ReceiveMessage", assistantMessage);
