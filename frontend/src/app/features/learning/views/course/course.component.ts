@@ -65,7 +65,8 @@ export class CourseComponent implements OnInit {
     title: 'Advanced Web Development',
     instructor: {
       name: 'John Smith',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      avatar:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     },
     modules: [
       {
@@ -225,6 +226,33 @@ export class CourseComponent implements OnInit {
       alert(`Downloaded ${resource.name}!`);
     }
   }
+
+  /*
+  downloadResource(resource: Resource): void {
+    console.log(`Downloading ${resource.name}...`);
+
+    if (resource.url) {
+      // Trigger a real download from URL
+      const a = document.createElement('a');
+      a.href = resource.url;
+      a.download = resource.name; // Suggested filename
+      a.target = '_blank';
+      a.click();
+    } else {
+      // Simulate file content if no URL
+      const content = `This is the content of ${resource.name}`;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = resource.name;
+      a.click();
+
+      URL.revokeObjectURL(url); // Clean up
+    }
+  }
+  */
 
   getAverageGrade(): string {
     const gradedAssignments = this.courseData.assignments.filter(
