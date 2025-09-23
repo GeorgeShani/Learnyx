@@ -1,0 +1,164 @@
+<div class="video-player-container">
+  <!-- Video Container -->
+  <div class="video-container">
+    <video 
+      #videoElement
+      class="video-player"
+      [src]="module.videoUrl"
+      (timeupdate)="handleTimeUpdate()"
+      (loadedmetadata)="handleLoadedMetadata()"
+      (play)="setIsPlaying(true)"
+      (pause)="setIsPlaying(false)"
+      (ended)="onVideoEnded()"
+    ></video>
+
+    <!-- Video Controls -->
+    <div class="video-controls">
+      <!-- Progress Bar -->
+      <div class="progress-section">
+        <div class="time-display">
+          <span>{{ formatTime(currentTime) }}</span>
+          <span>{{ formatTime(duration) }}</span>
+        </div>
+        <div class="progress-bar-container" (click)="onProgressClick($event)">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="progressPercentage"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Buttons -->
+      <div class="controls-row">
+        <div class="left-controls">
+          <button class="control-btn" (click)="skipBackward()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="19,20 9,12 19,4 19,20"/>
+              <line x1="5" y1="19" x2="5" y2="5"/>
+            </svg>
+          </button>
+          <button class="control-btn play-pause-btn" (click)="togglePlay()">
+            <svg *ngIf="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="4" width="4" height="16"/>
+              <rect x="14" y="4" width="4" height="16"/>
+            </svg>
+            <svg *ngIf="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5,3 19,12 5,21 5,3"/>
+            </svg>
+          </button>
+          <button class="control-btn" (click)="skipForward()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5,4 15,12 5,20 5,4"/>
+              <line x1="19" y1="5" x2="19" y2="19"/>
+            </svg>
+          </button>
+
+          <!-- Volume Control -->
+          <div class="volume-control">
+            <button class="control-btn" (click)="toggleMute()">
+              <svg *ngIf="isMuted || volume === 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+              </svg>
+              <svg *ngIf="!isMuted && volume > 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/>
+                <path d="m19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
+            </button>
+            <div class="volume-slider-container">
+              <div class="volume-slider-bg">
+                <div class="volume-slider-fill" [style.width.%]="volume"></div>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                [value]="volume"
+                (input)="handleVolumeChange($event)"
+                class="volume-slider-input"
+              />
+            </div>
+          </div>
+
+          <div class="playback-rate">{{ playbackRate }}x</div>
+        </div>
+
+        <div class="right-controls">
+          <!-- Settings Menu -->
+          <div class="settings-menu">
+            <button class="control-btn" (click)="toggleSettings()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 10.27 7 3.34"/>
+                <path d="m11 13.73-4 6.93"/>
+                <path d="M12 22v-2"/>
+                <path d="M12 2v2"/>
+                <path d="M14 12h8"/>
+                <path d="m17 20.66-1-1.73"/>
+                <path d="m17 3.34-1 1.73"/>
+                <path d="M2 12h2"/>
+                <path d="m20.66 17-1.73-1"/>
+                <path d="m20.66 7-1.73 1"/>
+                <path d="m3.34 17 1.73-1"/>
+                <path d="m3.34 7 1.73 1"/>
+                <circle cx="12" cy="12" r="2"/>
+                <circle cx="12" cy="12" r="8"/>
+              </svg>
+            </button>
+
+            <div *ngIf="showSettings" class="settings-dropdown">
+              <div class="settings-title">Playback Speed</div>
+              <button 
+                *ngFor="let speed of playbackSpeeds"
+                class="speed-option"
+                [class.active-speed]="playbackRate === speed"
+                (click)="setPlaybackSpeed(speed)"
+              >
+                {{ speed }}x
+              </button>
+            </div>
+          </div>
+
+          <button class="control-btn" (click)="toggleFullscreen()">
+            <ng-container *ngIf="!isInFullscreen">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 15 6 6"/>
+                <path d="m15 9 6-6"/>
+                <path d="M21 16v5h-5"/>
+                <path d="M21 8V3h-5"/>
+                <path d="M3 16v5h5"/>
+                <path d="m3 21 6-6"/>
+                <path d="M3 8V3h5"/>
+                <path d="M9 9 3 3"/>
+              </svg>
+            </ng-container>
+            <ng-container *ngIf="isInFullscreen">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 15 6 6m-6-6v4.8m0-4.8h4.8"/>
+                <path d="M9 19.8V15m0 0H4.2M9 15l-6 6"/>
+                <path d="M15 4.2V9m0 0h4.8M15 9l6-6"/>
+                <path d="M9 4.2V9m0 0H4.2M9 9 3 3"/>
+              </svg>
+            </ng-container>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module Info -->
+  <div class="module-info">
+    <div class="module-details">
+      <h3 class="module-title">{{module.title}}</h3>
+      <p class="module-description">{{module.description}}</p>
+    </div>
+    <div class="module-meta">
+      <span class="module-duration">{{module.duration}}</span>
+      <div *ngIf="module.completed" class="completion-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22,4 12,14.01 9,11.01"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>

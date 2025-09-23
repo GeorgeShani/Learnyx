@@ -1,0 +1,81 @@
+<div class="progress-card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Course Progress
+    </h3>
+    <p class="card-description">Track your learning journey through the course modules</p>
+  </div>
+  
+  <div class="card-content">
+    <div class="overall-progress">
+      <div class="progress-labels">
+        <span class="progress-label">Overall Progress</span>
+        <span class="progress-percentage">{{progress}}% Complete</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress"></div>
+      </div>
+      <div class="progress-stats">
+        <span>{{getCompletedCount()}} of {{modules.length}} modules completed</span>
+        <span>{{getTotalDuration()}} total</span>
+      </div>
+    </div>
+    <div class="modules-section">
+      <h4 class="modules-title">Course Modules</h4>
+      <div class="modules-list">
+        <div *ngFor="let module of modules; let i = index" 
+             class="module-item"
+             [class.current]="currentModuleId === module.id"
+             (click)="selectModule(module.id)">
+          <div class="module-icon">
+            <svg *ngIf="module.completed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="completed">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22,4 12,14.01 9,11.01"/>
+            </svg>
+            <svg *ngIf="!module.completed && currentModuleId === module.id" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="current">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="10,8 16,12 10,16"/>
+            </svg>
+            <svg *ngIf="!module.completed && currentModuleId !== module.id" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pending">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12,6 12,12 16,14"/>
+            </svg>
+          </div>
+          
+          <div class="module-info">
+            <div class="module-header">
+              <span class="module-number">Module {{i + 1}}</span>
+              <div *ngIf="currentModuleId === module.id" class="current-badge">Current</div>
+            </div>
+            <h5 class="module-title">{{module.title}}</h5>
+            <p class="module-duration">{{module.duration}}</p>
+          </div>
+
+          <button *ngIf="currentModuleId === module.id" class="watch-button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="10,8 16,12 10,16"/>
+            </svg>
+            Watch
+          </button>
+        </div>
+      </div>
+    </div>
+
+     Quick Stats 
+    <div class="quick-stats">
+      <div class="stat">
+        <div class="stat-value primary">{{getCompletedCount()}}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value secondary">{{getRemainingCount()}}</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+    </div>
+  </div>
+</div>

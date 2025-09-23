@@ -16,13 +16,6 @@ export const routes: Routes = [
     canActivate: [roleGuard],
     data: { roles: ['Student', 'Teacher'] },
     loadComponent: () =>
-      import('./views/learn/learn.component').then((m) => m.LearnComponent),
-  },
-  {
-    path: ':courseId/:lessonId',
-    canActivate: [roleGuard],
-    data: { roles: ['Student', 'Teacher'] },
-    loadComponent: () =>
-      import('./views/learn/learn.component').then((m) => m.LearnComponent),
+      import('./views/course/course.component').then((m) => m.CourseComponent),
   },
 ];
