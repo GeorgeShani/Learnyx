@@ -14,6 +14,7 @@ public static class ServicesConfiguration
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IAmazonS3Service, AmazonS3Service>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IGeminiService, GeminiService>();
