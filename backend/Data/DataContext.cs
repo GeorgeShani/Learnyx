@@ -22,6 +22,11 @@ public class DataContext : DbContext
     public DbSet<CourseEnrollment> CourseEnrollments { get; set; }
     public DbSet<LessonProgress> LessonProgress { get; set; }
     public DbSet<CourseCategory> CourseCategories { get; set; }
+    public DbSet<Assignment> Assignments { get; set; }
+    public DbSet<AssignmentResource> AssignmentResources { get; set; }
+    public DbSet<Submission> Submissions { get; set; }
+    public DbSet<SubmissionFile> SubmissionFiles { get; set; } 
+    
     
     public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
@@ -45,5 +50,9 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new CourseEnrollmentConfiguration());
         modelBuilder.ApplyConfiguration(new LessonProgressConfiguration());
         modelBuilder.ApplyConfiguration(new CourseCategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new AssignmentConfiguration());
+        modelBuilder.ApplyConfiguration(new AssignmentResourceConfiguration());
+        modelBuilder.ApplyConfiguration(new SubmissionConfiguration());
+        modelBuilder.ApplyConfiguration(new SubmissionFileConfiguration());
     }
 }

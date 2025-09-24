@@ -8,7 +8,7 @@ using learnyx.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using learnyx.Authentication.Interfaces;
 
-namespace learnyx.Authentication.Implementation;
+namespace learnyx.Services.Implementation;
 
 public class ProfileService : IProfileService
 {

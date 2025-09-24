@@ -25,8 +25,35 @@ public class User : BaseEntity
     public ICollection<Course> CreatedCourses { get; set; } = new List<Course>();
     public ICollection<CourseEnrollment> Enrollments { get; set; } = new List<CourseEnrollment>();
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
+    public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
+    public ICollection<Submission> GradedSubmissions { get; set; } = new List<Submission>();
     
     public bool IsTeacher => Role == UserRole.Teacher || Role == UserRole.Admin;
     public int TotalStudents => CreatedCourses.Sum(c => c.EnrolledStudents);
     public double AverageRating => CreatedCourses.Any() ? CreatedCourses.Average(c => c.Rating) : 0;
+    // Computed Properties for Students
+    public double GetAverageGrade(int courseId)
+    {
+        var gradedSubmissions = Submissions
+            .Where(s => s.Assignment.CourseId == courseId && s.Grade.HasValue)
+            .ToList();
+            
+        if (!gradedSubmissions.Any()) return 0.0;
+        
+        var totalGrade = gradedSubmissions.Sum(s => s.Grade!.Value);
+        var totalMaxPoints = gradedSubmissions.Sum(s => s.Assignment.MaxPoints);
+        
+        return totalMaxPoints > 0 ? (double)totalGrade / totalMaxPoints * 100 : 0.0;
+    }
+    
+    public int GetCompletedAssignments(int courseId)
+    {
+        return Submissions.Count(s => s.Assignment.CourseId == courseId && s.Status == AssignmentStatus.Graded);
+    }
+    
+    public int GetPendingAssignments(int courseId)
+    {
+        return Submissions.Count(s => s.Assignment.CourseId == courseId && 
+                                      (s.Status == AssignmentStatus.Pending || s.Status == AssignmentStatus.Submitted));
+    }
 }

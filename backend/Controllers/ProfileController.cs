@@ -1,6 +1,6 @@
 ﻿using learnyx.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
-using learnyx.Authentication.Interfaces;
+using learnyx.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 
 namespace learnyx.Controllers;

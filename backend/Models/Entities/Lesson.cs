@@ -17,5 +17,6 @@ public class Lesson : BaseEntity
     public CourseSection Section { get; set; } = null!;
     
     // Navigation Properties
+    public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
     public ICollection<LessonProgress> StudentProgress { get; set; } = new List<LessonProgress>();
 }

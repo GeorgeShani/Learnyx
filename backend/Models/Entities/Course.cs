@@ -53,6 +53,12 @@ public class Course : BaseEntity
     public ICollection<CourseSection> Sections { get; set; } = new List<CourseSection>();
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
     public ICollection<CourseEnrollment> Enrollments { get; set; } = new List<CourseEnrollment>();
+    // Navigation Properties (add to existing Course model)
+    public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
+    
+    // Computed Properties
+    public int TotalAssignments => Assignments.Count;
+    public int PublishedAssignments => Assignments.Count(a => a.IsVisible);
     
     // Computed Properties
     public int GetDiscountPercentage()

@@ -2,7 +2,7 @@
 using learnyx.Models.Requests;
 using learnyx.Models.Responses;
 
-namespace learnyx.Authentication.Interfaces;
+namespace learnyx.Services.Interfaces;
 
 public interface IProfileService
 {

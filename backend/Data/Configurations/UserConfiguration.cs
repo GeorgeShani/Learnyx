@@ -33,5 +33,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne(r => r.Student)
             .HasForeignKey(r => r.StudentId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(u => u.Submissions)
+            .WithOne(s => s.Student)
+            .HasForeignKey(s => s.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        builder.HasMany(u => u.GradedSubmissions)
+            .WithOne(s => s.GradedBy)
+            .HasForeignKey(s => s.GradedById)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
