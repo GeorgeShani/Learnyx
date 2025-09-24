@@ -15,6 +15,12 @@ public class User : BaseEntity
     public string? GoogleId { get; set; }
     public string? FacebookId { get; set; }
     
+    public string? VerificationCode { get; set; }
+    public DateTime? CodeDeadline { get; set; }
+    
+    public string? PasswordResetToken { get; set; }
+    public DateTime? TokenDeadline { get; set; }
+    
     public ICollection<Course> CreatedCourses { get; set; } = new List<Course>();
     public ICollection<CourseEnrollment> Enrollments { get; set; } = new List<CourseEnrollment>();
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();

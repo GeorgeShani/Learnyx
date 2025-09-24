@@ -2,6 +2,7 @@
 using learnyx.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 using learnyx.Authentication.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace learnyx.Controllers;
 
@@ -217,5 +218,14 @@ public class AuthController : ControllerBase
             _logger.LogError(ex, "Error during Facebook OAuth callback");
             return StatusCode(500, new { message = "Authentication failed" });
         }
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetAuthenticatedUser()
+    {
+        var user = await _authService.GetAuthenticatedUserAsync();
+        if (user == null) return Unauthorized();
+        return Ok(user);
     }
 }

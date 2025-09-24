@@ -7,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ForgotPasswordService } from '@features/auth/services/forgot-password.service';
 
 interface ToastMessage {
   title: string;
@@ -33,8 +34,13 @@ export class ForgotPasswordComponent {
   verificationCode = '';
   otpDigits: string[] = ['', '', '', '', '', ''];
   private isUpdating = false; // Prevent circular updates
+  private resetToken: string = '';
 
-  constructor(private formBuilder: FormBuilder, private router: Router) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private forgotPasswordService: ForgotPasswordService,
+    private router: Router
+  ) {
     this.emailForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
     });
@@ -110,17 +116,32 @@ export class ForgotPasswordComponent {
 
     this.isLoading = true;
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await this.forgotPasswordService
+        .sendVerificationCode({
+          email: this.emailForm.get('email')?.value,
+        })
+        .toPromise();
 
-    this.isLoading = false;
+      this.showToast({
+        title: 'Verification Code Sent',
+        description:
+          response?.message ||
+          "We've sent a 6-digit verification code to your email.",
+      });
 
-    this.showToast({
-      title: 'Verification Code Sent',
-      description: "We've sent a 6-digit verification code to your email.",
-    });
-
-    this.currentStep = 2;
+      this.currentStep = 2;
+    } catch (error: any) {
+      this.showToast({
+        title: 'Error',
+        description:
+          error.error?.message ||
+          'Failed to send verification code. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async handleVerificationSubmit(): Promise<void> {
@@ -133,26 +154,35 @@ export class ForgotPasswordComponent {
       return;
     }
 
-    // Static validation - check if code is "123456"
-    if (this.verificationCode !== '123456') {
+    this.isLoading = true;
+
+    try {
+      const response = await this.forgotPasswordService
+        .verifyCode({
+          code: this.verificationCode,
+        })
+        .toPromise();
+
+      // Store the reset token for the next step
+      this.resetToken = response?.resetToken || '';
+
+      this.showToast({
+        title: 'Code Verified',
+        description: response?.message || 'Please create your new password.',
+      });
+
+      this.currentStep = 3;
+    } catch (error: any) {
       this.showToast({
         title: 'Invalid Code',
-        description: 'The verification code is incorrect. Please try again.',
+        description:
+          error.error?.message ||
+          'The verification code is incorrect. Please try again.',
         variant: 'destructive',
       });
-      return;
+    } finally {
+      this.isLoading = false;
     }
-
-    this.isLoading = true;
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    this.isLoading = false;
-
-    this.showToast({
-      title: 'Code Verified',
-      description: 'Please create your new password.',
-    });
-
-    this.currentStep = 3;
   }
 
   async handlePasswordReset(): Promise<void> {
@@ -177,18 +207,41 @@ export class ForgotPasswordComponent {
         });
         return;
       }
+      return;
     }
 
     this.isLoading = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    this.isLoading = false;
 
-    this.showToast({
-      title: 'Password Reset Successfully',
-      description: 'Your password has been updated. You can now log in.',
-    });
+    try {
+      const response = await this.forgotPasswordService
+        .resetPassword({
+          resetToken: this.resetToken,
+          password: this.passwordForm.get('password')?.value,
+          confirmPassword: this.passwordForm.get('confirmPassword')?.value,
+        })
+        .toPromise();
 
-    this.router.navigate(['/auth/login']);
+      this.showToast({
+        title: 'Password Reset Successfully',
+        description:
+          response?.message ||
+          'Your password has been updated. You can now log in.',
+      });
+
+      // Navigate to login after a short delay
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 2000);
+    } catch (error: any) {
+      this.showToast({
+        title: 'Error',
+        description:
+          error.error?.message || 'Failed to reset password. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   // OTP Input Methods
