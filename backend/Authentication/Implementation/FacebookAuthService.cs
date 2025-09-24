@@ -5,6 +5,8 @@ using learnyx.Models.Enums;
 using learnyx.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using learnyx.Authentication.Interfaces;
+using learnyx.SMTP.Interfaces;
+using learnyx.SMTP.Templates;
 
 namespace learnyx.Authentication.Implementation;
 
@@ -13,6 +15,7 @@ public class FacebookAuthService : IFacebookAuthService
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IEmailService _emailService;
     private readonly ILogger<FacebookAuthService> _logger;
     
     private const string FacebookGraphApiUrl = "https://graph.facebook.com/v18.0";
@@ -22,11 +25,13 @@ public class FacebookAuthService : IFacebookAuthService
         HttpClient httpClient, 
         IConfiguration configuration, 
         IServiceProvider serviceProvider, 
+        IEmailService emailService,
         ILogger<FacebookAuthService> logger
     ) {
         _httpClient = httpClient;
         _configuration = configuration;
         _serviceProvider = serviceProvider;
+        _emailService = emailService;
         _logger = logger;
     }
 
@@ -271,6 +276,11 @@ public class FacebookAuthService : IFacebookAuthService
 
         context.Users.Add(newUser);
         await context.SaveChangesAsync();
+        await _emailService.SendEmailAsync(
+            newUser.Email,
+            "Welcome to Learnyx!",
+            EmailTemplates.GetWelcomeEmailTemplate(newUser.FirstName)
+        );
         
         _logger.LogInformation("Created new Facebook user: {FacebookId}, Email: {Email}", facebookUser.Id, newUser.Email);
         return newUser;

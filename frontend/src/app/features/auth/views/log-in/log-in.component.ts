@@ -1,9 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TokenService } from '@core/services/token.service';
 import { AuthService } from '@features/auth/services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +22,7 @@ import { AuthService } from '@features/auth/services/auth.service';
 export class LogInComponent {
   loginForm: FormGroup;
   showPassword = false;
+  isLoading = false;
   returnUrl!: string;
 
   constructor(
@@ -44,21 +53,25 @@ export class LogInComponent {
 
       console.log('Login attempt:', formData);
 
-      this.authService.logIn(formData).subscribe({
-        next: (response) => {
-          this.tokenService.setToken((response as any).token);
-          console.log('Login successful:', response);
+      this.isLoading = true;
+      this.authService
+        .logIn(formData)
+        .pipe(finalize(() => (this.isLoading = false)))
+        .subscribe({
+          next: (response) => {
+            this.tokenService.setToken((response as any).token);
+            console.log('Login successful:', response);
 
-          if (this.returnUrl) {
-            this.router.navigate([this.returnUrl]);
-          } else {
-            this.router.navigate(['/']);
-          }
-        },
-        error: (err) => {
-          console.error('Login error:', err);
-        },
-      });
+            if (this.returnUrl) {
+              this.router.navigate([this.returnUrl]);
+            } else {
+              this.router.navigate(['/']);
+            }
+          },
+          error: (err) => {
+            console.error('Login error:', err);
+          },
+        });
     } else {
       // Mark all fields as touched to show validation errors
       this.markFormGroupTouched();

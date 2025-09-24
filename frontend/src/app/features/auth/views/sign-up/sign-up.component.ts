@@ -4,6 +4,7 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validatio
 import { Router, RouterModule } from '@angular/router';
 import { TokenService } from '@core/services/token.service';
 import { AuthService } from '@features/auth/services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-sign-up',
@@ -15,6 +16,7 @@ export class SignUpComponent {
   registerForm: FormGroup;
   showPassword = false;
   showConfirmPassword = false;
+  isLoading = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -53,16 +55,21 @@ export class SignUpComponent {
 
       console.log("Registration attempted:", formData);
 
-      this.authService.signUp(formData).subscribe({
-        next: (response) => {
-          console.log('Registration successful:', response);
-          this.tokenService.setToken((response as any).token);
-          this.router.navigate(['/']);
-        },
-        error: (err) => {
-          console.error('Registration error:', err);
-        },
-      });
+      this.isLoading = true;
+
+      this.authService
+        .signUp(formData)
+        .pipe(finalize(() => (this.isLoading = false)))
+        .subscribe({
+          next: (response) => {
+            console.log('Registration successful:', response);
+            this.tokenService.setToken((response as any).token);
+            this.router.navigate(['/']);
+          },
+          error: (err) => {
+            console.error('Registration error:', err);
+          },
+        });
 
     } else {
       // Mark all fields as touched to show validation errors

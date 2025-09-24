@@ -9,6 +9,8 @@ using Google.Apis.Oauth2.v2.Data;
 using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.EntityFrameworkCore;
 using learnyx.Authentication.Interfaces;
+using learnyx.SMTP.Interfaces;
+using learnyx.SMTP.Templates;
 
 namespace learnyx.Authentication.Implementation;
 
@@ -16,15 +18,18 @@ public class GoogleAuthService : IGoogleAuthService
 {
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IEmailService _emailService;
     private readonly ILogger<GoogleAuthService> _logger;
     
     public GoogleAuthService(
         IConfiguration configuration, 
         IServiceProvider serviceProvider, 
+        IEmailService emailService,
         ILogger<GoogleAuthService> logger
     ) {
         _configuration = configuration;
         _serviceProvider = serviceProvider;
+        _emailService = emailService;
         _logger = logger;
     }
     
@@ -178,6 +183,11 @@ public class GoogleAuthService : IGoogleAuthService
 
         context.Users.Add(newUser);
         await context.SaveChangesAsync();
+        await _emailService.SendEmailAsync(
+            newUser.Email,
+            "Welcome to Learnyx!",
+            EmailTemplates.GetWelcomeEmailTemplate(newUser.FirstName)
+        );
         
         _logger.LogInformation("Created new Google user: {Email}", email);
         return newUser;

@@ -103,7 +103,7 @@
       [disabled]="!registerForm.valid" 
       [class.disabled]="registerForm.invalid"
     >
-      Create Account
+      {{ isLoading ? "Creating Account..." : "Create Account" }}
     </button>
     <div class="divider">
       <div class="divider-line"></div>

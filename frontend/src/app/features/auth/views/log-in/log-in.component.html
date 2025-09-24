@@ -47,7 +47,7 @@
       [disabled]="loginForm.invalid" 
       [class.disabled]="loginForm.invalid"
     >
-      Log In
+      {{ isLoading ? "Logging In..." : "Log In" }}
     </button>
     <div class="divider">
       <div class="divider-line"></div>
