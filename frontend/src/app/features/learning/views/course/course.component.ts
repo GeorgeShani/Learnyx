@@ -29,7 +29,7 @@ interface Assignment {
   dueDate: string;
   maxPoints: number;
   status: 'pending' | 'submitted' | 'graded' | 'overdue';
-  submissionType: 'text' | 'file';
+  submissionType: 'text' | 'file' | 'both';
   grade?: number;
   feedback?: string;
   submittedAt?: string;
@@ -155,7 +155,7 @@ export class CourseComponent implements OnInit {
         dueDate: '2024-02-20',
         maxPoints: 100,
         status: 'pending',
-        submissionType: 'text',
+        submissionType: 'both',
       },
     ],
     progress: 45,

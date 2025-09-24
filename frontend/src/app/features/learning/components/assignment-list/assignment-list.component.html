@@ -96,6 +96,8 @@
     </div>
   </div>
 </div>
+
+<!-- Submission Dialog -->
 <div *ngIf="showSubmissionDialog" class="dialog-overlay" (click)="closeSubmissionDialog()">
   <div class="dialog-content" (click)="$event.stopPropagation()">
     <div class="dialog-header">
@@ -113,34 +115,73 @@
         </div>
       </div>
 
-      <div *ngIf="selectedAssignment?.submissionType === 'text'" class="form-group">
-        <label for="submission">Your Submission</label>
-        <textarea 
-          id="submission"
-          [(ngModel)]="submissionText"
-          placeholder="Enter your text submission here..."
-          class="submission-textarea">
-        </textarea>
-      </div>
+      <!-- Updated form to support text, file, and both submission types -->
+      <div class="submission-form">
+        <!-- Text submission section -->
+        <div *ngIf="selectedAssignment?.submissionType === 'text' || selectedAssignment?.submissionType === 'both'" 
+             class="form-group">
+          <label for="submission">Text Submission</label>
+          <textarea 
+            id="submission"
+            [(ngModel)]="submissionText"
+            [placeholder]="selectedAssignment?.submissionType === 'both' ? 
+              'Enter your text submission here... (optional if uploading files)' : 
+              'Enter your text submission here...'"
+            class="submission-textarea">
+          </textarea>
+        </div>
 
-      <div *ngIf="selectedAssignment?.submissionType === 'file'" class="form-group">
-        <label for="file">Upload File</label>
-        <input 
-          id="file"
-          type="file"
-          (change)="onFileSelected($event)"
-          accept=".pdf,.doc,.docx,.zip,.txt"
-          class="file-input">
-        <p class="file-help">Accepted formats: PDF, DOC, DOCX, ZIP, TXT</p>
+        <!-- File submission section -->
+        <div *ngIf="selectedAssignment?.submissionType === 'file' || selectedAssignment?.submissionType === 'both'" 
+             class="form-group">
+          <label for="files">Upload Files (Up to 10 files)</label>
+          <input 
+            id="files"
+            type="file"
+            multiple
+            (change)="onFileSelected($event)"
+            class="file-input">
+          <p class="file-help">
+            Upload up to 10 files of any format 
+            <span *ngIf="selectedAssignment?.submissionType === 'both'">(optional if providing text)</span>
+          </p>
+          
+          <!-- Selected files list -->
+          <div *ngIf="submissionFiles.length > 0" class="selected-files">
+            <label>Selected Files ({{submissionFiles.length}}/10)</label>
+            <div class="files-list">
+              <div *ngFor="let file of submissionFiles; let i = index" class="file-item">
+                <div class="file-info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                  </svg>
+                  <span class="file-name">{{file.name}}</span>
+                  <span class="file-size">({{formatFileSize(file.size)}})</span>
+                </div>
+                <button type="button" class="remove-file-btn" (click)="removeFile(i)">×</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="dialog-actions">
         <button class="cancel-button" (click)="closeSubmissionDialog()">Cancel</button>
-        <button class="submit-button" (click)="submitAssignmentVoid()">Submit Assignment</button>
+        <button class="submit-button" 
+                [disabled]="!canSubmit()"
+                (click)="submitAssignmentVoid()">
+          Submit Assignment
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Feedback Dialog -->
 <div *ngIf="showFeedbackDialog" class="dialog-overlay" (click)="closeFeedbackDialog()">
   <div class="dialog-content" (click)="$event.stopPropagation()">
     <div class="dialog-header">
@@ -152,5 +193,13 @@
         <p>{{selectedAssignment?.feedback}}</p>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Added toast notification -->
+<div *ngIf="showToast" class="toast-notification">
+  <div class="toast-content">
+    <h4>{{toastTitle}}</h4>
+    <p>{{toastMessage}}</p>
   </div>
 </div>
