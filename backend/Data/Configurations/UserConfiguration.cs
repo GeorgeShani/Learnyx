@@ -13,6 +13,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(e => e.Email).IsRequired().HasMaxLength(256);
         builder.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
         builder.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+        builder.Property(e => e.Bio).IsRequired().HasMaxLength(1000);
         builder.Property(e => e.AuthProvider).HasMaxLength(50).HasDefaultValue("Local");
         builder.Property(e => e.GoogleId).HasMaxLength(100);
         builder.Property(e => e.FacebookId).HasMaxLength(100);

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
@@ -7,6 +7,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ProfileService } from '@shared/services/profile.service';
+import { Profile } from '@shared/models/profile.model';
 
 interface Stat {
   iconSvg: SafeHtml;
@@ -55,30 +57,100 @@ interface Achievement {
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   activeTab: string = 'general';
   isEditing = false;
   showPassword = false;
 
-  profileForm: FormGroup;
-  passwordForm: FormGroup;
+  profileForm!: FormGroup;
+  passwordForm!: FormGroup;
+
+  profile!: Profile;
 
   stats: Stat[] = [];
   tabs: Tab[] = [];
 
-  constructor(private fb: FormBuilder, private sanitizer: DomSanitizer) {
-    this.profileForm = this.fb.group({
-      firstName: [this.profile.firstName, Validators.required],
-      lastName: [this.profile.lastName, Validators.required],
-      email: [this.profile.email, [Validators.required, Validators.email]],
-      phone: [this.profile.phone],
-      location: [this.profile.location],
-      timezone: [this.profile.timezone],
-      bio: [this.profile.bio],
-      website: [this.profile.website],
-      linkedin: [this.profile.linkedin],
-      github: [this.profile.github],
-    });
+  // ---- Settings ----
+  notifications: Record<NotificationKey, boolean> = {
+    emailCourses: true,
+    emailPromotions: false,
+    emailNews: true,
+    pushCourses: true,
+    pushReminders: true,
+    smsReminders: false,
+  };
+
+  privacy: Record<PrivacyKey, boolean> = {
+    profileVisible: true,
+    progressVisible: false,
+    achievementsVisible: true,
+  };
+
+  emailNotifications: NotificationItem[] = [
+    {
+      key: 'emailCourses',
+      label: 'Course Updates',
+      description: 'New lessons, assignments, and announcements',
+    },
+    {
+      key: 'emailPromotions',
+      label: 'Promotions & Offers',
+      description: 'Special deals and discounts',
+    },
+    {
+      key: 'emailNews',
+      label: 'Newsletter',
+      description: 'Weekly learning tips and platform updates',
+    },
+  ];
+
+  pushNotifications: NotificationItem[] = [
+    {
+      key: 'pushCourses',
+      label: 'Course Reminders',
+      description: 'Reminders for scheduled learning sessions',
+    },
+    {
+      key: 'pushReminders',
+      label: 'Study Reminders',
+      description: 'Daily and weekly study reminders',
+    },
+  ];
+
+  privacySettings: PrivacyItem[] = [
+    {
+      key: 'profileVisible',
+      label: 'Public Profile',
+      description: 'Make your profile visible to other learners',
+    },
+    {
+      key: 'progressVisible',
+      label: 'Learning Progress',
+      description: 'Show your course progress to others',
+    },
+    {
+      key: 'achievementsVisible',
+      label: 'Achievements',
+      description: 'Display your certificates and badges publicly',
+    },
+  ];
+
+  achievements: Achievement[] = [
+    { title: 'First Course Completed', date: '2024-01-15', icon: '🎯' },
+    { title: 'Data Science Specialist', date: '2024-02-28', icon: '📊' },
+    { title: 'Fast Learner', date: '2024-03-10', icon: '⚡' },
+    { title: 'Community Helper', date: '2024-03-20', icon: '🤝' },
+  ];
+
+  constructor(
+    private fb: FormBuilder,
+    private sanitizer: DomSanitizer,
+    private profileService: ProfileService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadProfile();
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', Validators.required],
@@ -156,91 +228,42 @@ export class ProfileComponent {
     ];
   }
 
-  // ---- Profile ----
-  profile = {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    location: 'San Francisco, CA',
-    timezone: 'America/Los_Angeles',
-    bio: 'Passionate learner interested in data science and web development. Always looking to expand my skills and knowledge.',
-    website: 'https://johndoe.dev',
-    linkedin: 'https://linkedin.com/in/johndoe',
-    github: 'https://github.com/johndoe',
-  };
+  private loadProfile(): void {
+    this.profileService.getProfile().subscribe({
+      next: (profile) => {
+        this.profile = profile;
+        const disabled = !this.isEditing; // inputs disabled if not editing
+        this.profileForm = this.fb.group({
+          firstName: [
+            { value: profile.firstName, disabled },
+            Validators.required,
+          ],
+          lastName: [
+            { value: profile.lastName, disabled },
+            Validators.required,
+          ],
+          email: [
+            { value: profile.email, disabled },
+            [Validators.required, Validators.email],
+          ],
+          phone: [{ value: '+1 (555) 123-4567', disabled }],
+          location: [{ value: 'San Francisco, CA', disabled }],
+          timezone: [{ value: 'America/Los_Angeles', disabled }],
+          bio: [{ value: profile.bio, disabled }],
+          website: [{ value: 'https://user.dev', disabled }],
+          linkedin: [{ value: 'https://linkedin.com/in/user', disabled }],
+          github: [{ value: 'https://github.com/user', disabled }],
+        });
+      },
+      error: (err) => {
+        console.error('Failed to load profile', err);
+      },
+    });
+  }
 
-  // ---- Settings ----
-  notifications: Record<NotificationKey, boolean> = {
-    emailCourses: true,
-    emailPromotions: false,
-    emailNews: true,
-    pushCourses: true,
-    pushReminders: true,
-    smsReminders: false,
-  };
-
-  privacy: Record<PrivacyKey, boolean> = {
-    profileVisible: true,
-    progressVisible: false,
-    achievementsVisible: true,
-  };
-
-  emailNotifications: NotificationItem[] = [
-    {
-      key: 'emailCourses',
-      label: 'Course Updates',
-      description: 'New lessons, assignments, and announcements',
-    },
-    {
-      key: 'emailPromotions',
-      label: 'Promotions & Offers',
-      description: 'Special deals and discounts',
-    },
-    {
-      key: 'emailNews',
-      label: 'Newsletter',
-      description: 'Weekly learning tips and platform updates',
-    },
-  ];
-
-  pushNotifications: NotificationItem[] = [
-    {
-      key: 'pushCourses',
-      label: 'Course Reminders',
-      description: 'Reminders for scheduled learning sessions',
-    },
-    {
-      key: 'pushReminders',
-      label: 'Study Reminders',
-      description: 'Daily and weekly study reminders',
-    },
-  ];
-
-  privacySettings: PrivacyItem[] = [
-    {
-      key: 'profileVisible',
-      label: 'Public Profile',
-      description: 'Make your profile visible to other learners',
-    },
-    {
-      key: 'progressVisible',
-      label: 'Learning Progress',
-      description: 'Show your course progress to others',
-    },
-    {
-      key: 'achievementsVisible',
-      label: 'Achievements',
-      description: 'Display your certificates and badges publicly',
-    },
-  ];
-
-  achievements: Achievement[] = [
-    { title: 'First Course Completed', date: '2024-01-15', icon: '🎯' },
-    { title: 'Data Science Specialist', date: '2024-02-28', icon: '📊' },
-    { title: 'Fast Learner', date: '2024-03-10', icon: '⚡' },
-    { title: 'Community Helper', date: '2024-03-20', icon: '🤝' },
-  ];
+  getInitials(): string {
+    return this.profile.firstName[0] + this.profile.lastName[0];
+  }
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
@@ -248,17 +271,72 @@ export class ProfileComponent {
 
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
-    if (!this.isEditing) {
-      this.profileForm.patchValue(this.profile);
-    }
+    Object.keys(this.profileForm.controls).forEach((key) => {
+      const control = this.profileForm.get(key);
+      if (this.isEditing) {
+        control?.enable(); // enable all inputs when editing
+      } else {
+        control?.disable(); // disable all inputs when not editing
+        this.profileForm.patchValue(this.profile); // revert to original profile values
+      }
+    });
   }
 
   handleSave(): void {
     if (this.profileForm.valid) {
-      this.profile = { ...this.profile, ...this.profileForm.value };
-      this.isEditing = false;
-      console.log('Profile updated successfully');
+      const updatedProfile = { ...this.profile };
+      this.profileService.updateProfile(updatedProfile).subscribe({
+        next: (profile) => {
+          this.profile = profile;
+          this.isEditing = false;
+          console.log('Profile updated successfully');
+        },
+        error: (err) => {
+          console.error('Failed to update profile', err);
+        },
+      });
     }
+  }
+
+  handleChangePassword(): void {
+    if (this.passwordForm.valid) {
+      this.profileService.changePassword(this.passwordForm.value).subscribe({
+        next: (msg) => console.log(msg),
+        error: (err) => console.error('Password change failed', err),
+      });
+    }
+  }
+
+  handleProfilePictureUpload(file: File): void {
+    this.profileService.updateProfilePicture(file).subscribe({
+      next: (profile) => {
+        this.profile = profile;
+        console.log('Profile picture updated');
+      },
+      error: (err) => console.error('Failed to update picture', err),
+    });
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click(); // opens file picker
+  }
+
+  uploadMyProfilePicture(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    // handle the upload logic here, e.g., send to API
+    console.log('Uploading file:', file);
+
+    // Optionally preview immediately
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.profile.avatar = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    this.handleProfilePictureUpload(file);
   }
 
   handleNotificationChange(key: NotificationKey, event: Event): void {

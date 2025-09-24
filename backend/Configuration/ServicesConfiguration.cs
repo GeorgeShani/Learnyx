@@ -1,5 +1,7 @@
 ﻿using Amazon.S3;
 using FluentValidation;
+using learnyx.Authentication.Implementation;
+using learnyx.Authentication.Interfaces;
 using learnyx.SMTP.Interfaces;
 using learnyx.Utilities.Mappings;
 using learnyx.Utilities.Constants;
@@ -16,6 +18,7 @@ public static class ServicesConfiguration
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IAmazonS3Service, AmazonS3Service>();
+        services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IGeminiService, GeminiService>();
         

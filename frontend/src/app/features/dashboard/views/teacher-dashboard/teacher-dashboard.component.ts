@@ -1,18 +1,20 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { Profile } from '@shared/models/profile.model';
+import { ProfileService } from '@shared/services/profile.service';
 
 interface Teacher {
   name: string;
-  avatar: string;
+  avatar?: string | null;
   title: string;
   rating: number;
   totalStudents: number;
   totalCourses: number;
   totalRevenue: number;
   monthlyRevenue: number;
-  joinDate: string;
+  joinDate: string | null;
 }
 
 interface Course {
@@ -62,6 +64,7 @@ interface Tab {
 @Component({
   selector: 'app-teacher-dashboard',
   imports: [CommonModule],
+  providers: [DatePipe],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss',
 })
@@ -75,17 +78,7 @@ export class TeacherDashboardComponent {
     { value: 'students', label: 'Students' },
   ];
 
-  teacher: Teacher = {
-    name: 'Sarah Johnson',
-    avatar: '',
-    title: 'Senior Full-Stack Developer',
-    rating: 4.9,
-    totalStudents: 89234,
-    totalCourses: 12,
-    totalRevenue: 125000,
-    monthlyRevenue: 12500,
-    joinDate: 'January 2022',
-  };
+  teacher!: Teacher;
 
   myCourses: Course[] = [
     {
@@ -173,7 +166,31 @@ export class TeacherDashboardComponent {
     },
   ];
 
-  constructor(private router: Router, private sanitizer: DomSanitizer) {
+  constructor(
+    private router: Router,
+    private sanitizer: DomSanitizer,
+    private profileService: ProfileService,
+    private datePipe: DatePipe
+  ) {
+    this.profileService.getProfile().subscribe({
+      next: (profile: Profile) => {
+        this.teacher = {
+          name: `${profile.firstName} ${profile.lastName}`,
+          avatar: profile.avatar ?? null,
+          title: 'Senior Full-Stack Developer',
+          rating: 4.9,
+          totalStudents: 89234,
+          totalCourses: 12,
+          totalRevenue: 125000,
+          monthlyRevenue: 12500,
+          joinDate: this.datePipe.transform(profile.createdAt, 'MMMM yyyy'),
+        };
+      },
+      error: (error) => {
+        console.error('Error fetching the profile:', error);
+      },
+    });
+
     this.recentActivity = [
       {
         type: 'enrollment',

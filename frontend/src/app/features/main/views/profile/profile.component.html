@@ -15,26 +15,63 @@
               <div class="profile-center">
                 <div class="avatar-container">
                   <div class="avatar">
-                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" alt="Profile" />
-                    <div class="avatar-fallback">JD</div>
+                    <img
+                      *ngIf="profile.avatar !== null"
+                      [src]="profile.avatar"
+                      alt="Profile"
+                    />
+                    <div
+                      *ngIf="profile.avatar === null"
+                      class="avatar-fallback"
+                    >
+                      {{ getInitials() }}
+                    </div>
                   </div>
-                  <button class="camera-button" type="button">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
-                      <circle cx="12" cy="13" r="3"/>
+
+                  <!-- Camera Button -->
+                  <button
+                    type="button"
+                    class="camera-button"
+                    (click)="triggerFileInput()"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"
+                      />
+                      <circle cx="12" cy="13" r="3" />
                     </svg>
                   </button>
+
+                  <!-- Hidden File Input -->
+                  <input
+                    type="file"
+                    #fileInput
+                    hidden
+                    (change)="uploadMyProfilePicture($event)"
+                  />
                 </div>
-                <h3 class="profile-name">{{profile.firstName}} {{profile.lastName}}</h3>
-                <p class="profile-email">{{profile.email}}</p>
+
+                <h3 class="profile-name">
+                  {{ profile.firstName }} {{ profile.lastName }}
+                </h3>
+                <p class="profile-email">{{ profile.email }}</p>
                 <div class="pro-badge">Pro Member</div>
-                
+
                 <!-- Quick Stats -->
                 <div class="stats-grid">
                   <div *ngFor="let stat of stats" class="stat-item">
                     <div [innerHTML]="stat.iconSvg"></div>
-                    <div class="stat-value">{{stat.value}}</div>
-                    <div class="stat-label">{{stat.label}}</div>
+                    <div class="stat-value">{{ stat.value }}</div>
+                    <div class="stat-label">{{ stat.label }}</div>
                   </div>
                 </div>
               </div>
@@ -46,14 +83,14 @@
         <div class="main-content">
           <div class="tabs-container">
             <div class="tabs-list">
-              <button 
-                *ngFor="let tab of tabs" 
+              <button
+                *ngFor="let tab of tabs"
                 [class.active]="activeTab === tab.value"
                 (click)="setActiveTab(tab.value)"
                 class="tab-trigger"
               >
                 <div [innerHTML]="tab.iconSvg" class="tab-icon"></div>
-                {{tab.label}}
+                {{ tab.label }}
               </button>
             </div>
 
@@ -65,12 +102,12 @@
                     <h3 class="card-title">Personal Information</h3>
                     <p class="card-description">Update your personal details</p>
                   </div>
-                  <button 
+                  <button
                     class="edit-button"
                     [class.outline]="isEditing"
                     (click)="toggleEdit()"
                   >
-                    {{isEditing ? 'Cancel' : 'Edit Profile'}}
+                    {{ isEditing ? "Cancel" : "Edit Profile" }}
                   </button>
                 </div>
                 <div class="card-content">
@@ -78,20 +115,18 @@
                     <div class="form-grid-2">
                       <div class="form-group">
                         <label class="form-label">First Name</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           class="form-input"
                           formControlName="firstName"
-                          [disabled]="!isEditing"
                         />
                       </div>
                       <div class="form-group">
                         <label class="form-label">Last Name</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           class="form-input"
                           formControlName="lastName"
-                          [disabled]="!isEditing"
                         />
                       </div>
                     </div>
@@ -99,20 +134,18 @@
                     <div class="form-grid-2">
                       <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input 
-                          type="email" 
+                        <input
+                          type="email"
                           class="form-input"
                           formControlName="email"
-                          [disabled]="!isEditing"
                         />
                       </div>
                       <div class="form-group">
                         <label class="form-label">Phone</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           class="form-input"
                           formControlName="phone"
-                          [disabled]="!isEditing"
                         />
                       </div>
                     </div>
@@ -120,21 +153,18 @@
                     <div class="form-grid-2">
                       <div class="form-group">
                         <label class="form-label">Location</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           class="form-input"
                           formControlName="location"
-                          [disabled]="!isEditing"
                         />
                       </div>
                       <div class="form-group">
                         <label class="form-label">Timezone</label>
-                        <select 
-                          class="form-select"
-                          formControlName="timezone"
-                          [disabled]="!isEditing"
-                        >
-                          <option value="America/Los_Angeles">Pacific Time</option>
+                        <select class="form-select" formControlName="timezone">
+                          <option value="America/Los_Angeles">
+                            Pacific Time
+                          </option>
                           <option value="America/New_York">Eastern Time</option>
                           <option value="America/Chicago">Central Time</option>
                           <option value="Europe/London">GMT</option>
@@ -144,10 +174,9 @@
 
                     <div class="form-group">
                       <label class="form-label">Bio</label>
-                      <textarea 
+                      <textarea
                         class="form-textarea"
                         formControlName="bio"
-                        [disabled]="!isEditing"
                         rows="4"
                         placeholder="Tell us about yourself..."
                       ></textarea>
@@ -156,31 +185,28 @@
                     <div class="form-grid-3">
                       <div class="form-group">
                         <label class="form-label">Website</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           class="form-input"
                           formControlName="website"
-                          [disabled]="!isEditing"
                           placeholder="https://your-website.com"
                         />
                       </div>
                       <div class="form-group">
                         <label class="form-label">LinkedIn</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           class="form-input"
                           formControlName="linkedin"
-                          [disabled]="!isEditing"
                           placeholder="https://linkedin.com/in/username"
                         />
                       </div>
                       <div class="form-group">
                         <label class="form-label">GitHub</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           class="form-input"
                           formControlName="github"
-                          [disabled]="!isEditing"
                           placeholder="https://github.com/username"
                         />
                       </div>
@@ -188,14 +214,29 @@
 
                     <div *ngIf="isEditing" class="form-actions">
                       <button type="submit" class="save-button">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                          <polyline points="17,21 17,13 7,13 7,21"/>
-                          <polyline points="7,3 7,8 15,8"/>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                          />
+                          <polyline points="17,21 17,13 7,13 7,21" />
+                          <polyline points="7,3 7,8 15,8" />
                         </svg>
                         Save Changes
                       </button>
-                      <button type="button" class="cancel-button" (click)="toggleEdit()">
+                      <button
+                        type="button"
+                        class="cancel-button"
+                        (click)="toggleEdit()"
+                      >
                         Cancel
                       </button>
                     </div>
@@ -210,20 +251,27 @@
                 <div class="card-header">
                   <div class="header-info">
                     <h3 class="card-title">Notification Preferences</h3>
-                    <p class="card-description">Manage how you receive updates</p>
+                    <p class="card-description">
+                      Manage how you receive updates
+                    </p>
                   </div>
                 </div>
                 <div class="card-content">
                   <div class="notification-section">
                     <h4 class="section-title">Email Notifications</h4>
-                    <div *ngFor="let item of emailNotifications" class="notification-item">
+                    <div
+                      *ngFor="let item of emailNotifications"
+                      class="notification-item"
+                    >
                       <div class="notification-info">
-                        <div class="notification-label">{{item.label}}</div>
-                        <div class="notification-description">{{item.description}}</div>
+                        <div class="notification-label">{{ item.label }}</div>
+                        <div class="notification-description">
+                          {{ item.description }}
+                        </div>
                       </div>
                       <label class="switch">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           [checked]="notifications[item.key]"
                           (change)="handleNotificationChange(item.key, $event)"
                         />
@@ -234,14 +282,19 @@
 
                   <div class="notification-section">
                     <h4 class="section-title">Push Notifications</h4>
-                    <div *ngFor="let item of pushNotifications" class="notification-item">
+                    <div
+                      *ngFor="let item of pushNotifications"
+                      class="notification-item"
+                    >
                       <div class="notification-info">
-                        <div class="notification-label">{{item.label}}</div>
-                        <div class="notification-description">{{item.description}}</div>
+                        <div class="notification-label">{{ item.label }}</div>
+                        <div class="notification-description">
+                          {{ item.description }}
+                        </div>
                       </div>
                       <label class="switch">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           [checked]="notifications[item.key]"
                           (change)="handleNotificationChange(item.key, $event)"
                         />
@@ -255,13 +308,17 @@
                     <div class="notification-item">
                       <div class="notification-info">
                         <div class="notification-label">SMS Reminders</div>
-                        <div class="notification-description">Important reminders via text message</div>
+                        <div class="notification-description">
+                          Important reminders via text message
+                        </div>
                       </div>
                       <label class="switch">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           [checked]="notifications.smsReminders"
-                          (change)="handleNotificationChange('smsReminders', $event)"
+                          (change)="
+                            handleNotificationChange('smsReminders', $event)
+                          "
                         />
                         <span class="slider"></span>
                       </label>
@@ -277,18 +334,25 @@
                 <div class="card-header">
                   <div class="header-info">
                     <h3 class="card-title">Privacy Settings</h3>
-                    <p class="card-description">Control your privacy and data sharing</p>
+                    <p class="card-description">
+                      Control your privacy and data sharing
+                    </p>
                   </div>
                 </div>
                 <div class="card-content">
-                  <div *ngFor="let item of privacySettings" class="notification-item">
+                  <div
+                    *ngFor="let item of privacySettings"
+                    class="notification-item"
+                  >
                     <div class="notification-info">
-                      <div class="notification-label">{{item.label}}</div>
-                      <div class="notification-description">{{item.description}}</div>
+                      <div class="notification-label">{{ item.label }}</div>
+                      <div class="notification-description">
+                        {{ item.description }}
+                      </div>
                     </div>
                     <label class="switch">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         [checked]="privacy[item.key]"
                         (change)="handlePrivacyChange(item.key, $event)"
                       />
@@ -300,15 +364,24 @@
                     <h4 class="section-title">Data Management</h4>
                     <div class="data-actions">
                       <button class="data-button">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <circle cx="12" cy="12" r="3"/>
-                          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="3" />
+                          <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                          />
                         </svg>
                         Download My Data
                       </button>
-                      <button class="data-button delete">
-                        Delete Account
-                      </button>
+                      <button class="data-button delete">Delete Account</button>
                     </div>
                   </div>
                 </div>
@@ -327,36 +400,60 @@
                 <div class="card-content">
                   <div class="security-section">
                     <h4 class="section-title">Change Password</h4>
-                    <form [formGroup]="passwordForm" class="password-form">
+                    <form [formGroup]="passwordForm" class="password-form" onsubmit="handleChangePassword()">
                       <div class="form-group">
                         <label class="form-label">Current Password</label>
                         <div class="password-input">
-                          <input 
+                          <input
                             [type]="showPassword ? 'text' : 'password'"
                             class="form-input"
                             formControlName="currentPassword"
                             placeholder="Enter current password"
                           />
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             class="password-toggle"
                             (click)="togglePasswordVisibility()"
                           >
-                            <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                              <circle cx="12" cy="12" r="3"/>
+                            <svg
+                              *ngIf="!showPassword"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path
+                                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                              />
+                              <circle cx="12" cy="12" r="3" />
                             </svg>
-                            <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                              <line x1="1" y1="1" x2="23" y2="23"/>
+                            <svg
+                              *ngIf="showPassword"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path
+                                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                              />
+                              <line x1="1" y1="1" x2="23" y2="23" />
                             </svg>
                           </button>
                         </div>
                       </div>
                       <div class="form-group">
                         <label class="form-label">New Password</label>
-                        <input 
-                          type="password" 
+                        <input
+                          type="password"
                           class="form-input"
                           formControlName="newPassword"
                           placeholder="Enter new password"
@@ -364,8 +461,8 @@
                       </div>
                       <div class="form-group">
                         <label class="form-label">Confirm New Password</label>
-                        <input 
-                          type="password" 
+                        <input
+                          type="password"
                           class="form-input"
                           formControlName="confirmPassword"
                           placeholder="Confirm new password"
@@ -382,7 +479,9 @@
                     <div class="notification-item">
                       <div class="notification-info">
                         <div class="notification-label">Enable 2FA</div>
-                        <div class="notification-description">Add an extra layer of security to your account</div>
+                        <div class="notification-description">
+                          Add an extra layer of security to your account
+                        </div>
                       </div>
                       <button class="enable-button">Enable</button>
                     </div>
@@ -393,7 +492,9 @@
                     <div class="session-item">
                       <div class="session-info">
                         <div class="session-label">Current Session</div>
-                        <div class="session-description">Chrome on MacOS • San Francisco, CA</div>
+                        <div class="session-description">
+                          Chrome on MacOS • San Francisco, CA
+                        </div>
                       </div>
                       <div class="session-badge">Active</div>
                     </div>
@@ -409,20 +510,29 @@
                 <div class="card-header">
                   <div class="header-info">
                     <h3 class="card-title">Your Achievements</h3>
-                    <p class="card-description">Track your learning milestones and accomplishments</p>
+                    <p class="card-description">
+                      Track your learning milestones and accomplishments
+                    </p>
                   </div>
                 </div>
                 <div class="card-content">
                   <div class="achievements-grid">
-                    <div *ngFor="let achievement of achievements" class="achievement-item">
-                      <div class="achievement-icon">{{achievement.icon}}</div>
+                    <div
+                      *ngFor="let achievement of achievements"
+                      class="achievement-item"
+                    >
+                      <div class="achievement-icon">{{ achievement.icon }}</div>
                       <div class="achievement-info">
-                        <h4 class="achievement-title">{{achievement.title}}</h4>
-                        <p class="achievement-date">Earned on {{achievement.date}}</p>
+                        <h4 class="achievement-title">
+                          {{ achievement.title }}
+                        </h4>
+                        <p class="achievement-date">
+                          Earned on {{ achievement.date }}
+                        </p>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="achievements-footer">
                     <button class="view-all-button">
                       View All Achievements

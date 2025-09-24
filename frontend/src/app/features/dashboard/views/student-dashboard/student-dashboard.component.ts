@@ -2,10 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FilterModalComponent } from '@features/dashboard/components/filter-modal/filter-modal.component';
+import { Profile } from '@shared/models/profile.model';
+import { ProfileService } from '@shared/services/profile.service';
 
 interface User {
   name: string;
-  avatar: string;
+  avatar?: string | null;
   level: string;
   joinDate: string;
   totalCourses: number;
@@ -86,25 +88,7 @@ interface Achievement {
 })
 export class StudentDashboardComponent {
   activeTab = 'overview';
-
-  user: User = {
-    name: 'Alex Thompson',
-    avatar:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-    level: 'Intermediate Developer',
-    joinDate: 'March 2023',
-    totalCourses: 8,
-    completedCourses: 5,
-    totalHours: 156,
-    currentStreak: 12,
-    points: 2450,
-    badges: [
-      { name: 'First Course', icon: 'BookOpen', color: 'bg-blue' },
-      { name: 'Fast Learner', icon: 'Zap', color: 'bg-yellow' },
-      { name: 'Consistent', icon: 'Target', color: 'bg-green' },
-      { name: 'JavaScript Master', icon: 'Award', color: 'bg-purple' },
-    ],
-  };
+  user!: User;
 
   // Original course data (unfiltered)
   private allEnrolledCourses: Course[] = [
@@ -258,7 +242,35 @@ export class StudentDashboardComponent {
     'Web Design',
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private profileService: ProfileService
+  ) { 
+    this.profileService.getProfile().subscribe({
+      next: (profile: Profile) => { 
+        this.user = {
+          name: `${profile.firstName} ${profile.lastName}`,
+          avatar: profile.avatar ?? null,
+          level: 'Intermediate Developer',
+          joinDate: 'March 2023',
+          totalCourses: 8,
+          completedCourses: 5,
+          totalHours: 156,
+          currentStreak: 12,
+          points: 2450,
+          badges: [
+            { name: 'First Course', icon: 'BookOpen', color: 'bg-blue' },
+            { name: 'Fast Learner', icon: 'Zap', color: 'bg-yellow' },
+            { name: 'Consistent', icon: 'Target', color: 'bg-green' },
+            { name: 'JavaScript Master', icon: 'Award', color: 'bg-purple' },
+          ],
+        };
+      },
+      error: (error) => {
+        console.error("Error fetching the profile:", error)
+      }
+    }) 
+  }
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;

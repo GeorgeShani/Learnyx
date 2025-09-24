@@ -1,6 +1,13 @@
-﻿namespace learnyx.Authentication.Interfaces;
+﻿using learnyx.Models.DTOs;
+using learnyx.Models.Requests;
+using learnyx.Models.Responses;
 
-public class IProfileService
+namespace learnyx.Authentication.Interfaces;
+
+public interface IProfileService
 {
-    
+    Task<UserDTO?> GetCurrentUserProfileAsync();
+    Task<UserDTO?> UpdateProfileAsync(UpdateProfileRequest request);
+    Task<UserDTO?> UpdateProfilePictureAsync(UpdateProfilePictureRequest request);
+    Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordRequest request);
 }

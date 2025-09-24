@@ -9,6 +9,7 @@ public class User : BaseEntity
     public string Email { get; set; } = string.Empty;
     public string? Password { get; set; }
     public UserRole Role { get; set; }
+    public string? Bio { get; set; }
     public string? Avatar { get; set; }
     
     public string AuthProvider { get; set; } = "Local"; // "Google", "Facebook", "Local (JWT)"

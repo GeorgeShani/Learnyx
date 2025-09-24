@@ -7,6 +7,8 @@ public class UserDTO
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+    public string? Bio { get; set; }
     public string? Avatar { get; set; }
     public string AuthProvider { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
 }
