@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Profile } from '@shared/models/profile.model';
@@ -61,9 +62,40 @@ interface Tab {
   label: string;
 }
 
+interface Assignment {
+  id: number;
+  title: string;
+  courseTitle: string;
+  dueDate: string;
+  totalSubmissions: number;
+  gradedSubmissions: number;
+  pendingSubmissions: number;
+  status: 'active' | 'closed' | 'draft';
+}
+
+interface Submission {
+  id: number;
+  assignmentId: number;
+  assignmentTitle: string;
+  studentName: string;
+  studentAvatar?: string;
+  submittedAt: string;
+  status: 'submitted' | 'graded' | 'late';
+  grade?: number;
+  maxGrade: number;
+  submissionType: 'text' | 'file' | 'both';
+  textContent?: string;
+  files?: Array<{
+    name: string;
+    size: number;
+    url: string;
+  }>;
+  feedback?: string;
+}
+
 @Component({
   selector: 'app-teacher-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   providers: [DatePipe],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss',
@@ -76,6 +108,7 @@ export class TeacherDashboardComponent {
     { value: 'courses', label: 'My Courses' },
     { value: 'analytics', label: 'Analytics' },
     { value: 'students', label: 'Students' },
+    { value: 'submissions', label: 'Submissions' },
   ];
 
   teacher!: Teacher;
@@ -165,6 +198,96 @@ export class TeacherDashboardComponent {
       dueDate: 'Next week',
     },
   ];
+
+  assignments: Assignment[] = [
+    {
+      id: 1,
+      title: 'JavaScript Fundamentals Quiz',
+      courseTitle: 'Complete Web Development Bootcamp',
+      dueDate: '2024-01-15',
+      totalSubmissions: 45,
+      gradedSubmissions: 32,
+      pendingSubmissions: 13,
+      status: 'active',
+    },
+    {
+      id: 2,
+      title: 'React Component Project',
+      courseTitle: 'Advanced JavaScript Concepts',
+      dueDate: '2024-01-20',
+      totalSubmissions: 28,
+      gradedSubmissions: 15,
+      pendingSubmissions: 13,
+      status: 'active',
+    },
+    {
+      id: 3,
+      title: 'Final Portfolio Website',
+      courseTitle: 'Complete Web Development Bootcamp',
+      dueDate: '2024-01-25',
+      totalSubmissions: 12,
+      gradedSubmissions: 0,
+      pendingSubmissions: 12,
+      status: 'active',
+    },
+  ];
+
+  submissions: Submission[] = [
+    {
+      id: 1,
+      assignmentId: 1,
+      assignmentTitle: 'JavaScript Fundamentals Quiz',
+      studentName: 'Alice Johnson',
+      studentAvatar:
+        'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
+      submittedAt: '2024-01-14T10:30:00Z',
+      status: 'submitted',
+      maxGrade: 100,
+      submissionType: 'text',
+      textContent: 'Here are my answers to the JavaScript quiz...',
+    },
+    {
+      id: 2,
+      assignmentId: 2,
+      assignmentTitle: 'React Component Project',
+      studentName: 'Bob Smith',
+      studentAvatar:
+        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+      submittedAt: '2024-01-19T15:45:00Z',
+      status: 'graded',
+      grade: 85,
+      maxGrade: 100,
+      submissionType: 'both',
+      textContent:
+        'I built a todo list component with the following features...',
+      files: [
+        { name: 'TodoComponent.jsx', size: 2048, url: '#' },
+        { name: 'styles.css', size: 1024, url: '#' },
+      ],
+      feedback:
+        'Great work! The component structure is clean and well-organized.',
+    },
+    {
+      id: 3,
+      assignmentId: 3,
+      assignmentTitle: 'Final Portfolio Website',
+      studentName: 'Carol Davis',
+      submittedAt: '2024-01-24T09:15:00Z',
+      status: 'late',
+      maxGrade: 100,
+      submissionType: 'file',
+      files: [{ name: 'portfolio.zip', size: 5120, url: '#' }],
+    },
+  ];
+
+  selectedAssignment: Assignment | null = null;
+  filteredSubmissions: Submission[] = [];
+  selectedSubmission: Submission | null = null;
+  showGradingModal = false;
+  gradingForm = {
+    grade: 0,
+    feedback: '',
+  };
 
   constructor(
     private router: Router,
@@ -256,5 +379,84 @@ export class TeacherDashboardComponent {
 
   viewCourse(courseId: number): void {
     this.router.navigate(['/courses', courseId]);
+  }
+
+  selectAssignment(assignment: Assignment): void {
+    this.selectedAssignment = assignment;
+    this.filteredSubmissions = this.submissions.filter(
+      (s) => s.assignmentId === assignment.id
+    );
+  }
+
+  viewSubmission(submission: Submission): void {
+    this.selectedSubmission = submission;
+  }
+
+  openGradingModal(submission: Submission): void {
+    this.selectedSubmission = submission;
+    this.gradingForm.grade = submission.grade || 0;
+    this.gradingForm.feedback = submission.feedback || '';
+    this.showGradingModal = true;
+  }
+
+  closeGradingModal(): void {
+    this.showGradingModal = false;
+    this.selectedSubmission = null;
+    this.gradingForm = { grade: 0, feedback: '' };
+  }
+
+  submitGrade(): void {
+    if (this.selectedSubmission) {
+      this.selectedSubmission.grade = this.gradingForm.grade;
+      this.selectedSubmission.feedback = this.gradingForm.feedback;
+      this.selectedSubmission.status = 'graded';
+
+      // Update assignment stats
+      if (this.selectedAssignment) {
+        this.selectedAssignment.gradedSubmissions++;
+        this.selectedAssignment.pendingSubmissions--;
+      }
+    }
+    this.closeGradingModal();
+  }
+
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'submitted':
+        return '#3b82f6';
+      case 'graded':
+        return '#22c55e';
+      case 'late':
+        return '#ef4444';
+      default:
+        return '#64748b';
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    );
+  }
+
+  downloadFile(file: any): void {
+    // Implementation for file download
+    console.log('Downloading file:', file.name);
+  }
+
+  getTotalSubmissions(): number {
+    return this.assignments.reduce((sum, a) => sum + a.totalSubmissions, 0);
+  }
+
+  getPendingSubmissions(): number {
+    return this.assignments.reduce((sum, a) => sum + a.pendingSubmissions, 0);
+  }
+
+  getGradedSubmissions(): number {
+    return this.assignments.reduce((sum, a) => sum + a.gradedSubmissions, 0);
   }
 }

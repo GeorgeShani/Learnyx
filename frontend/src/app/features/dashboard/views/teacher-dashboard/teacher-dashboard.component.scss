@@ -111,7 +111,7 @@
 .tabs-container {
   .tabs-list {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 0;
     background: hsl(0, 0%, 98%);
     border-radius: 0.5rem;
@@ -828,4 +828,441 @@
   display: inline-block;
   width: 1em;
   height: 1em;
+}
+
+// Submissions Tab Styles
+.submissions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: hsl(222.2, 84%, 4.9%);
+  }
+  
+  .submissions-stats {
+    display: flex;
+    gap: 2rem;
+    
+    .stat-item {
+      text-align: center;
+      
+      .stat-number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(195, 84%, 65%);
+      }
+      
+      .stat-label {
+        font-size: 0.875rem;
+        color: hsl(215.4, 16.3%, 46.9%);
+      }
+    }
+  }
+}
+
+.submissions-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  height: 70vh;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+.assignments-panel, .submissions-panel {
+  background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px hsla(222.2, 84%, 4.9%, 0.05);
+  overflow-y: auto;
+  
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: hsl(222.2, 84%, 4.9%);
+  }
+}
+
+.assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.assignment-item {
+  padding: 1rem;
+  border: 1px solid hsl(214.3, 31.8%, 91.4%);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: hsl(195, 84%, 65%);
+    background: hsl(0, 0%, 98%);
+  }
+  
+  &.selected {
+    border-color: hsl(195, 84%, 65%);
+    background: hsla(195, 84%, 65%, 0.05);
+  }
+  
+  .assignment-info {
+    margin-bottom: 0.75rem;
+    
+    h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem 0;
+      color: hsl(222.2, 84%, 4.9%);
+    }
+    
+    .course-name {
+      font-size: 0.75rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+      margin: 0 0 0.25rem 0;
+    }
+    
+    .due-date {
+      font-size: 0.75rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+      margin: 0;
+    }
+  }
+  
+  .assignment-stats {
+    display: flex;
+    gap: 0.5rem;
+    
+    .stat-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      
+      &.total {
+        background: hsl(210, 40%, 92%);
+        color: hsl(215.4, 16.3%, 46.9%);
+      }
+      
+      &.pending {
+        background: hsl(48, 89%, 77%);
+        color: hsl(222.2, 84%, 4.9%);
+      }
+      
+      &.graded {
+        background: hsl(142, 76%, 36%);
+        color: white;
+      }
+    }
+  }
+}
+
+.no-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: hsl(215.4, 16.3%, 46.9%);
+  
+  h3 {
+    margin: 1rem 0 0.5rem 0;
+    color: hsl(222.2, 84%, 4.9%);
+  }
+  
+  p {
+    margin: 0;
+  }
+}
+
+.submissions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  
+  .submissions-header-info {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid hsl(214.3, 31.8%, 91.4%);
+    
+    h3 {
+      margin: 0 0 0.25rem 0;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+    }
+  }
+}
+
+.submission-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid hsl(214.3, 31.8%, 91.4%);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: hsl(195, 84%, 65%);
+    background: hsl(0, 0%, 98%);
+  }
+  
+  .student-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    
+    .student-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      overflow: hidden;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .avatar-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: hsl(195, 84%, 65%);
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+    }
+    
+    .student-details {
+      h4 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin: 0 0 0.25rem 0;
+        color: hsl(222.2, 84%, 4.9%);
+      }
+      
+      .submission-date {
+        font-size: 0.75rem;
+        color: hsl(215.4, 16.3%, 46.9%);
+        margin: 0;
+      }
+    }
+  }
+  
+  .submission-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .submission-type {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+    }
+    
+    .status-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: white;
+    }
+    
+    .submission-grade {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: hsl(222.2, 84%, 4.9%);
+    }
+  }
+  
+  .submission-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+// Modal styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px hsla(222.2, 84%, 4.9%, 0.15);
+  
+  &.grading-modal {
+    width: 500px;
+  }
+  
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid hsl(214.3, 31.8%, 91.4%);
+    
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: hsl(222.2, 84%, 4.9%);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      transition: background 0.2s ease;
+      
+      &:hover {
+        background: hsl(0, 0%, 96%);
+      }
+    }
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+}
+
+.submission-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid hsl(214.3, 31.8%, 91.4%);
+  
+  .grade-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: hsl(195, 84%, 65%);
+  }
+}
+
+.text-submission, .file-submission, .feedback-section {
+  margin-bottom: 1.5rem;
+  
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    color: hsl(222.2, 84%, 4.9%);
+  }
+  
+  .text-content, .feedback-content {
+    background: hsl(0, 0%, 98%);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid hsl(214.3, 31.8%, 91.4%);
+    line-height: 1.6;
+  }
+}
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: hsl(0, 0%, 98%);
+  border: 1px solid hsl(214.3, 31.8%, 91.4%);
+  border-radius: 0.5rem;
+  
+  .file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    
+    .file-name {
+      font-weight: 500;
+      color: hsl(222.2, 84%, 4.9%);
+    }
+    
+    .file-size {
+      font-size: 0.75rem;
+      color: hsl(215.4, 16.3%, 46.9%);
+    }
+  }
+}
+
+// Grading form styles
+.grading-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+    
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: hsl(222.2, 84%, 4.9%);
+    }
+    
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid hsl(214.3, 31.8%, 91.4%);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease;
+      
+      &:focus {
+        outline: none;
+        border-color: hsl(195, 84%, 65%);
+      }
+    }
+    
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
 }
