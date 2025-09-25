@@ -66,9 +66,8 @@ public class ProfileController : ControllerBase
         try
         {
             var result = await _profileService.ChangePasswordAsync(request);
-            if (!result.Success) return BadRequest(result.Message);
-
-            return Ok(result.Message);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result); 
         }
         catch (Exception ex)
         {

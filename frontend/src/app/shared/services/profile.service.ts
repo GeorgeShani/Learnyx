@@ -21,8 +21,11 @@ export class ProfileService {
     currentPassword: string;
     newPassword: string;
     confirmNewPassword: string;
-  }): Observable<string> {
-    return this.apiService.put<string>(`/api/users/profile/password`, payload);
+  }): Observable<{ success: boolean; message: string }> {
+    return this.apiService.put<{ success: boolean; message: string }>(
+      `/api/users/profile/password`,
+      payload
+    );
   }
 
   updateProfilePicture(file: File): Observable<Profile> {

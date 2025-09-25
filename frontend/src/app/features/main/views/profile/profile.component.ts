@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { ProfileService } from '@shared/services/profile.service';
 import { Profile } from '@shared/models/profile.model';
+import { finalize, pipe } from 'rxjs';
 
 interface Stat {
   iconSvg: SafeHtml;
@@ -62,6 +63,8 @@ export class ProfileComponent implements OnInit {
   activeTab: string = 'general';
   isEditing = false;
   showPassword = false;
+  isUpdatingProfile = false;
+  isChangingPassword = false;
 
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
@@ -155,7 +158,7 @@ export class ProfileComponent implements OnInit {
     this.passwordForm = this.fb.group({
       currentPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required],
+      confirmNewPassword: ['', Validators.required],
     });
 
     this.stats = [
@@ -284,26 +287,34 @@ export class ProfileComponent implements OnInit {
 
   handleSave(): void {
     if (this.profileForm.valid) {
-      const updatedProfile = { ...this.profile };
-      this.profileService.updateProfile(updatedProfile).subscribe({
-        next: (profile) => {
-          this.profile = profile;
-          this.isEditing = false;
-          console.log('Profile updated successfully');
-        },
-        error: (err) => {
-          console.error('Failed to update profile', err);
-        },
-      });
+      const updatedProfile = { ...this.profileForm.value };
+      this.isUpdatingProfile = true;
+      this.profileService
+        .updateProfile(updatedProfile)
+        .pipe(finalize(() => (this.isUpdatingProfile = false)))
+        .subscribe({
+          next: (profile) => {
+            this.profile = profile;
+            this.isEditing = false;
+            console.log('Profile updated successfully');
+          },
+          error: (err) => {
+            console.error('Failed to update profile', err);
+          },
+        });
     }
   }
 
   handleChangePassword(): void {
     if (this.passwordForm.valid) {
-      this.profileService.changePassword(this.passwordForm.value).subscribe({
-        next: (msg) => console.log(msg),
-        error: (err) => console.error('Password change failed', err),
-      });
+      this.isChangingPassword = true;
+      this.profileService
+        .changePassword(this.passwordForm.value)
+        .pipe(finalize(() => (this.isChangingPassword = false)))
+        .subscribe({
+          next: (result) => console.log(result.message),
+          error: (err) => console.error('Password change failed', err),
+        });
     }
   }
 

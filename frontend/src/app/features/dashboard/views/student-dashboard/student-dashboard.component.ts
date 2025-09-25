@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FilterModalComponent } from '@features/dashboard/components/filter-modal/filter-modal.component';
@@ -9,7 +9,7 @@ interface User {
   name: string;
   avatar?: string | null;
   level: string;
-  joinDate: string;
+  joinDate: string | null;
   totalCourses: number;
   completedCourses: number;
   totalHours: number;
@@ -83,6 +83,7 @@ interface Achievement {
 @Component({
   selector: 'app-student-dashboard',
   imports: [CommonModule, RouterModule, FilterModalComponent],
+  providers: [DatePipe],
   templateUrl: './student-dashboard.component.html',
   styleUrl: './student-dashboard.component.scss',
 })
@@ -244,7 +245,8 @@ export class StudentDashboardComponent {
 
   constructor(
     private router: Router,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private datePipe: DatePipe
   ) { 
     this.profileService.getProfile().subscribe({
       next: (profile: Profile) => { 
@@ -252,7 +254,7 @@ export class StudentDashboardComponent {
           name: `${profile.firstName} ${profile.lastName}`,
           avatar: profile.avatar ?? null,
           level: 'Intermediate Developer',
-          joinDate: 'March 2023',
+          joinDate: this.datePipe.transform(profile.createdAt, 'MMMM yyyy'),
           totalCourses: 8,
           completedCourses: 5,
           totalHours: 156,
