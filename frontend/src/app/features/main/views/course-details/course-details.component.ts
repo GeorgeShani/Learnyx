@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 interface Instructor {
   name: string;
@@ -89,14 +89,14 @@ export class CourseDetailsComponent implements OnInit {
     subtitle:
       'Master HTML, CSS, JavaScript, React, Node.js and become a full-stack developer',
     instructor: {
-      name: 'Sarah Johnson',
+      name: 'John Smith',
       title: 'Senior Full-Stack Developer',
       avatar:
-        'https://images.unsplash.com/photo-1494790108755-2616c27d40e0?w=150',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
       rating: 4.9,
       students: 125000,
       courses: 12,
-      bio: "Sarah is a senior full-stack developer with 8+ years of experience at top tech companies. She's passionate about making web development accessible to everyone.",
+      bio: "John is a senior full-stack developer with 8+ years of experience at top tech companies. He's passionate about making web development accessible to everyone.",
     },
     rating: 4.9,
     reviewCount: 12543,
@@ -304,7 +304,7 @@ You'll start with the fundamentals of HTML, CSS, and JavaScript, then progress t
     },
   ];
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id');
@@ -318,6 +318,14 @@ You'll start with the fundamentals of HTML, CSS, and JavaScript, then progress t
   toggleEnrollment(): void {
     this.isEnrolled = !this.isEnrolled;
     // In a real app, you would handle enrollment logic here
+  }
+
+  navigateToMessages(): void {
+    this.router.navigate(['/learning/chat']);
+  }
+
+  navigateToCourse(): void {
+    this.router.navigate(['/learning/1']);
   }
 
   getDiscountPercentage(): number {

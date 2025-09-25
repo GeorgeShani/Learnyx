@@ -62,7 +62,7 @@ interface CourseData {
 })
 export class CourseComponent implements OnInit {
   courseData: CourseData = {
-    title: 'Advanced Web Development',
+    title: 'Complete Web Development Bootcamp 2024',
     instructor: {
       name: 'John Smith',
       avatar:

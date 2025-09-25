@@ -103,8 +103,11 @@
 
             <!-- CTA Buttons -->
             <div class="cta-buttons">
-              <button class="enroll-button" (click)="toggleEnrollment()">
-                {{ isEnrolled ? 'Go to Course' : 'Enroll Now' }}
+              <button class="enroll-button" *ngIf="!isEnrolled" (click)="toggleEnrollment()">
+                Enroll Now
+              </button>
+              <button class="enroll-button" *ngIf="isEnrolled" (click)="navigateToCourse()">
+                Go to Course
               </button>
               <button class="wishlist-button">
                 <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -318,7 +321,7 @@
 
                   <p class="instructor-bio">{{ course.instructor.bio }}</p>
                   
-                  <button class="message-button">
+                  <button class="message-button" (click)="navigateToMessages()">
                     <svg class="message-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
