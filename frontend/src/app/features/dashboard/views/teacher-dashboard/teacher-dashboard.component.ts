@@ -1,10 +1,17 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Profile } from '@shared/models/profile.model';
 import { ProfileService } from '@shared/services/profile.service';
+import { AssignmentService } from '@shared/services/assignment.service';
+import {
+  AssignmentDTO,
+  SubmissionDTO,
+  GradeSubmissionRequest,
+  AssignmentStatus,
+} from '@shared/models/assignments.model';
 
 interface Teacher {
   name: string;
@@ -100,7 +107,7 @@ interface Submission {
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss',
 })
-export class TeacherDashboardComponent {
+export class TeacherDashboardComponent implements OnInit {
   activeTab = 'overview';
 
   tabs: Tab[] = [
@@ -288,12 +295,16 @@ export class TeacherDashboardComponent {
     grade: 0,
     feedback: '',
   };
+  isGrading = false;
+  realAssignments: AssignmentDTO[] = [];
+  realSubmissions: SubmissionDTO[] = [];
 
   constructor(
     private router: Router,
     private sanitizer: DomSanitizer,
     private profileService: ProfileService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private assignmentService: AssignmentService
   ) {
     this.profileService.getProfile().subscribe({
       next: (profile: Profile) => {
@@ -350,6 +361,83 @@ export class TeacherDashboardComponent {
     ];
   }
 
+  ngOnInit(): void {
+    this.loadTeacherAssignments();
+  }
+
+  loadTeacherAssignments(): void {
+    // Load assignments for all courses the teacher has
+    // For now, we'll use the mock data but this could be enhanced to load real assignments
+    this.myCourses.forEach((course) => {
+      this.assignmentService.getCourseAssignments(course.id).subscribe({
+        next: (assignments: AssignmentDTO[]) => {
+          this.realAssignments.push(...assignments);
+          // Load submissions for each assignment
+          assignments.forEach((assignment) => {
+            this.loadAssignmentSubmissions(assignment.id);
+          });
+        },
+        error: (error) => {
+          console.error(
+            `Error loading assignments for course ${course.id}:`,
+            error
+          );
+        },
+      });
+    });
+  }
+
+  loadAssignmentSubmissions(assignmentId: number): void {
+    this.assignmentService.getAssignmentSubmissions(assignmentId).subscribe({
+      next: (submissions: SubmissionDTO[]) => {
+        this.realSubmissions.push(...submissions);
+        // Update the mock assignments with real submission data
+        this.updateAssignmentsWithRealData();
+      },
+      error: (error) => {
+        console.error(
+          `Error loading submissions for assignment ${assignmentId}:`,
+          error
+        );
+      },
+    });
+  }
+
+  updateAssignmentsWithRealData(): void {
+    // Update the mock assignments with real submission data
+    this.assignments = this.realAssignments.map((assignment) => {
+      const assignmentSubmissions = this.realSubmissions.filter(
+        (s) => s.assignmentId === assignment.id
+      );
+      const totalSubmissions = assignmentSubmissions.length;
+      const gradedSubmissions = assignmentSubmissions.filter(
+        (s) => s.status === AssignmentStatus.Graded
+      ).length;
+      const pendingSubmissions = assignmentSubmissions.filter(
+        (s) => s.status === AssignmentStatus.Submitted
+      ).length;
+
+      return {
+        id: assignment.id,
+        title: assignment.title,
+        courseTitle: this.getCourseTitle(assignment.id), // You might need to implement this
+        dueDate: assignment.dueDate,
+        totalSubmissions,
+        gradedSubmissions,
+        pendingSubmissions,
+        status: assignment.isVisible
+          ? 'active'
+          : ('draft' as 'active' | 'closed' | 'draft'),
+      };
+    });
+  }
+
+  private getCourseTitle(assignmentId: number): string {
+    // This is a simplified implementation - you might want to store course info differently
+    const assignment = this.realAssignments.find((a) => a.id === assignmentId);
+    return assignment ? `Course ${assignment.id}` : 'Unknown Course';
+  }
+
   setActiveTab(tab: string): void {
     this.activeTab = tab;
   }
@@ -383,8 +471,13 @@ export class TeacherDashboardComponent {
 
   selectAssignment(assignment: Assignment): void {
     this.selectedAssignment = assignment;
-    this.filteredSubmissions = this.submissions.filter(
+    // Filter real submissions for this assignment
+    const realSubmissions = this.realSubmissions.filter(
       (s) => s.assignmentId === assignment.id
+    );
+    // Convert to local Submission interface
+    this.filteredSubmissions = realSubmissions.map(
+      this.convertToLocalSubmission
     );
   }
 
@@ -406,18 +499,49 @@ export class TeacherDashboardComponent {
   }
 
   submitGrade(): void {
-    if (this.selectedSubmission) {
-      this.selectedSubmission.grade = this.gradingForm.grade;
-      this.selectedSubmission.feedback = this.gradingForm.feedback;
-      this.selectedSubmission.status = 'graded';
+    if (!this.selectedSubmission || this.isGrading) return;
 
-      // Update assignment stats
-      if (this.selectedAssignment) {
-        this.selectedAssignment.gradedSubmissions++;
-        this.selectedAssignment.pendingSubmissions--;
-      }
-    }
-    this.closeGradingModal();
+    this.isGrading = true;
+    const request: GradeSubmissionRequest = {
+      grade: this.gradingForm.grade,
+      feedback: this.gradingForm.feedback.trim() || undefined,
+    };
+
+    this.assignmentService
+      .gradeSubmission(this.selectedSubmission.id, request)
+      .subscribe({
+        next: (response) => {
+          this.isGrading = false;
+
+          // Update the submission locally
+          this.selectedSubmission!.grade = this.gradingForm.grade;
+          this.selectedSubmission!.feedback = this.gradingForm.feedback;
+          this.selectedSubmission!.status = 'graded';
+
+          // Update the real submission data
+          const realSubmission = this.realSubmissions.find(
+            (s) => s.id === this.selectedSubmission!.id
+          );
+          if (realSubmission) {
+            realSubmission.grade = this.gradingForm.grade;
+            realSubmission.feedback = this.gradingForm.feedback;
+            realSubmission.status = AssignmentStatus.Graded;
+          }
+
+          // Update assignment stats
+          if (this.selectedAssignment) {
+            this.selectedAssignment.gradedSubmissions++;
+            this.selectedAssignment.pendingSubmissions--;
+          }
+
+          this.closeGradingModal();
+        },
+        error: (error) => {
+          this.isGrading = false;
+          console.error('Error grading submission:', error);
+          // You might want to show an error message to the user
+        },
+      });
   }
 
   getStatusColor(status: string): string {
@@ -458,5 +582,51 @@ export class TeacherDashboardComponent {
 
   getGradedSubmissions(): number {
     return this.assignments.reduce((sum, a) => sum + a.gradedSubmissions, 0);
+  }
+
+  private convertToLocalSubmission(dto: SubmissionDTO): Submission {
+    return {
+      id: dto.id,
+      assignmentId: dto.assignmentId,
+      assignmentTitle: dto.assignmentTitle,
+      studentName: dto.studentName,
+      studentAvatar: undefined, // You might want to add avatar support
+      submittedAt: dto.submittedAt || '',
+      status: this.mapSubmissionStatus(dto.status),
+      grade: dto.grade,
+      maxGrade: dto.maxPoints,
+      submissionType: this.mapSubmissionType(dto),
+      textContent: dto.textContent,
+      files: dto.files.map((file) => ({
+        name: file.originalFileName,
+        size: file.fileSize,
+        url: file.downloadUrl,
+      })),
+      feedback: dto.feedback,
+    };
+  }
+
+  private mapSubmissionStatus(status: AssignmentStatus): Submission['status'] {
+    switch (status) {
+      case AssignmentStatus.Submitted:
+        return 'submitted';
+      case AssignmentStatus.Graded:
+        return 'graded';
+      case AssignmentStatus.Overdue:
+        return 'late';
+      default:
+        return 'submitted';
+    }
+  }
+
+  private mapSubmissionType(dto: SubmissionDTO): Submission['submissionType'] {
+    // This is a simplified mapping - you might want to get this from the assignment
+    if (dto.textContent && dto.files.length > 0) {
+      return 'both';
+    } else if (dto.files.length > 0) {
+      return 'file';
+    } else {
+      return 'text';
+    }
   }
 }
