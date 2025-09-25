@@ -212,7 +212,7 @@ public class ChatService : IChatService
             .Include(m => m.Sender)
             .Include(m => m.Contents)
             .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
-            .OrderByDescending(m => m.CreatedAt)
+            .OrderBy(m => m.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
