@@ -13,45 +13,31 @@ Learnyx is an online platform for delivering, managing, and tracking courses. It
 - Admin: Manages users, courses, and system settings.
 - External Systems: Stripe (payments), SMTP (email service).
 
-```plantuml
-@startuml
-title Learnyx - System Context Diagram
+```mermaid
+graph TD
+    Student["Student"] --> Frontend["Angular Frontend<br/>(Web App)"]
+    Instructor["Instructor"] --> Frontend
+    Admin["Admin"] --> Frontend
 
-actor "Student" as Student
-actor "Instructor" as Instructor
-actor "Admin" as Admin
+    subgraph Learnyx["Learnyx (SaaS LMS)"]
+        Frontend
+        API["ASP.NET Core API"]
+        DB["Microsoft SQL Server DB"]
+    end
 
-rectangle "Learnyx (SaaS LMS)" as Learnyx {
-  [Angular Frontend (Web App)]
-  [ASP.NET Core API]
-  database "Microsoft SQL Server DB" as DB
-}
+    Frontend --> API
+    API --> DB
+    API --> Stripe["Stripe (Payment Gateway)"]
+    API --> SMTP["SMTP (Email Service)"]
 
-cloud "Stripe (Payment Gateway)" as Stripe
-cloud "SMTP (Email Service)" as SMTP
+    Frontend -.->|"Browse, enroll, learn<br/>Submit assignments"| Student
+    Frontend -.->|"Create courses<br/>Grade assignments"| Instructor
+    Frontend -.->|"Manage users, courses, settings"| Admin
 
-' Users interact with the web app
-Student --> [Angular Frontend (Web App)] : Browse, enroll, learn\nSubmit assignments
-Instructor --> [Angular Frontend (Web App)] : Create courses\nGrade assignments
-Admin --> [Angular Frontend (Web App)] : Manage users, courses, settings
-
-' Frontend talks to API
-[Angular Frontend (Web App)] --> [ASP.NET Core API] : HTTPS REST/SignalR
-
-' API uses DB
-[ASP.NET Core API] --> DB : EF Core (SQL Server)
-
-' External services
-[ASP.NET Core API] --> Stripe : Payments API (HTTPS)
-[ASP.NET Core API] --> SMTP : SMTP (TLS) for emails
-
-note bottom of Learnyx
-SaaS LMS enabling authoring, delivery,
-tracking, and assessment of courses.
-Includes RBAC and notifications.
-end note
-
-@enduml
+    API -.->|"HTTPS REST/SignalR"| Frontend
+    DB -.->|"EF Core (SQL Server)"| API
+    Stripe -.->|"Payments API (HTTPS)"| API
+    SMTP -.->|"SMTP (TLS) for emails"| API
 ```
 
 Notes:
@@ -77,32 +63,29 @@ Containers Overview:
 | SMTP Email Service            | Outbound transactional email and digests                                                                           | SMTP (Gmail)                                                          | N/A                                         | SMTP over TLS                                |
 | Stripe Payment Gateway        | Payment processing for enrollments                                                                                 | Stripe API                                                            | N/A                                         | HTTPS Stripe API                             |
 
-```plantuml
-@startuml
-title Learnyx - Container Diagram
+```mermaid
+graph TD
+    Browser["User Browser"] --> Angular["Angular Frontend<br/>(Angular 19)"]
 
-node "User Browser" {
-  [Angular Frontend (Angular 19)]
-}
+    subgraph Backend["Learnyx Backend"]
+        API["ASP.NET Core Web API"]
+        Jobs["Background Jobs<br/>(Quartz.NET)"]
+    end
 
-node "Learnyx Backend" {
-  [ASP.NET Core Web API]
-  [Background Jobs (Quartz.NET)]
-}
+    Angular --> API
+    API --> MSSQL["Microsoft SQL Server"]
+    API --> Stripe["Stripe API"]
+    API --> SMTP["SMTP (Gmail)"]
 
-database "Microsoft SQL Server" as MSSQL
-cloud "Stripe API" as Stripe
-cloud "SMTP (Gmail)" as SMTP
+    Jobs --> MSSQL
+    Jobs --> SMTP
 
-' Interactions
-[Angular Frontend (Angular 19)] --> [ASP.NET Core Web API] : HTTPS REST / SignalR
-[ASP.NET Core Web API] --> MSSQL : EF Core (SQL Server)
-[ASP.NET Core Web API] --> Stripe : Payments (HTTPS)
-[ASP.NET Core Web API] --> SMTP : Transactional emails (SMTP/TLS)
-[Background Jobs (Quartz.NET)] --> MSSQL : Reads/writes
-[Background Jobs (Quartz.NET)] --> SMTP : Digests, reminders (SMTP/TLS)
-
-@enduml
+    API -.->|"HTTPS REST / SignalR"| Angular
+    MSSQL -.->|"EF Core (SQL Server)"| API
+    Stripe -.->|"Payments (HTTPS)"| API
+    SMTP -.->|"Transactional emails (SMTP/TLS)"| API
+    MSSQL -.->|"Reads/writes"| Jobs
+    SMTP -.->|"Digests, reminders (SMTP/TLS)"| Jobs
 ```
 
 Notes:
@@ -133,70 +116,65 @@ API Components:
 | Background Jobs                                                       | Scheduled tasks (digests, cleanups)                                           | Quartz.NET jobs                       |
 | Global Exception Handling                                             | Consistent error responses, logging                                           | Middleware/filters                    |
 
-```plantuml
-@startuml
-title Learnyx API - Component Diagram
+```mermaid
+graph TD
+    subgraph API["ASP.NET Core Web API"]
+        AuthController["AuthController"]
+        CourseController["CourseController"]
+        AssignmentController["AssignmentController"]
+        ProfileController["ProfileController"]
+        ChatController["ChatController"]
+        ForgotPasswordController["ForgotPasswordController"]
 
-package "ASP.NET Core Web API" {
-  [AuthController]
-  [CourseController]
-  [AssignmentController]
-  [ProfileController]
-  [ChatController]
-  [ForgotPasswordController]
+        AuthService["AuthService"]
+        CourseService["CourseService"]
+        AssignmentService["AssignmentService"]
+        ProfileService["ProfileService"]
+        ChatService["ChatService"]
+        EmailService["EmailService"]
+        PaymentService["PaymentService"]
+        JwtService["JwtService"]
+        Validators["Validators"]
+        GlobalExceptionHandler["GlobalExceptionHandler"]
+        Authorization["Authorization Policies/Requirements"]
+        ChatHub["SignalR ChatHub"]
+        QuartzJobs["Quartz Jobs"]
+    end
 
-  [AuthService]
-  [CourseService]
-  [AssignmentService]
-  [ProfileService]
-  [ChatService]
-  [EmailService]
-  [PaymentService]
-  [JwtService]
-  [Validators]
-  [GlobalExceptionHandler]
-  [Authorization Policies/Requirements]
-  [SignalR ChatHub]
-  [Quartz Jobs]
+    MSSQL["Microsoft SQL Server<br/>(Entities via EF Core)"]
+    SMTP["SMTP"]
+    Stripe["Stripe"]
 
-  database "Microsoft SQL Server\n(Entities via EF Core)" as MSSQL
-  cloud "SMTP" as SMTP
-  cloud "Stripe" as Stripe
+    AuthController --> AuthService
+    AuthController --> JwtService
+    CourseController --> CourseService
+    AssignmentController --> AssignmentService
+    ProfileController --> ProfileService
+    ChatController --> ChatService
+    ForgotPasswordController --> EmailService
 
-  ' Controllers delegate to services
-  [AuthController] --> [AuthService]
-  [AuthController] --> [JwtService]
-  [CourseController] --> [CourseService]
-  [AssignmentController] --> [AssignmentService]
-  [ProfileController] --> [ProfileService]
-  [ChatController] --> [ChatService]
-  [ForgotPasswordController] --> [EmailService]
+    AuthService --> JwtService
+    AuthService --> MSSQL
+    CourseService --> MSSQL
+    AssignmentService --> MSSQL
+    ProfileService --> MSSQL
+    ChatService --> ChatHub
+    ChatService --> MSSQL
 
-  ' Services interact
-  [AuthService] --> [JwtService]
-  [AuthService] --> MSSQL
-  [CourseService] --> MSSQL
-  [AssignmentService] --> MSSQL
-  [ProfileService] --> MSSQL
-  [ChatService] --> [SignalR ChatHub]
-  [ChatService] --> MSSQL
+    EmailService --> SMTP
+    PaymentService --> Stripe
+    PaymentService --> MSSQL
 
-  ' Cross-cutting
-  [Validators] ..> [Controllers] : validate requests
-  [Authorization Policies/Requirements] ..> [Controllers] : RBAC checks
-  [GlobalExceptionHandler] ..> [Controllers] : error handling
+    QuartzJobs --> EmailService
+    QuartzJobs --> MSSQL
 
-  ' External
-  [EmailService] --> SMTP
-  [PaymentService] --> Stripe
-  [PaymentService] --> MSSQL : store transactions
+    Validators -.->|"validate requests"| AuthController
+    Authorization -.->|"RBAC checks"| AuthController
+    GlobalExceptionHandler -.->|"error handling"| AuthController
 
-  ' Jobs
-  [Quartz Jobs] --> [EmailService] : weekly digests
-  [Quartz Jobs] --> MSSQL : cleanup, reports
-}
-
-@enduml
+    PaymentService -.->|"store transactions"| MSSQL
+    QuartzJobs -.->|"weekly digests"| EmailService
+    QuartzJobs -.->|"cleanup, reports"| MSSQL
 ```
 
 Angular Frontend Components:
@@ -214,32 +192,40 @@ Angular Frontend Components:
 | Realtime                                       | Chat UI and notifications                             | SignalR client                          |
 | State (lightweight)                            | Local component state; RxJS Subjects/BehaviorSubjects | RxJS; can be extended                   |
 
-```plantuml
-@startuml
-title Learnyx Frontend - Component Diagram
+```mermaid
+graph TD
+    subgraph Frontend["Angular Frontend"]
+        AuthModule["Auth Module"]
+        DashboardModule["Dashboard Module"]
+        CoursesModule["Courses Module"]
+        AssignmentsModule["Assignments Module"]
+        ProfileModule["Profile Module"]
+        SharedModule["Shared Module"]
+        CoreServices["Core Services"]
+        GuardsInterceptors["Guards & Interceptors"]
+        SignalRClient["SignalR Client"]
+    end
 
-package "Angular Frontend" {
-  [Auth Module]
-  [Dashboard Module]
-  [Courses Module]
-  [Assignments Module]
-  [Profile Module]
-  [Shared Module]
-  [Core Services]
-  [Guards & Interceptors]
-  [SignalR Client]
+    CoreServices --> GuardsInterceptors
+    AuthModule --> CoreServices
+    DashboardModule --> CoreServices
+    CoursesModule --> CoreServices
+    AssignmentsModule --> CoreServices
+    ProfileModule --> CoreServices
+    AssignmentsModule --> SignalRClient
 
-  [Core Services] --> [Guards & Interceptors] : token attach, errors
-  [Auth Module] --> [Core Services] : login/register/forgot
-  [Dashboard Module] --> [Core Services] : fetch summaries
-  [Courses Module] --> [Core Services] : CRUD courses
-  [Assignments Module] --> [Core Services] : submit/grade
-  [Profile Module] --> [Core Services] : profile API
-  [Assignments Module] --> [SignalR Client] : realtime updates
-  [Shared Module] ..> [All] : UI components/pipes
-}
-
-@enduml
+    CoreServices -.->|"token attach, errors"| GuardsInterceptors
+    AuthModule -.->|"login/register/forgot"| CoreServices
+    DashboardModule -.->|"fetch summaries"| CoreServices
+    CoursesModule -.->|"CRUD courses"| CoreServices
+    AssignmentsModule -.->|"submit/grade"| CoreServices
+    ProfileModule -.->|"profile API"| CoreServices
+    AssignmentsModule -.->|"realtime updates"| SignalRClient
+    SharedModule -.->|"UI components/pipes"| AuthModule
+    SharedModule -.->|"UI components/pipes"| DashboardModule
+    SharedModule -.->|"UI components/pipes"| CoursesModule
+    SharedModule -.->|"UI components/pipes"| AssignmentsModule
+    SharedModule -.->|"UI components/pipes"| ProfileModule
 ```
 
 Interaction Notes:

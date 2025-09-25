@@ -13,33 +13,25 @@ Learnyx არის ონლაინ პლატფორმა კურს
 - ადმინისტრატორი: მართავს მომხმარებლებს, კურსებსა და სისტემურ პარამეტრებს.
 - გარე სისტემები: Stripe (გადახდები), SMTP (ელფოსტა).
 
-```plantuml
-@startuml
-title Learnyx - System Context Diagram (KA)
+```mermaid
+graph TD
+    Student["სტუდენტი"] --> Frontend["Angular ფრონტენდი<br/>(ვებ აპი)"]
+    Instructor["ინსტრუქტორი"] --> Frontend
+    Admin["ადმინი"] --> Frontend
 
-actor "სტუდენტი" as Student
-actor "ინსტრუქტორი" as Instructor
-actor "ადმინი" as Admin
+    Frontend --> API["ASP.NET Core API"]
+    API --> DB["Microsoft SQL Server DB"]
+    API --> Stripe["Stripe (გადახდები)"]
+    API --> SMTP["SMTP (ელფოსტა)"]
 
-rectangle "Learnyx (SaaS LMS)" as Learnyx {
-  [Angular ფრონტენდი (ვებ აპი)]
-  [ASP.NET Core API]
-  database "Microsoft SQL Server DB" as DB
-}
+    Frontend -.->|"დათვალიერება, ჩაწერა<br/>დავალებების გაგზავნა"| Student
+    Frontend -.->|"კურსების/დავალებების შექმნა<br/>შეფასება"| Instructor
+    Frontend -.->|"მომხმარებლების/კურსების/<br/>პარამეტრების მართვა"| Admin
 
-cloud "Stripe (გადახდები)" as Stripe
-cloud "SMTP (ელფოსტა)" as SMTP
-
-Student --> [Angular ფრონტენდი (ვებ აპი)] : დათვალიერება, ჩაწერა\nდავალებების გაგზავნა
-Instructor --> [Angular ფრონტენდი (ვებ აპი)] : კურსების/დავალებების შექმნა\nშეფასება
-Admin --> [Angular ფრონტენდი (ვებ აპი)] : მომხმარებლების/კურსების/პარამეტრების მართვა
-
-[Angular ფრონტენდი (ვებ აპი)] --> [ASP.NET Core API] : HTTPS REST/SignalR
-[ASP.NET Core API] --> DB : EF Core (SQL Server)
-[ASP.NET Core API] --> Stripe : გადახდების API (HTTPS)
-[ASP.NET Core API] --> SMTP : ელფოსტა (SMTP/TLS)
-
-@enduml
+    API -.->|"HTTPS REST/SignalR"| Frontend
+    DB -.->|"EF Core (SQL Server)"| API
+    Stripe -.->|"გადახდების API (HTTPS)"| API
+    SMTP -.->|"ელფოსტა (SMTP/TLS)"| API
 ```
 
 შენიშვნები:
@@ -63,31 +55,29 @@ Admin --> [Angular ფრონტენდი (ვებ აპი)] : მო�
 | SMTP                 | ტრანზაქციული ელფოსტა                                                      | SMTP (Gmail)                                        | —                           | SMTP/TLS                             |
 | Stripe               | გადახდების დამუშავება                                                     | Stripe API                                          | —                           | HTTPS                                |
 
-```plantuml
-@startuml
-title Learnyx - Container Diagram (KA)
+```mermaid
+graph TD
+    Browser["მომხმარებლის ბრაუზერი"] --> Angular["Angular ფრონტენდი<br/>(Angular 19)"]
 
-node "მომხმარებლის ბრაუზერი" {
-  [Angular ფრონტენდი (Angular 19)]
-}
+    subgraph Backend["Learnyx Backend"]
+        API["ASP.NET Core Web API"]
+        Jobs["ფონის სამუშაოები<br/>(Quartz.NET)"]
+    end
 
-node "Learnyx Backend" {
-  [ASP.NET Core Web API]
-  [ფონის სამუშაოები (Quartz.NET)]
-}
+    Angular --> API
+    API --> MSSQL["Microsoft SQL Server"]
+    API --> Stripe["Stripe API"]
+    API --> SMTP["SMTP (Gmail)"]
 
-database "Microsoft SQL Server" as MSSQL
-cloud "Stripe API" as Stripe
-cloud "SMTP (Gmail)" as SMTP
+    Jobs --> MSSQL
+    Jobs --> SMTP
 
-[Angular ფრონტენდი (Angular 19)] --> [ASP.NET Core Web API] : HTTPS REST / SignalR
-[ASP.NET Core Web API] --> MSSQL : EF Core (SQL Server)
-[ASP.NET Core Web API] --> Stripe : გადახდები (HTTPS)
-[ASP.NET Core Web API] --> SMTP : ელფოსტა (SMTP/TLS)
-[ფონის სამუშაოები (Quartz.NET)] --> MSSQL : კითხვები/ჩაწერები
-[ფონის სამუშაოები (Quartz.NET)] --> SMTP : დაიჯესტი, შეხსენებები
-
-@enduml
+    API -.->|"HTTPS REST / SignalR"| Angular
+    MSSQL -.->|"EF Core (SQL Server)"| API
+    Stripe -.->|"გადახდები (HTTPS)"| API
+    SMTP -.->|"ელფოსტა (SMTP/TLS)"| API
+    MSSQL -.->|"კითხვები/ჩაწერები"| Jobs
+    SMTP -.->|"დაიჯესტი, შეხსენებები"| Jobs
 ```
 
 ---
