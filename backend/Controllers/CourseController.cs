@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Security.Claims;
+using FluentValidation;
 using learnyx.Models.DTOs;
 using learnyx.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,7 @@ public class CoursesController : ControllerBase
     {
         try
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out var teacherId))
             {
                 return Unauthorized("Invalid user token");
@@ -69,7 +70,7 @@ public class CoursesController : ControllerBase
     {
         try
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out var userId))
             {
                 return Unauthorized("Invalid user token");
@@ -98,7 +99,7 @@ public class CoursesController : ControllerBase
     {
         try
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return Unauthorized("Invalid user token");

@@ -1,4 +1,5 @@
-﻿using learnyx.Models.DTOs;
+﻿using System.Security.Claims;
+using learnyx.Models.DTOs;
 using learnyx.Models.Requests;
 using learnyx.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ public class AssignmentController : ControllerBase
     [HttpPost("courses/{courseId:int}")]
     public async Task<ActionResult<AssignmentDTO>> CreateAssignment(int courseId, [FromBody] CreateAssignmentRequest request)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out var instructorId))
         {
             return Unauthorized("Invalid user token");
@@ -38,7 +39,7 @@ public class AssignmentController : ControllerBase
     [HttpPut("{assignmentId:int}")]
     public async Task<ActionResult<AssignmentDTO>> UpdateAssignment(int assignmentId, [FromBody] CreateAssignmentRequest request)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int instructorId))
         {
             return Unauthorized("Invalid user token");
@@ -57,7 +58,7 @@ public class AssignmentController : ControllerBase
     [HttpDelete("{assignmentId}")]
     public async Task<IActionResult> DeleteAssignment(int assignmentId)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int instructorId))
         {
             return Unauthorized("Invalid user token");
@@ -76,7 +77,7 @@ public class AssignmentController : ControllerBase
     [HttpGet("{assignmentId}")]
     public async Task<ActionResult<AssignmentDTO>> GetAssignment(int assignmentId)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int userId))
         {
             return Unauthorized("Invalid user token");
@@ -95,7 +96,7 @@ public class AssignmentController : ControllerBase
     [HttpGet("courses/{courseId}")]
     public async Task<ActionResult<List<AssignmentDTO>>> GetCourseAssignments(int courseId)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int userId))
         {
             return Unauthorized("Invalid user token");
@@ -108,7 +109,7 @@ public class AssignmentController : ControllerBase
     [HttpPost("{assignmentId}/submit")]
     public async Task<ActionResult<SubmissionDTO>> SubmitAssignment(int assignmentId, [FromForm] SubmitAssignmentRequest request, [FromForm] List<IFormFile> files)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int studentId))
         {
             return Unauthorized("Invalid user token");
@@ -127,7 +128,7 @@ public class AssignmentController : ControllerBase
     [HttpPost("submissions/{submissionId}/grade")]
     public async Task<IActionResult> GradeSubmission(int submissionId, [FromBody] GradeSubmissionRequest request)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int instructorId))
         {
             return Unauthorized("Invalid user token");
@@ -146,7 +147,7 @@ public class AssignmentController : ControllerBase
     [HttpGet("courses/{courseId}/summary")]
     public async Task<ActionResult<StudentAssignmentSummaryDTO>> GetStudentSummary(int courseId)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int studentId))
         {
             return Unauthorized("Invalid user token");
@@ -159,7 +160,7 @@ public class AssignmentController : ControllerBase
     [HttpPut("submissions/{submissionId}")]
     public async Task<ActionResult<SubmissionDTO>> UpdateSubmission(int submissionId, [FromForm] SubmitAssignmentRequest request, [FromForm] List<IFormFile> files)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int studentId))
         {
             return Unauthorized("Invalid user token");
@@ -178,7 +179,7 @@ public class AssignmentController : ControllerBase
     [HttpGet("{assignmentId}/submissions")]
     public async Task<ActionResult<List<SubmissionDTO>>> GetAssignmentSubmissions(int assignmentId)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int instructorId))
         {
             return Unauthorized("Invalid user token");
@@ -191,7 +192,7 @@ public class AssignmentController : ControllerBase
     [HttpGet("{assignmentId}/submissions/my")]
     public async Task<ActionResult<SubmissionDTO>> GetMySubmission(int assignmentId)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out int studentId))
         {
             return Unauthorized("Invalid user token");

@@ -9,12 +9,17 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { CourseService } from '@shared/services/course.service';
+import {
+  CreateCourseRequest,
+  CourseMediaUploadRequest,
+} from '@shared/models/course.model';
 
 interface Lesson {
   id: string;
   title: string;
   type: 'video' | 'text' | 'quiz';
-  duration: number;
+  duration: string | null;
   content: string;
   resources: string[];
 }
@@ -79,7 +84,16 @@ export class CourseBuilderComponent {
   thumbnailDragover = false;
   videoDragover = false;
 
-  constructor(private formBuilder: FormBuilder, private router: Router) {
+  // Course State
+  createdCourseId: number | null = null;
+  isSubmitting = false;
+  categories: any[] = [];
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private courseService: CourseService
+  ) {
     // ===== INITIALIZATION =====
     this.priceControl = new FormControl(0);
 
@@ -87,10 +101,13 @@ export class CourseBuilderComponent {
       title: ['', Validators.required],
       subtitle: [''],
       description: [''],
-      category: [''],
-      level: [''],
+      category: ['Select category'],
+      level: ['Select level'],
       language: ['English'],
     });
+
+    // Load categories
+    this.loadCategories();
   }
 
   // ===== UI CONTROLS =====
@@ -170,7 +187,7 @@ export class CourseBuilderComponent {
       id: Date.now().toString(),
       title: 'New Lesson',
       type: 'video',
-      duration: 0,
+      duration: '15:22',
       content: '',
       resources: [],
     };
@@ -246,6 +263,11 @@ export class CourseBuilderComponent {
     }
   }
 
+  onLessonTypeChange(newType: Lesson['type'], lesson: Lesson): void {
+    lesson.type = newType;
+    lesson.duration = newType === 'video' ? '15:22' : null; // 👈 reset duration if not video
+  }
+
   // ===== FILE HANDLING =====
   private handleFileSelect(file: File, fileType: 'thumbnail' | 'video'): void {
     const isValidFile = this.validateFile(file, fileType);
@@ -295,16 +317,20 @@ export class CourseBuilderComponent {
   }
 
   // ===== COURSE SUBMISSION =====
-  submitCourseData(): void {
+  submitCourseData(courseId?: number): void {
     const files = this.getUploadedFiles();
 
     if (!this.validateUploadedFiles(files)) return;
 
-    const formData = new FormData();
-    formData.append('thumbnail', files.thumbnail!);
-    formData.append('video', files.video!);
+    const targetCourseId = courseId || this.createdCourseId;
+    if (!targetCourseId) {
+      alert(
+        'Course ID is required for media upload. Please create the course first.'
+      );
+      return;
+    }
 
-    this.onCourseDataSubmit(formData);
+    this.uploadMediaForCourse(targetCourseId);
   }
 
   private validateUploadedFiles(files: {
@@ -324,22 +350,54 @@ export class CourseBuilderComponent {
     return true;
   }
 
-  private onCourseDataSubmit(formData: FormData): void {
-    console.log('Course data ready for submission:', {
-      thumbnailFile: this.thumbnailFile,
-      videoFile: this.videoFile,
-      formData,
-    });
-
-    alert('Files ready for upload! Check console for details.');
-  }
-
   // ===== COURSE ACTIONS =====
   handleSaveDraft(): void {
+    if (!this.courseForm.valid) {
+      alert('Please fill in all required fields before saving.');
+      return;
+    }
+
+    if (this.isSubmitting) {
+      alert('Please wait, course is being saved...');
+      return;
+    }
+
+    this.isSubmitting = true;
     const courseData = this.buildCourseData();
-    console.log('Saving draft...', {
-      course: courseData,
-      sections: this.sections,
+    const createCourseRequest: CreateCourseRequest = {
+      ...courseData,
+      sections: this.sections.map((section, index) => ({
+        title: section.title,
+        order: index + 1,
+        lessons: section.lessons.map((lesson, lessonIndex) => ({
+          title: lesson.title,
+          type: lesson.type,
+          duration: lesson.duration?.toString() ?? '0:00',
+          content: lesson.content,
+          isFree: false, // Default to false, can be made configurable
+          order: lessonIndex + 1,
+          resources: lesson.resources,
+        })),
+      })),
+    };
+
+    this.courseService.createCourse(createCourseRequest).subscribe({
+      next: (response) => {
+        console.log('Course saved as draft:', response);
+        this.createdCourseId = response.id;
+        this.isSubmitting = false;
+        alert('Course saved as draft successfully!');
+
+        // Upload media if files are selected
+        if (this.thumbnailFile || this.videoFile) {
+          this.uploadMediaForCourse(response.id);
+        }
+      },
+      error: (error) => {
+        console.error('Error saving course:', error);
+        this.isSubmitting = false;
+        alert('Failed to save course. Please try again.');
+      },
     });
   }
 
@@ -348,15 +406,124 @@ export class CourseBuilderComponent {
   }
 
   handlePublish(): void {
+    if (!this.courseForm.valid) {
+      alert('Please fill in all required fields before publishing.');
+      return;
+    }
+
+    if (this.isSubmitting) {
+      alert('Please wait, course is being published...');
+      return;
+    }
+
+    this.isSubmitting = true;
+    // First create the course
     const courseData = this.buildCourseData();
-    console.log('Publishing course...', {
-      course: courseData,
-      sections: this.sections,
+    const createCourseRequest: CreateCourseRequest = {
+      ...courseData,
+      sections: this.sections.map((section, index) => ({
+        title: section.title,
+        order: index + 1,
+        lessons: section.lessons.map((lesson, lessonIndex) => ({
+          title: lesson.title,
+          type: lesson.type,
+          duration: lesson.duration?.toString() ?? '0:00',
+          content: lesson.content,
+          isFree: false, // Default to false, can be made configurable
+          order: lessonIndex + 1,
+          resources: lesson.resources,
+        })),
+      })),
+    };
+
+    this.courseService.createCourse(createCourseRequest).subscribe({
+      next: (response) => {
+        console.log('Course created:', response);
+        this.createdCourseId = response.id;
+
+        // Upload media if files are selected
+        if (this.thumbnailFile || this.videoFile) {
+          this.uploadMediaForCourse(response.id, true); // true indicates this is for publishing
+        } else {
+          // No media to upload, publish directly
+          this.publishCourse(response.id);
+        }
+      },
+      error: (error) => {
+        console.error('Error creating course:', error);
+        this.isSubmitting = false;
+        alert('Failed to create course. Please try again.');
+      },
     });
-    this.router.navigate(['/dashboard/teacher']);
+  }
+
+  private uploadMediaForCourse(
+    courseId: number,
+    shouldPublishAfter = false
+  ): void {
+    const mediaRequest: CourseMediaUploadRequest = {
+      thumbnail: this.thumbnailFile,
+      previewVideo: this.videoFile,
+    };
+
+    this.courseService.uploadCourseMedia(courseId, mediaRequest).subscribe({
+      next: (mediaResponse) => {
+        console.log('Media uploaded:', mediaResponse);
+        // Clear the files after successful upload
+        this.removeThumbnail();
+        this.removeVideo();
+
+        if (shouldPublishAfter) {
+          this.publishCourse(courseId);
+        } else {
+          alert('Media uploaded successfully!');
+        }
+      },
+      error: (error) => {
+        console.error('Error uploading media:', error);
+        if (shouldPublishAfter) {
+          alert(
+            'Course created but media upload failed. Publishing without media...'
+          );
+          this.publishCourse(courseId);
+        } else {
+          alert('Failed to upload media. You can upload it later.');
+        }
+      },
+    });
+  }
+
+  private publishCourse(courseId: number): void {
+    this.courseService.publishCourse(courseId).subscribe({
+      next: (response) => {
+        console.log('Course published:', response);
+        this.isSubmitting = false;
+        alert('Course published successfully!');
+        this.router.navigate(['/dashboard/teacher']);
+      },
+      error: (error) => {
+        console.error('Error publishing course:', error);
+        this.isSubmitting = false;
+        alert(
+          'Course created but failed to publish. You can publish it later from the course management page.'
+        );
+        this.router.navigate(['/dashboard/teacher']);
+      },
+    });
   }
 
   // ===== UTILITIES =====
+  private loadCategories(): void {
+    this.courseService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+      },
+    });
+  }
+
   private buildCourseData() {
     return {
       ...this.courseForm.value,

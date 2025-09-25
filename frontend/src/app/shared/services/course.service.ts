@@ -41,8 +41,8 @@ export class CourseService {
     return this.api.get<CategoryDTO[]>('/api/courses/categories');
   }
 
-  createCourse(body: CreateCourseRequest): Observable<CourseDTO> {
-    return this.api.post<CourseDTO>('/api/courses', body);
+  createCourse(payload: CreateCourseRequest): Observable<CourseDTO> {
+    return this.api.post<CourseDTO>('/api/courses', payload);
   }
 
   uploadCourseMedia(
