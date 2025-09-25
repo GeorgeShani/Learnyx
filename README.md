@@ -104,7 +104,7 @@ API Components:
 
 | Component                                                             | Responsibility                                                                | Technology/Notes                      |
 | --------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
-| Controllers (Auth, Course, Assignment, Profile, Chat, ForgotPassword) | HTTP layer; request/response handling; routing                                | ASP.NET Core MVC Controllers          |
+| Controllers (Auth, Course, Assignment, Profile, Chat, ForgotPassword) | HTTP layer; request/response handling; routing                                | ASP.NET Core API Controllers          |
 | Authentication & JWT Service                                          | Login, registration, social auth (Google/Facebook), token issuance/validation | JWT, OAuth providers                  |
 | Authorization (Policies/Requirements)                                 | Role- and policy-based access control                                         | ASP.NET Core Authorization            |
 | Services (Domain/Application)                                         | Business logic for courses, assignments, grading, profiles, chat              | C# services; unit-of-work patterns    |
