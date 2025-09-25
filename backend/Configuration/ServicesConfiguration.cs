@@ -19,6 +19,7 @@ public static class ServicesConfiguration
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IAmazonS3Service, AmazonS3Service>();
         services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<IAssignmentService, AssignmentService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IGeminiService, GeminiService>();
         
